@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Edit Templates</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      width: 500px; /* Increased width */
+      height: 600px; /* Increased height */
+      padding: 20px;
+      margin: 0;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+    }
+    h2 {
+      margin-top: 0;
+      font-size: 24px;
+      font-weight: bold;
+    }
+    input[type="text"] {
+      width: 100%;
+      margin-bottom: 10px;
+      font-size: 14px;
+      padding: 10px;
+      box-sizing: border-box;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    textarea {
+      width: 100%;
+      height: 100px;
+      font-size: 14px;
+      padding: 10px;
+      box-sizing: border-box;
+      resize: none;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 14px;
+      cursor: pointer;
+      border-radius: 5px;
+      border: none;
+      background-color: #007bff;
+      color: white;
+      margin-top: 10px;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .template-group {
+      margin-bottom: 15px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .template-group .textarea-container {
+      flex-grow: 1; /* Allow textarea to take up all available space */
+    }
+    .remove-template-btn, .add-template-btn {
+      width: 40px;
+      height: 40px;
+      font-size: 20px;
+      padding: 0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #ccc; /* Darker border for better visibility */
+      background-color: #e0e0e0; /* Darker background for better contrast */
+      border-radius: 5px;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+    .remove-template-btn:hover, .add-template-btn:hover {
+      background-color: #d0d0d0; /* Darken on hover */
+      border-color: #a0a0a0; /* Darken border on hover */
+    }
+    .note {
+      font-size: 14px;
+      color: #555;
+      margin-top: 0;
+      margin-bottom: 20px;
+    }
+    #templatesContainer {
+      flex-grow: 1; /* Take up remaining space */
+      overflow-y: auto; /* Scrollable if content overflows */
+      margin-bottom: 20px; /* Add some space below the last template */
+    }
+    #saveTemplates {
+      align-self: flex-start; /* Aligns the button to the start (left) */
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 20px;
+      margin-top: 10px; /* Ensure consistent spacing above the button */
+    }
+    #saveTemplates:hover {
+      background-color: #218838;
+    }
+  </style>
+</head>
+<body>
+  <h2>Edit Templates</h2>
+  <p class="note">You can use the <code>${ticketContact}</code> variable for the ticket contact name.</p>
+  <div id="templatesContainer">
+    <!-- Templates will be dynamically added here -->
+  </div>
+  <button id="saveTemplates">Save Templates</button>
+  <script src="popup_edit.js"></script>
+</body>
+</html>

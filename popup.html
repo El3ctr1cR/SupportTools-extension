@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>VWC Tools</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      width: 400px;
+      height: 500px; /* Increased height to accommodate footer */
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .header {
+      background-color: #333;
+      color: white;
+      padding: 10px 0;
+      text-align: center;
+      font-weight: bold;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .header img {
+      height: 18px;
+      width: 18px;
+      margin-right: 10px;
+    }
+    .content {
+      padding: 20px;
+      flex-grow: 1;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .form-group-inline {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .form-group-inline input[type="text"] {
+      flex: 1;
+    }
+    label {
+      margin-right: 10px;
+      font-size: 14px;
+    }
+    input[type="checkbox"] {
+      margin-right: 10px;
+    }
+    button, select, input {
+      padding: 8px 12px;
+      font-size: 14px;
+      cursor: pointer;
+      margin-bottom: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background-color: #f0f0f0;
+      color: #333;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    button:hover {
+      background-color: #e0e0e0;
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    input[type="text"], select {
+      width: 100%;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      width: auto;
+    }
+    .save-btn {
+      margin-left: 10px;
+    }
+    .clear-config-btn {
+      background-color: #d9534f;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 4px;
+      font-weight: bold;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    .clear-config-btn:hover {
+      background-color: #c9302c;
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+    }
+    .category-header {
+      font-weight: bold;
+      font-size: 14px;
+      margin-top: 15px;
+      padding-bottom: 5px;
+      border-bottom: 2px solid #d3d3d3;
+    }
+    .category-content {
+      padding-top: 10px; /* Added padding to increase space between category headers and content */
+    }
+    .button-group-inline {
+      display: flex;
+      gap: 10px;
+    }
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 20px;
+      background-color: #f9f9f9;
+      border-top: 1px solid #d3d3d3;
+      font-size: 12px;
+    }
+    .footer a {
+      color: #333;
+      text-decoration: none;
+    }
+    .footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <img src="icon.png" alt="Icon">
+    <span>VWC Tools</span>
+  </div>
+  <div class="content">
+    <div class="category-header">General</div> <!-- Updated header name -->
+    <div class="category-content">
+      <div class="form-group-inline">
+        <input type="checkbox" id="bypassToggle">
+        <label for="bypassToggle">Bypass Incognito Redirection</label>
+      </div>
+      <div class="form-group">
+        <button id="backupCheck">Back-up check</button>
+      </div>
+    </div>
+    
+    <div class="category-header">Templates</div>
+    <div class="category-content">
+      <div class="form-group">
+        <label for="templateSelector">Select Template:</label>
+        <select id="templateSelector">
+          <!-- Options will be populated dynamically -->
+        </select>
+      </div>
+      <div class="form-group button-group-inline">
+        <button id="inputMail">Input mail</button>
+        <button id="copyMail">Copy mail</button>
+      </div>
+      <div class="form-group">
+        <button id="editTemplates">Edit Templates</button>
+      </div>
+    </div>
+    
+    <div class="category-header">Configuration</div>
+    <div class="category-content">
+      <div class="form-group">
+        <button id="clearConfig" class="clear-config-btn">Reset configuration</button>
+      </div>
+    </div>
+  </div>
+  <div class="footer">
+    <a href="https://github.com/El3ctr1cR" target="_blank">https://github.com/El3ctr1cR</a>
+    <span id="versionText">Version </span>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

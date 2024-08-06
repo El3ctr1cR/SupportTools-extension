@@ -1,0 +1,44 @@
+{
+  "manifest_version": 3,
+  "name": "VWC Tools",
+  "version": "1.7",
+  "permissions": [
+    "tabs",
+    "storage",
+    "activeTab",
+    "scripting"
+  ],
+  "background": {
+    "service_worker": "incognito.js"
+  },
+  "host_permissions": [
+    "https://*.microsoft.com/*",
+    "https://*.azure.com/*",
+    "https://*.office.com/*",
+    "https://*.microsoft365.com/*",
+    "https://*.autotask.net/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icon.png",
+      "48": "icon.png",
+      "128": "icon.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://*.autotask.net/*"],
+      "js": ["content.js"]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "popup_edit.html",
+        "popup_edit.js"
+      ],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
