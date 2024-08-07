@@ -6,7 +6,7 @@
     body {
       font-family: Arial, sans-serif;
       width: 400px;
-      height: 500px; /* Increased height to accommodate footer */
+      height: 600px; /* Increased height to accommodate footer */
       padding: 0;
       margin: 0;
       box-sizing: border-box;
@@ -57,15 +57,8 @@
       font-size: 14px;
       cursor: pointer;
       margin-bottom: 5px;
-      border: 1px solid #ccc;
       border-radius: 4px;
-      background-color: #f0f0f0;
-      color: #333;
       transition: background-color 0.3s ease, box-shadow 0.3s ease;
-    }
-    button:hover {
-      background-color: #e0e0e0;
-      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     }
     input[type="text"], select {
       width: 100%;
@@ -74,22 +67,40 @@
     }
     button {
       width: auto;
+      border: none; /* Remove the border */
+      background-color: #e0e0e0; /* Slightly darker background color */
+      color: #333;
+    }
+    button:hover {
+      background-color: #d0d0d0; /* Darken on hover */
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     }
     .save-btn {
       margin-left: 10px;
     }
+    .config-buttons {
+      display: flex;
+      gap: 10px;
+    }
+    .config-buttons button {
+      flex: 1; /* Ensure all buttons take equal width */
+      padding: 10px 15px;
+      font-weight: bold;
+      color: white;
+    }
     .clear-config-btn {
       background-color: #d9534f;
-      color: white;
-      border: none;
-      padding: 10px 15px;
-      border-radius: 4px;
-      font-weight: bold;
-      transition: background-color 0.3s ease, box-shadow 0.3s ease;
     }
     .clear-config-btn:hover {
       background-color: #c9302c;
       box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+    }
+    .export-config-btn, .import-config-btn {
+      background-color: #5bc0de;
+    }
+    .export-config-btn:hover, .import-config-btn:hover {
+      background-color: #31b0d5;
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     }
     .category-header {
       font-weight: bold;
@@ -100,10 +111,6 @@
     }
     .category-content {
       padding-top: 10px; /* Added padding to increase space between category headers and content */
-    }
-    .button-group-inline {
-      display: flex;
-      gap: 10px;
     }
     .footer {
       display: flex;
@@ -119,6 +126,14 @@
     }
     .footer a:hover {
       text-decoration: underline;
+    }
+    .button-group-inline button {
+      background-color: #e0e0e0; /* Slightly darker background color for the inline buttons */
+      color: #333;
+    }
+    .button-group-inline button:hover {
+      background-color: #d0d0d0; /* Darken on hover */
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     }
   </style>
 </head>
@@ -158,8 +173,11 @@
     
     <div class="category-header">Configuration</div>
     <div class="category-content">
-      <div class="form-group">
-        <button id="clearConfig" class="clear-config-btn">Reset configuration</button>
+      <div class="form-group config-buttons">
+        <button id="exportConfig" class="export-config-btn">Export Config</button>
+        <button id="importConfig" class="import-config-btn">Import Config</button>
+        <input type="file" id="importFile" style="display: none;">
+        <button id="clearConfig" class="clear-config-btn">Reset Config</button>
       </div>
     </div>
   </div>

@@ -6,6 +6,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const editTemplatesButton = document.getElementById('editTemplates');
   const templateSelector = document.getElementById('templateSelector');
   const clearConfigButton = document.getElementById('clearConfig');
+  const exportConfigButton = document.getElementById('exportConfig');
+  const importConfigButton = document.getElementById('importConfig');
+  const importFileInput = document.getElementById('importFile');
   const versionText = document.getElementById('versionText');
 
   // Load settings and templates
@@ -102,6 +105,43 @@ document.addEventListener('DOMContentLoaded', () => {
         alert('Configuration cleared!');
         populateTemplateDropdown({}); // Clear the dropdown
       });
+    }
+  });
+
+  // Handle configuration export
+  exportConfigButton.addEventListener('click', () => {
+    chrome.storage.sync.get(null, (data) => {
+      const configBlob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(configBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'vwc-tools-config.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+  });
+
+  // Handle configuration import
+  importConfigButton.addEventListener('click', () => {
+    importFileInput.click();
+  });
+
+  importFileInput.addEventListener('change', (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const importedConfig = JSON.parse(e.target.result);
+          chrome.storage.sync.set(importedConfig, () => {
+            alert('Configuration imported successfully!');
+            populateTemplateDropdown(importedConfig.templates || {});
+          });
+        } catch (error) {
+          alert('Failed to import configuration. Invalid JSON format.');
+        }
+      };
+      reader.readAsText(file);
     }
   });
 
