@@ -126,9 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     .replace('${ticketCurrentStatus}', ticketCurrentStatus)
                     .replace('${ticketNewStatus}', ticketNewStatus);
 
-                  navigator.clipboard.writeText(emailText).then(() => {
-                    alert('Email text copied to clipboard!');
-                  }).catch(err => {
+                  navigator.clipboard.writeText(emailText).then(() => { }).catch(err => {
                     console.error('Failed to copy text: ', err);
                   });
                 } else {
@@ -154,7 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   clearConfigButton.addEventListener('click', () => {
-    const confirmed = confirm('Are you sure you want to clear all configurations? This action cannot be undone.');
+    const confirmed = confirm('Are you sure you want to reset the config? This action cannot be undone.');
     if (confirmed) {
       chrome.storage.sync.clear(() => {
         alert('Configuration cleared!');
