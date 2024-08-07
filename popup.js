@@ -73,19 +73,54 @@ document.addEventListener('DOMContentLoaded', () => {
 
   copyMailButton.addEventListener('click', () => {
     const selectedTemplate = templateSelector.value;
-    chrome.storage.sync.get(['templates'], (result) => {
-      const templates = result.templates || {};
-      const emailText = templates[selectedTemplate];
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      const activeTab = tabs[0];
 
-      if (emailText) {
-        navigator.clipboard.writeText(emailText).then(() => {
-          alert('Email text copied to clipboard!');
-        }).catch(err => {
-          console.error('Failed to copy text: ', err);
-        });
-      } else {
-        alert('Template not found!');
-      }
+      chrome.scripting.executeScript(
+        {
+          target: { tabId: activeTab.id },
+          files: ['content.js']
+        },
+        () => {
+          chrome.tabs.sendMessage(activeTab.id, { action: 'getTicketDetails' }, (response) => {
+            if (response) {
+              const {
+                ticketContact,
+                ticketPrimaryResource,
+                ticketLastActivityTime,
+                ticketPriority,
+                ticketCurrentStatus,
+                ticketNewStatus,
+              } = response;
+
+              chrome.storage.sync.get(['templates'], (result) => {
+                const templates = result.templates || {};
+                let emailText = templates[selectedTemplate];
+
+                if (emailText) {
+                  emailText = emailText
+                    .replace('${ticketContact}', ticketContact)
+                    .replace('${ticketPrimaryResource}', ticketPrimaryResource)
+                    .replace('${ticketLastActivityTime}', ticketLastActivityTime)
+                    .replace('${ticketPriority}', ticketPriority)
+                    .replace('${ticketCurrentStatus}', ticketCurrentStatus)
+                    .replace('${ticketNewStatus}', ticketNewStatus);
+
+                  navigator.clipboard.writeText(emailText).then(() => {
+                    alert('Email text copied to clipboard!');
+                  }).catch(err => {
+                    console.error('Failed to copy text: ', err);
+                  });
+                } else {
+                  alert('Template not found!');
+                }
+              });
+            } else {
+              alert('Failed to retrieve ticket details.');
+            }
+          });
+        }
+      );
     });
   });
 
@@ -94,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
       url: chrome.runtime.getURL('popup_edit.html'),
       type: 'popup',
       width: 550,
-      height: 640
+      height: 1000
     });
   });
 

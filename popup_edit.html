@@ -5,8 +5,8 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      width: 500px; /* Increased width */
-      height: 600px; /* Increased height */
+      width: 500px;
+      height: 960px;
       padding: 20px;
       margin: 0;
       box-sizing: border-box;
@@ -58,25 +58,25 @@
       gap: 10px;
     }
     .template-group .textarea-container {
-      flex-grow: 1; /* Allow textarea to take up all available space */
+      flex-grow: 1;
     }
     .remove-template-btn, .add-template-btn {
-      width: 40px;
-      height: 40px;
+      width: 20px;
+      height: 20px;
       font-size: 20px;
       padding: 0;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      border: 1px solid #ccc; /* Darker border for better visibility */
-      background-color: #e0e0e0; /* Darker background for better contrast */
+      border: 1px solid #ccc;
+      background-color: #e0e0e0;
       border-radius: 5px;
       transition: background-color 0.3s ease, border-color 0.3s ease;
     }
     .remove-template-btn:hover, .add-template-btn:hover {
-      background-color: #d0d0d0; /* Darken on hover */
-      border-color: #a0a0a0; /* Darken border on hover */
+      background-color: #d0d0d0;
+      border-color: #a0a0a0;
     }
     .note {
       font-size: 14px;
@@ -85,18 +85,18 @@
       margin-bottom: 20px;
     }
     #templatesContainer {
-      flex-grow: 1; /* Take up remaining space */
-      overflow-y: auto; /* Scrollable if content overflows */
-      margin-bottom: 20px; /* Add some space below the last template */
+      flex-grow: 1;
+      overflow-y: auto;
+      margin-bottom: 20px;
     }
     #saveTemplates {
-      align-self: flex-start; /* Aligns the button to the start (left) */
+      align-self: flex-start;
       background-color: #28a745;
       color: white;
       border: none;
       border-radius: 5px;
       padding: 10px 20px;
-      margin-top: 10px; /* Ensure consistent spacing above the button */
+      margin-top: 10px;
     }
     #saveTemplates:hover {
       background-color: #218838;
@@ -105,7 +105,15 @@
 </head>
 <body>
   <h2>Edit Templates</h2>
-  <p class="note">You can use the <code>${ticketContact}</code> variable for the ticket contact name.</p>
+  <p class="note">You can use the following variables in your templates:</p>
+  <ul class="note">
+    <li><code>${ticketContact}</code> - The name of the ticket contact person.</li>
+    <li><code>${ticketPrimaryResource}</code> - The primary resource assigned to the ticket.</li>
+    <li><code>${ticketLastActivityTime}</code> - The date and time of the last activity on the ticket.</li>
+    <li><code>${ticketPriority}</code> - The priority level of the ticket.</li>
+    <li><code>${ticketCurrentStatus}</code> - The current status of the ticket.</li>
+    <li><code>${ticketNewStatus}</code> - The new status that has been set for the ticket.</li>
+  </ul>
   <div id="templatesContainer">
     <!-- Templates will be dynamically added here -->
   </div>
