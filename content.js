@@ -77,6 +77,19 @@ function getTicketPrimaryResource() {
   return primaryResourceElement ? primaryResourceElement.textContent.trim() : '';
 }
 
+// Function to extract the full name of the logged-in user
+function getLoggedinUser() {
+  const scriptTags = document.querySelectorAll('script');
+  for (let script of scriptTags) {
+    const scriptContent = script.innerHTML;
+    const match = scriptContent.match(/'VWC ICT Solutions','.*?','.*?','(.*?)'/);
+    if (match && match[1]) {
+      return match[1];
+    }
+  }
+  return 'Unknown User';
+}
+
 // Function to get all ticket details
 function getTicketDetails() {
   return {
@@ -86,6 +99,7 @@ function getTicketDetails() {
     ticketPriority: getTicketPriority(),
     ticketCurrentStatus: getTicketCurrentStatus(),
     ticketNewStatus: getTicketNewStatus(),
+    loggedinUser: getLoggedinUser(),
   };
 }
 
@@ -104,7 +118,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           .replace('${ticketLastActivityTime}', ticketDetails.ticketLastActivityTime)
           .replace('${ticketPriority}', ticketDetails.ticketPriority)
           .replace('${ticketCurrentStatus}', ticketDetails.ticketCurrentStatus)
-          .replace('${ticketNewStatus}', ticketDetails.ticketNewStatus);
+          .replace('${ticketNewStatus}', ticketDetails.ticketNewStatus)
+          .replace('${loggedinUser}', ticketDetails.loggedinUser);
 
         const contentEditableDiv = document.querySelector('div.ContentEditable2.Small[contenteditable="true"]');
         if (contentEditableDiv) {

@@ -85,6 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
           chrome.tabs.sendMessage(activeTab.id, { action: 'getTicketDetails' }, (response) => {
             if (response) {
               const {
+                loggedinUser,
                 ticketContact,
                 ticketPrimaryResource,
                 ticketLastActivityTime,
@@ -99,6 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (emailText) {
                   emailText = emailText
+                    .replace('${loggedinUser}', loggedinUser)
                     .replace('${ticketContact}', ticketContact)
                     .replace('${ticketPrimaryResource}', ticketPrimaryResource)
                     .replace('${ticketLastActivityTime}', ticketLastActivityTime)
