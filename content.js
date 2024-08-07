@@ -93,7 +93,7 @@ function getLoggedinUser() {
 // Function to get all ticket details
 function getTicketDetails() {
   return {
-    ticketContact: getTextUnderLabel('Contact', '.ReadOnlyValueContainer .Text2'),
+    ticketContact: getTextUnderLabel('Contact', '.ReadOnlyValueContainer .Text2').replace('Dhr. ', '').replace('Mevr. ', ''),
     ticketPrimaryResource: getTicketPrimaryResource(),
     ticketLastActivityTime: getLastTicketActivityTime(),
     ticketPriority: getTicketPriority(),

@@ -135,6 +135,40 @@
       background-color: #d0d0d0; /* Darken on hover */
       box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     }
+    #warningContainer {
+      display: none; /* Initially hidden */
+      padding: 15px 20px;
+      background-color: #fef7d8;
+      border: 1px solid #ffe08a;
+      border-radius: 10px;
+      color: #856404;
+      font-size: 14px;
+      font-weight: 500;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    #updateButton {
+      padding: 8px 16px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    #updateButton:hover {
+      background-color: #0056b3;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+
   </style>
 </head>
 <body>
@@ -143,6 +177,11 @@
     <span>VWC Tools</span>
   </div>
   <div class="content">
+    
+  <div class="warning-container" id="warningContainer" style="display:none;">
+    <span id="warningText">Version mismatch. Update?</span>
+    <button id="updateButton">Yes</button>
+  </div>
     <div class="category-header">General</div> <!-- Updated header name -->
     <div class="category-content">
       <div class="form-group-inline">

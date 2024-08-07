@@ -1,4 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
+  const warningContainer = document.getElementById('warningContainer');
+  const updateButton = document.getElementById('updateButton');
+  const versionText = document.getElementById('versionText');
   const bypassToggle = document.getElementById('bypassToggle');
   const backupCheckButton = document.getElementById('backupCheck');
   const inputMailButton = document.getElementById('inputMail');
@@ -9,7 +12,29 @@ document.addEventListener('DOMContentLoaded', () => {
   const exportConfigButton = document.getElementById('exportConfig');
   const importConfigButton = document.getElementById('importConfig');
   const importFileInput = document.getElementById('importFile');
-  const versionText = document.getElementById('versionText');
+
+  // Fetch the version from manifest.json
+  fetch(chrome.runtime.getURL('manifest.json'))
+    .then(response => response.json())
+    .then(manifest => {
+      const currentVersion = manifest.version;
+      versionText.textContent = `Version ${currentVersion}`;
+      
+      // Fetch the latest version from GitHub
+      fetch('https://api.github.com/repos/El3ctr1cR/VWCTools-extension/releases/latest')
+        .then(response => response.json())
+        .then(latestRelease => {
+          const latestVersion = latestRelease.tag_name.replace('v', '');
+          
+          if (currentVersion !== latestVersion) {
+            warningContainer.style.display = 'flex';
+          }
+        });
+    });
+
+  updateButton.addEventListener('click', () => {
+    window.open('https://github.com/El3ctr1cR/VWCTools-extension/releases/latest', '_blank');
+  });
 
   // Load settings and templates
   chrome.storage.sync.get(['bypassIncognito', 'templates'], (result) => {
@@ -31,13 +56,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
-
-  // Fetch version from manifest.json and display it
-  fetch(chrome.runtime.getURL('manifest.json'))
-    .then(response => response.json())
-    .then(manifest => {
-      versionText.textContent += manifest.version;
-    });
 
   bypassToggle.addEventListener('change', () => {
     chrome.storage.sync.set({ bypassIncognito: bypassToggle.checked });
