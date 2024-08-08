@@ -82,13 +82,14 @@ function getLoggedinUser() {
   const scriptTags = document.querySelectorAll('script');
   for (let script of scriptTags) {
     const scriptContent = script.innerHTML;
-    const match = scriptContent.match(/'VWC ICT Solutions','.*?','.*?','(.*?)'/);
-    if (match && match[1]) {
-      return match[1];
+    const match = scriptContent.match(/'*Solutions','(.*?)','(.*?)','(.*?)'/);
+    if (match && match[3]) {
+      return match[3];
     }
   }
   return 'Unknown User';
 }
+
 
 // Function to get all ticket details
 function getTicketDetails() {

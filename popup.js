@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
       versionText.textContent = `Version ${currentVersion}`;
       
       // Fetch the latest version from GitHub
-      fetch('https://api.github.com/repos/El3ctr1cR/VWCTools-extension/releases/latest')
+      fetch('https://api.github.com/repos/El3ctr1cR/SupportTools-extension/releases/latest')
         .then(response => response.json())
         .then(latestRelease => {
           const latestVersion = latestRelease.tag_name.replace('v', '');
@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
   updateButton.addEventListener('click', () => {
-    window.open('https://github.com/El3ctr1cR/VWCTools-extension/releases/latest', '_blank');
+    window.open('https://github.com/El3ctr1cR/SupportTools-extension/releases/latest', '_blank');
   });
 
   // Load settings and templates
@@ -168,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const url = URL.createObjectURL(configBlob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'vwc-tools-config.json';
+      a.download = 'support-tools-config.json';
       a.click();
       URL.revokeObjectURL(url);
     });
