@@ -110,6 +110,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 ticketPriority,
                 ticketCurrentStatus,
                 ticketNewStatus,
+                currentTime,
+                currentDate,
               } = response;
 
               chrome.storage.sync.get(['templates'], (result) => {
@@ -124,6 +126,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     .replace('${ticketLastActivityTime}', ticketLastActivityTime)
                     .replace('${ticketPriority}', ticketPriority)
                     .replace('${ticketCurrentStatus}', ticketCurrentStatus)
+                    .replace('${currentTime}', currentTime)
+                    .replace('${currentDate}', currentDate)
                     .replace('${ticketNewStatus}', ticketNewStatus);
 
                   navigator.clipboard.writeText(emailText).then(() => { }).catch(err => {

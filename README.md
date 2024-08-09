@@ -18,6 +18,8 @@ This Chrome extension is designed primarily for IT Support teams using the Autot
   - `${ticketPriority}`: The priority level of the ticket.
   - `${ticketCurrentStatus}`: The current status of the ticket.
   - `${ticketNewStatus}`: The new status that has been set for the ticket.
+  - `${currentTime}`: The current time.
+  - `${currentDate}`: The current date.
 
 ### 3. Configuration Export and Import
 - The extension allows you to export and import configuration settings, making it easy to transfer settings between different environments or users.

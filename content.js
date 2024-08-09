@@ -19,6 +19,24 @@ function getTextUnderLabel(labelText, valueSelector) {
   return '';
 }
 
+function getCurrentDate() {
+  const now = new Date();
+  return now.toLocaleDateString('nl-NL', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  });
+}
+
+function getCurrentTime() {
+  const now = new Date();
+  return now.toLocaleTimeString('nl-NL', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  });
+}
+
 // Function to get the last ticket comment date and time
 function getLastTicketActivityTime() {
   const conversationChunks = document.querySelectorAll('.ConversationChunk');
@@ -101,6 +119,8 @@ function getTicketDetails() {
     ticketCurrentStatus: getTicketCurrentStatus(),
     ticketNewStatus: getTicketNewStatus(),
     loggedinUser: getLoggedinUser(),
+    currentTime: getCurrentTime(),
+    currentDate: getCurrentDate(),
   };
 }
 
@@ -120,7 +140,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           .replace('${ticketPriority}', ticketDetails.ticketPriority)
           .replace('${ticketCurrentStatus}', ticketDetails.ticketCurrentStatus)
           .replace('${ticketNewStatus}', ticketDetails.ticketNewStatus)
-          .replace('${loggedinUser}', ticketDetails.loggedinUser);
+          .replace('${loggedinUser}', ticketDetails.loggedinUser)
+          .replace('${currentTime}', ticketDetails.currentTime)
+          .replace('${currentDate}', ticketDetails.currentDate);
 
         const contentEditableDiv = document.querySelector('div.ContentEditable2.Small[contenteditable="true"]');
         if (contentEditableDiv) {
