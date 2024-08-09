@@ -13,14 +13,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const importConfigButton = document.getElementById('importConfig');
   const importFileInput = document.getElementById('importFile');
 
-  // Fetch the version from manifest.json
   fetch(chrome.runtime.getURL('manifest.json'))
     .then(response => response.json())
     .then(manifest => {
       const currentVersion = manifest.version;
       versionText.textContent = `Version ${currentVersion}`;
       
-      // Fetch the latest version from GitHub
       fetch('https://api.github.com/repos/El3ctr1cR/SupportTools-extension/releases/latest')
         .then(response => response.json())
         .then(latestRelease => {
@@ -36,22 +34,20 @@ document.addEventListener('DOMContentLoaded', () => {
     window.open('https://github.com/El3ctr1cR/SupportTools-extension/releases/latest', '_blank');
   });
 
-  // Load settings and templates
   chrome.storage.sync.get(['bypassIncognito', 'templates'], (result) => {
     bypassToggle.checked = result.bypassIncognito || false;
 
-    // Populate the dropdown with saved templates
     const templates = result.templates || {};
     populateTemplateDropdown(templates);
   });
 
   function populateTemplateDropdown(templates) {
-    templateSelector.innerHTML = ''; // Clear existing options
+    templateSelector.innerHTML = '';
     Object.keys(templates).forEach((key) => {
-      if (templates[key].trim() !== '') { // Only add non-empty templates
+      if (templates[key].trim() !== '') {
         const option = document.createElement('option');
         option.value = key;
-        option.textContent = key; // Use the template name directly
+        option.textContent = key;
         templateSelector.appendChild(option);
       }
     });
@@ -74,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
       chrome.scripting.executeScript(
         {
           target: { tabId: activeTab.id },
-          files: ['content.js']
+          files: ['functions/templateManager.js']
         },
         () => {
           chrome.tabs.sendMessage(activeTab.id, { action: 'getEmailText', template: selectedTemplate }, (response) => {
@@ -90,65 +86,55 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   copyMailButton.addEventListener('click', () => {
-    const selectedTemplate = templateSelector.value;
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      const activeTab = tabs[0];
-
-      chrome.scripting.executeScript(
-        {
-          target: { tabId: activeTab.id },
-          files: ['content.js']
-        },
-        () => {
-          chrome.tabs.sendMessage(activeTab.id, { action: 'getTicketDetails' }, (response) => {
-            if (response) {
-              const {
-                loggedinUser,
-                ticketContact,
-                ticketPrimaryResource,
-                ticketLastActivityTime,
-                ticketPriority,
-                ticketCurrentStatus,
-                ticketNewStatus,
-                currentTime,
-                currentDate,
-              } = response;
-
-              chrome.storage.sync.get(['templates'], (result) => {
-                const templates = result.templates || {};
-                let emailText = templates[selectedTemplate];
-
-                if (emailText) {
-                  emailText = emailText
-                    .replace('${loggedinUser}', loggedinUser)
-                    .replace('${ticketContact}', ticketContact)
-                    .replace('${ticketPrimaryResource}', ticketPrimaryResource)
-                    .replace('${ticketLastActivityTime}', ticketLastActivityTime)
-                    .replace('${ticketPriority}', ticketPriority)
-                    .replace('${ticketCurrentStatus}', ticketCurrentStatus)
-                    .replace('${currentTime}', currentTime)
-                    .replace('${currentDate}', currentDate)
-                    .replace('${ticketNewStatus}', ticketNewStatus);
-
-                  navigator.clipboard.writeText(emailText).then(() => { }).catch(err => {
-                    console.error('Failed to copy text: ', err);
+    const selectedTemplateName = templateSelector.value;
+    chrome.storage.sync.get(['templates'], (result) => {
+      const templates = result.templates || {};
+      const selectedTemplateContent = templates[selectedTemplateName];
+  
+      if (selectedTemplateContent) {
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+          const activeTab = tabs[0];
+  
+          chrome.scripting.executeScript(
+            {
+              target: { tabId: activeTab.id },
+              files: ['functions/templateManager.js']
+            },
+            () => {
+              chrome.tabs.sendMessage(activeTab.id, { action: 'getTicketDetails' }, (response) => {
+                if (response) {
+                  chrome.tabs.sendMessage(activeTab.id, { 
+                    action: 'processTemplate', 
+                    template: selectedTemplateContent,
+                    ticketDetails: response 
+                  }, (response) => {
+                    if (response && response.processedText) {
+                      navigator.clipboard.writeText(response.processedText).then(() => {
+                        console.log('Email text copied to clipboard');
+                      }).catch(err => {
+                        console.error('Failed to copy text: ', err);
+                      });
+                    } else {
+                      alert('Failed to process the template.');
+                    }
                   });
                 } else {
-                  alert('Template not found!');
+                  alert('Failed to retrieve ticket details.');
                 }
               });
-            } else {
-              alert('Failed to retrieve ticket details.');
             }
-          });
-        }
-      );
+          );
+        });
+      } else {
+        alert('Template not found!');
+      }
     });
   });
+  
 
   editTemplatesButton.addEventListener('click', () => {
     chrome.windows.create({
-      url: chrome.runtime.getURL('popup_edit.html'),
+      url: chrome.runtime.getURL('popups/templateEditor.html'),
       type: 'popup',
       width: 550,
       height: 1000
@@ -160,12 +146,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (confirmed) {
       chrome.storage.sync.clear(() => {
         alert('Configuration cleared!');
-        populateTemplateDropdown({}); // Clear the dropdown
+        populateTemplateDropdown({});
       });
     }
   });
 
-  // Handle configuration export
   exportConfigButton.addEventListener('click', () => {
     chrome.storage.sync.get(null, (data) => {
       const configBlob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -178,7 +163,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Handle configuration import
   importConfigButton.addEventListener('click', () => {
     importFileInput.click();
   });
@@ -202,7 +186,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Listen for messages to update the dropdown
   chrome.runtime.onMessage.addListener((request) => {
     if (request.action === 'updateDropdown') {
       chrome.storage.sync.get(['templates'], (result) => {

@@ -1,10 +1,8 @@
-// Function to get text from a selector
 function getTextFromSelector(selector) {
   const element = document.querySelector(selector);
   return element ? element.textContent.trim() : '';
 }
 
-// Function to get text under a specific label
 function getTextUnderLabel(labelText, valueSelector) {
   const labelElements = document.querySelectorAll('.ReadOnlyLabelContainer .PrimaryText');
 
@@ -37,7 +35,6 @@ function getCurrentTime() {
   });
 }
 
-// Function to get the last ticket comment date and time
 function getLastTicketActivityTime() {
   const conversationChunks = document.querySelectorAll('.ConversationChunk');
   for (let conversationChunk of conversationChunks) {
@@ -45,7 +42,7 @@ function getLastTicketActivityTime() {
     for (let conversationItem of conversationItems) {
       const adminCheck = conversationItem.querySelector('.Text2');
       if (adminCheck && adminCheck.textContent.trim() === 'Autotask Administrator') {
-        continue; // Skip this item if it's from Autotask Administrator
+        continue;
       }
       const timestampElement = conversationItem.querySelector('.Timestamp');
       if (timestampElement) {
@@ -56,7 +53,6 @@ function getLastTicketActivityTime() {
   return '';
 }
 
-// Function to get ticket priority
 function getTicketPriority() {
   const detailsSection = document.querySelector('.DetailsSection');
   if (detailsSection) {
@@ -68,7 +64,6 @@ function getTicketPriority() {
   return '';
 }
 
-// Function to get ticket current status
 function getTicketCurrentStatus() {
   const detailsSection = document.querySelector('.DetailsSection');
   if (detailsSection) {
@@ -80,7 +75,6 @@ function getTicketCurrentStatus() {
   return '';
 }
 
-// Function to get the new ticket status
 function getTicketNewStatus() {
   const statusSection = document.querySelector('.Normal.Section .ContentContainer .Content .ReplaceableColumnContainer .Large.Column .SingleItemSelector2 .SelectionDisplay .Text span');
   if (statusSection) {
@@ -89,13 +83,11 @@ function getTicketNewStatus() {
   return '';
 }
 
-// Function to get the primary resource
 function getTicketPrimaryResource() {
   const primaryResourceElement = document.querySelector('.PrimaryResource .Name');
   return primaryResourceElement ? primaryResourceElement.textContent.trim() : '';
 }
 
-// Function to extract the full name of the logged-in user
 function getLoggedinUser() {
   const scriptTags = document.querySelectorAll('script');
   for (let script of scriptTags) {
@@ -108,8 +100,6 @@ function getLoggedinUser() {
   return 'Unknown User';
 }
 
-
-// Function to get all ticket details
 function getTicketDetails() {
   return {
     ticketContact: getTextUnderLabel('Contact', '.ReadOnlyValueContainer .Text2').replace('Dhr. ', '').replace('Mevr. ', ''),
@@ -124,26 +114,28 @@ function getTicketDetails() {
   };
 }
 
+function processTemplate(template, ticketDetails) {
+  return template
+    .replace('${ticketContact}', ticketDetails.ticketContact)
+    .replace('${ticketPrimaryResource}', ticketDetails.ticketPrimaryResource)
+    .replace('${ticketLastActivityTime}', ticketDetails.ticketLastActivityTime)
+    .replace('${ticketPriority}', ticketDetails.ticketPriority)
+    .replace('${ticketCurrentStatus}', ticketDetails.ticketCurrentStatus)
+    .replace('${ticketNewStatus}', ticketDetails.ticketNewStatus)
+    .replace('${loggedinUser}', ticketDetails.loggedinUser)
+    .replace('${currentTime}', ticketDetails.currentTime)
+    .replace('${currentDate}', ticketDetails.currentDate);
+}
+
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'getEmailText') {
-    chrome.storage.sync.get(['fullName', 'templates'], (result) => {
+    chrome.storage.sync.get(['templates'], (result) => {
       const ticketDetails = getTicketDetails();
-
       const templates = result.templates || {};
       const selectedTemplate = templates[request.template];
 
       if (selectedTemplate) {
-        const emailText = selectedTemplate
-          .replace('${ticketContact}', ticketDetails.ticketContact)
-          .replace('${ticketPrimaryResource}', ticketDetails.ticketPrimaryResource)
-          .replace('${ticketLastActivityTime}', ticketDetails.ticketLastActivityTime)
-          .replace('${ticketPriority}', ticketDetails.ticketPriority)
-          .replace('${ticketCurrentStatus}', ticketDetails.ticketCurrentStatus)
-          .replace('${ticketNewStatus}', ticketDetails.ticketNewStatus)
-          .replace('${loggedinUser}', ticketDetails.loggedinUser)
-          .replace('${currentTime}', ticketDetails.currentTime)
-          .replace('${currentDate}', ticketDetails.currentDate);
-
+        const emailText = processTemplate(selectedTemplate, ticketDetails);
         const contentEditableDiv = document.querySelector('div.ContentEditable2.Small[contenteditable="true"]');
         if (contentEditableDiv) {
           contentEditableDiv.innerHTML = emailText.replace(/\n/g, '<br>');
@@ -156,11 +148,18 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       }
     });
 
-    return true; // Asynchronous response
+    return true;
   }
 
   if (request.action === 'getTicketDetails') {
     const ticketDetails = getTicketDetails();
     sendResponse(ticketDetails);
+  }
+
+  if (request.action === 'processTemplate') {
+    const ticketDetails = request.ticketDetails;
+    const selectedTemplate = request.template;
+    const processedText = processTemplate(selectedTemplate, ticketDetails);
+    sendResponse({ processedText });
   }
 });

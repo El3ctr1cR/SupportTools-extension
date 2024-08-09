@@ -11,12 +11,10 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
         const url = new URL(tab.url);
         const hostname = url.hostname;
 
-        if (hostname.includes('portal.office.com') ||
-            hostname.includes('microsoft365.com')) {
+        if (hostname.includes('portal.office.com') || hostname.includes('microsoft365.com')) {
           const newUrl = tab.url.replace(hostname, 'admin.microsoft.com');
           chrome.tabs.update(tabId, { url: newUrl });
-        } else if (hostname.includes('admin.microsoft.com') ||
-                   hostname.includes('portal.azure.com')) {
+        } else if (hostname.includes('admin.microsoft.com') || hostname.includes('portal.azure.com')) {
           isTabHandled[tabId] = true;
 
           chrome.windows.create({

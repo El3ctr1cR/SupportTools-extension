@@ -6,7 +6,7 @@
     body {
       font-family: Arial, sans-serif;
       width: 400px;
-      height: 600px; /* Increased height to accommodate footer */
+      height: 600px;
       padding: 0;
       margin: 0;
       box-sizing: border-box;
@@ -67,12 +67,12 @@
     }
     button {
       width: auto;
-      border: none; /* Remove the border */
-      background-color: #e0e0e0; /* Slightly darker background color */
+      border: none;
+      background-color: #e0e0e0;
       color: #333;
     }
     button:hover {
-      background-color: #d0d0d0; /* Darken on hover */
+      background-color: #d0d0d0;
       box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     }
     .save-btn {
@@ -83,7 +83,7 @@
       gap: 10px;
     }
     .config-buttons button {
-      flex: 1; /* Ensure all buttons take equal width */
+      flex: 1;
       padding: 10px 15px;
       font-weight: bold;
       color: white;
@@ -110,7 +110,7 @@
       border-bottom: 2px solid #d3d3d3;
     }
     .category-content {
-      padding-top: 10px; /* Added padding to increase space between category headers and content */
+      padding-top: 10px;
     }
     .footer {
       display: flex;
@@ -128,15 +128,15 @@
       text-decoration: underline;
     }
     .button-group-inline button {
-      background-color: #e0e0e0; /* Slightly darker background color for the inline buttons */
+      background-color: #e0e0e0;
       color: #333;
     }
     .button-group-inline button:hover {
-      background-color: #d0d0d0; /* Darken on hover */
+      background-color: #d0d0d0;
       box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     }
     #warningContainer {
-      display: none; /* Initially hidden */
+      display: none;
       padding: 15px 20px;
       background-color: #fef7d8;
       border: 1px solid #ffe08a;
@@ -167,8 +167,6 @@
       background-color: #0056b3;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
-
-
   </style>
 </head>
 <body>
@@ -177,12 +175,11 @@
     <span>Support Tools</span>
   </div>
   <div class="content">
-    
-  <div class="warning-container" id="warningContainer" style="display:none;">
-    <span id="warningText">Version mismatch. Update?</span>
-    <button id="updateButton">Yes</button>
-  </div>
-    <div class="category-header">General</div> <!-- Updated header name -->
+    <div class="warning-container" id="warningContainer" style="display:none;">
+      <span id="warningText">Version mismatch. Update?</span>
+      <button id="updateButton">Yes</button>
+    </div>
+    <div class="category-header">General</div>
     <div class="category-content">
       <div class="form-group-inline">
         <input type="checkbox" id="bypassToggle">
@@ -197,9 +194,7 @@
     <div class="category-content">
       <div class="form-group">
         <label for="templateSelector">Select Template:</label>
-        <select id="templateSelector">
-          <!-- Options will be populated dynamically -->
-        </select>
+        <select id="templateSelector"></select>
       </div>
       <div class="form-group button-group-inline">
         <button id="inputMail">Input mail</button>
