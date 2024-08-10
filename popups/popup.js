@@ -16,10 +16,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const importFileInput = document.getElementById('importFile');
 
   setApiKeyButton.addEventListener('click', () => {
-    const apiKey = prompt('Please enter your OpenAI API key:');
+    const apiKey = prompt('Enter your OpenAI API key:');
     if (apiKey) {
       chrome.storage.sync.set({ openAiApiKey: apiKey }, () => {
-        alert('API key saved successfully.');
         chrome.tabs.query({}, (tabs) => {
           tabs.forEach(tab => {
             chrome.tabs.sendMessage(tab.id, { action: 'apiKeyUpdated' });
