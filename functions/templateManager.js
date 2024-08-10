@@ -1,3 +1,42 @@
+const openaiApiKey = '';
+
+async function getOpenAISummaryAndSolution(description) {
+  try {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${openaiApiKey}`
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [{"role": "user", "content": `Wij zijn een IT support afdeling en we hebben de volgende mail binnen gekregen. Maak een samenvatting van de mail. Als de klant problemen ervaart zet de oplossingen er bij en als de klant een verzoek heeft zet er bij wat e rmoet gebeuren:\n\n${description}`}],
+        max_tokens: 150,
+        temperature: 0.7
+      })
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`API Request failed with status ${response.status}: ${errorText}`);
+    }
+
+    const data = await response.json();
+    console.log('OpenAI API Response:', data);
+
+    if (data.choices && data.choices.length > 0 && data.choices[0].message.content) {
+      return data.choices[0].message.content.trim();
+    } else {
+      throw new Error('No valid response text found in the AI response.');
+    }
+  } catch (error) {
+    console.error('Error with OpenAI API:', error);
+    return `Failed to generate a summary or solution. Error: ${error.message}`;
+  }
+}
+
+
+
 function getTextFromSelector(selector) {
   const element = document.querySelector(selector);
   return element ? element.textContent.trim() : '';
@@ -108,6 +147,7 @@ function getTicketDetails() {
     ticketPriority: getTicketPriority(),
     ticketCurrentStatus: getTicketCurrentStatus(),
     ticketNewStatus: getTicketNewStatus(),
+    ticketDescription: getTextFromSelector('.ReadOnlyRichText.ImageViewerEnabled'),
     loggedinUser: getLoggedinUser(),
     currentTime: getCurrentTime(),
     currentDate: getCurrentDate(),
@@ -129,7 +169,7 @@ function processTemplate(template, ticketDetails) {
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'getEmailText') {
-    chrome.storage.sync.get(['templates'], (result) => {
+    chrome.storage.sync.get(['templates'], async (result) => {
       const ticketDetails = getTicketDetails();
       const templates = result.templates || {};
       const selectedTemplate = templates[request.template];
@@ -161,5 +201,20 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     const selectedTemplate = request.template;
     const processedText = processTemplate(selectedTemplate, ticketDetails);
     sendResponse({ processedText });
+  }
+
+  if (request.action === 'summarizeTicket') {
+    const ticketDetails = getTicketDetails();
+    const ticketDescription = ticketDetails.ticketDescription;
+
+    if (ticketDescription) {
+      getOpenAISummaryAndSolution(ticketDescription).then(summaryAndSolution => {
+        sendResponse({ summary: summaryAndSolution });
+      });
+    } else {
+      sendResponse({ summary: 'Ticket description not found.' });
+    }
+
+    return true; // Keep the message channel open for async response
   }
 });
