@@ -41,7 +41,9 @@
     {
       "resources": [
         "popups/templateEditor.html",
-        "popups/templateEditor.js"
+        "popups/templateEditor.js",
+        "popups/ticketSummary.html",
+        "popups/ticketSummary.js"
       ],
       "matches": ["<all_urls>"]
     }
