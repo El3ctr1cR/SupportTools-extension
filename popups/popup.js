@@ -16,10 +16,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const importFileInput = document.getElementById('importFile');
 
   setApiKeyButton.addEventListener('click', () => {
-    const apiKey = prompt('Enter your OpenAI API key:');
+    const apiKey = prompt('Please enter your OpenAI API key:');
     if (apiKey) {
       chrome.storage.sync.set({ openAiApiKey: apiKey }, () => {
-        chrome.runtime.sendMessage({ action: 'apiKeyUpdated' });
+        alert('API key saved successfully.');
+        chrome.tabs.query({}, (tabs) => {
+          tabs.forEach(tab => {
+            chrome.tabs.sendMessage(tab.id, { action: 'apiKeyUpdated' });
+          });
+        });
       });
     }
   });
@@ -38,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
           }
           const summaryPopup = window.open('ticketSummary.html', 'Summarize Ticket', 'width=1200,height=1200');
-          summaryPopup.onload = function() {
+          summaryPopup.onload = function () {
             summaryPopup.postMessage({ loading: true }, '*');
           };
           chrome.scripting.executeScript(
@@ -64,17 +69,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+
   fetch(chrome.runtime.getURL('manifest.json'))
     .then(response => response.json())
     .then(manifest => {
       const currentVersion = manifest.version;
       versionText.textContent = `Version ${currentVersion}`;
-      
+
       fetch('https://api.github.com/repos/El3ctr1cR/SupportTools-extension/releases/latest')
         .then(response => response.json())
         .then(latestRelease => {
           const latestVersion = latestRelease.tag_name.replace('v', '');
-          
+
           if (currentVersion !== latestVersion) {
             warningContainer.style.display = 'flex';
           }
@@ -141,11 +147,11 @@ document.addEventListener('DOMContentLoaded', () => {
     chrome.storage.sync.get(['templates'], (result) => {
       const templates = result.templates || {};
       const selectedTemplateContent = templates[selectedTemplateName];
-  
+
       if (selectedTemplateContent) {
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
           const activeTab = tabs[0];
-  
+
           chrome.scripting.executeScript(
             {
               target: { tabId: activeTab.id },
@@ -154,10 +160,10 @@ document.addEventListener('DOMContentLoaded', () => {
             () => {
               chrome.tabs.sendMessage(activeTab.id, { action: 'getTicketDetails' }, (response) => {
                 if (response) {
-                  chrome.tabs.sendMessage(activeTab.id, { 
-                    action: 'processTemplate', 
+                  chrome.tabs.sendMessage(activeTab.id, {
+                    action: 'processTemplate',
                     template: selectedTemplateContent,
-                    ticketDetails: response 
+                    ticketDetails: response
                   }, (response) => {
                     if (response && response.processedText) {
                       navigator.clipboard.writeText(response.processedText).then(() => {
@@ -181,7 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   });
-  
+
 
   editTemplatesButton.addEventListener('click', () => {
     chrome.windows.create({
