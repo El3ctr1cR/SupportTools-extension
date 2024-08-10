@@ -193,7 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
       url: chrome.runtime.getURL('popups/templateEditor.html'),
       type: 'popup',
       width: 550,
-      height: 1000
+      height: 1035
     });
   });
 
