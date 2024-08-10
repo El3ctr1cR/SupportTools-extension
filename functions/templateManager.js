@@ -102,15 +102,15 @@ function getLoggedinUser() {
 
 function getTicketDetails() {
   return {
-      ticketContact: getTextUnderLabel('Contact', '.ReadOnlyValueContainer .Text2').replace('Dhr. ', '').replace('Mevr. ', ''),
-      ticketPrimaryResource: getTicketPrimaryResource(),
-      ticketLastActivityTime: getLastTicketActivityTime(),
-      ticketPriority: getTicketPriority(),
-      ticketCurrentStatus: getTicketCurrentStatus(),
-      ticketNewStatus: getTicketNewStatus(),
-      loggedinUser: getLoggedinUser(),
-      currentTime: getCurrentTime(),
-      currentDate: getCurrentDate(),
+    ticketContact: getTextUnderLabel('Contact', '.ReadOnlyValueContainer .Text2').replace('Dhr. ', '').replace('Mevr. ', ''),
+    ticketPrimaryResource: getTicketPrimaryResource(),
+    ticketLastActivityTime: getLastTicketActivityTime(),
+    ticketPriority: getTicketPriority(),
+    ticketCurrentStatus: getTicketCurrentStatus(),
+    ticketNewStatus: getTicketNewStatus(),
+    loggedinUser: getLoggedinUser(),
+    currentTime: getCurrentTime(),
+    currentDate: getCurrentDate(),
   };
 }
 
@@ -129,37 +129,37 @@ function processTemplate(template, ticketDetails) {
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'getEmailText') {
-      chrome.storage.sync.get(['templates'], async (result) => {
-          const ticketDetails = getTicketDetails();
-          const templates = result.templates || {};
-          const selectedTemplate = templates[request.template];
+    chrome.storage.sync.get(['templates'], async (result) => {
+      const ticketDetails = getTicketDetails();
+      const templates = result.templates || {};
+      const selectedTemplate = templates[request.template];
 
-          if (selectedTemplate) {
-              const emailText = processTemplate(selectedTemplate, ticketDetails);
-              const contentEditableDiv = document.querySelector('div.ContentEditable2.Small[contenteditable="true"]');
-              if (contentEditableDiv) {
-                  contentEditableDiv.innerHTML = emailText.replace(/\n/g, '<br>');
-                  sendResponse({ success: true });
-              } else {
-                  sendResponse({ success: false, message: 'Content editable div not found' });
-              }
-          } else {
-              sendResponse({ success: false, message: 'Template not found' });
-          }
-      });
+      if (selectedTemplate) {
+        const emailText = processTemplate(selectedTemplate, ticketDetails);
+        const contentEditableDiv = document.querySelector('div.ContentEditable2.Small[contenteditable="true"]');
+        if (contentEditableDiv) {
+          contentEditableDiv.innerHTML = emailText.replace(/\n/g, '<br>');
+          sendResponse({ success: true });
+        } else {
+          sendResponse({ success: false, message: 'Content editable div not found' });
+        }
+      } else {
+        sendResponse({ success: false, message: 'Template not found' });
+      }
+    });
 
-      return true;
+    return true;
   }
 
   if (request.action === 'getTicketDetails') {
-      const ticketDetails = getTicketDetails();
-      sendResponse(ticketDetails);
+    const ticketDetails = getTicketDetails();
+    sendResponse(ticketDetails);
   }
 
   if (request.action === 'processTemplate') {
-      const ticketDetails = request.ticketDetails;
-      const selectedTemplate = request.template;
-      const processedText = processTemplate(selectedTemplate, ticketDetails);
-      sendResponse({ processedText });
+    const ticketDetails = request.ticketDetails;
+    const selectedTemplate = request.template;
+    const processedText = processTemplate(selectedTemplate, ticketDetails);
+    sendResponse({ processedText });
   }
 });

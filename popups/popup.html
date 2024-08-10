@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <title>Support Tools</title>
   <style>
@@ -14,6 +15,7 @@
       flex-direction: column;
       justify-content: space-between;
     }
+
     .header {
       background-color: #333;
       color: white;
@@ -25,34 +27,44 @@
       align-items: center;
       justify-content: center;
     }
+
     .header img {
       height: 18px;
       width: 18px;
       margin-right: 10px;
     }
+
     .content {
       padding: 20px;
       flex-grow: 1;
     }
+
     .form-group {
       margin-bottom: 15px;
     }
+
     .form-group-inline {
       display: flex;
       align-items: center;
       margin-bottom: 15px;
     }
+
     .form-group-inline input[type="text"] {
       flex: 1;
     }
+
     label {
       margin-right: 10px;
       font-size: 14px;
     }
+
     input[type="checkbox"] {
       margin-right: 10px;
     }
-    button, select, input {
+
+    button,
+    select,
+    input {
       padding: 8px 12px;
       font-size: 14px;
       cursor: pointer;
@@ -60,48 +72,62 @@
       border-radius: 4px;
       transition: background-color 0.3s ease, box-shadow 0.3s ease;
     }
-    input[type="text"], select {
+
+    input[type="text"],
+    select {
       width: 100%;
       border: 1px solid #ccc;
       border-radius: 4px;
     }
+
     button {
       width: auto;
       border: none;
       background-color: #e0e0e0;
       color: #333;
     }
+
     button:hover {
       background-color: #d0d0d0;
       box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     }
+
     .save-btn {
       margin-left: 10px;
     }
+
     .config-buttons {
       display: flex;
       gap: 10px;
     }
+
     .config-buttons button {
       flex: 1;
       padding: 10px 15px;
       font-weight: bold;
       color: white;
     }
+
     .clear-config-btn {
       background-color: #d9534f;
     }
+
     .clear-config-btn:hover {
       background-color: #c9302c;
       box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
     }
-    .export-config-btn, .import-config-btn {
+
+    .export-config-btn,
+    .import-config-btn {
       background-color: #5bc0de;
     }
-    .export-config-btn:hover, .import-config-btn:hover {
+
+    .export-config-btn:hover,
+    .import-config-btn:hover {
       background-color: #31b0d5;
       box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     }
+
     .category-header {
       font-weight: bold;
       font-size: 14px;
@@ -109,9 +135,11 @@
       padding-bottom: 5px;
       border-bottom: 2px solid #d3d3d3;
     }
+
     .category-content {
       padding-top: 10px;
     }
+
     .footer {
       display: flex;
       justify-content: space-between;
@@ -120,21 +148,26 @@
       border-top: 1px solid #d3d3d3;
       font-size: 12px;
     }
+
     .footer a {
       color: #333;
       text-decoration: none;
     }
+
     .footer a:hover {
       text-decoration: underline;
     }
+
     .button-group-inline button {
       background-color: #e0e0e0;
       color: #333;
     }
+
     .button-group-inline button:hover {
       background-color: #d0d0d0;
       box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     }
+
     #warningContainer {
       display: none;
       padding: 15px 20px;
@@ -150,7 +183,7 @@
       justify-content: space-between;
       align-items: center;
     }
-    
+
     #updateButton {
       padding: 8px 16px;
       background-color: #007bff;
@@ -162,13 +195,14 @@
       font-weight: 600;
       transition: background-color 0.3s ease, box-shadow 0.3s ease;
     }
-    
+
     #updateButton:hover {
       background-color: #0056b3;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
   </style>
 </head>
+
 <body>
   <div class="header">
     <img src="../icons/icon.png" alt="Icon">
@@ -179,7 +213,7 @@
       <span id="warningText">Version mismatch. Update?</span>
       <button id="updateButton">Yes</button>
     </div>
-    
+
     <div class="category-header">General</div>
     <div class="category-content">
       <div class="form-group-inline">
@@ -192,7 +226,7 @@
         <button id="setApiKey">Set OpenAI API Key</button>
       </div>
     </div>
-    
+
     <div class="category-header">Templates</div>
     <div class="category-content">
       <div class="form-group">
@@ -205,7 +239,7 @@
         <button id="editTemplates">Edit Templates</button>
       </div>
     </div>
-    
+
     <div class="category-header">Configuration</div>
     <div class="category-content">
       <div class="form-group config-buttons">
@@ -222,4 +256,5 @@
   </div>
   <script src="popup.js"></script>
 </body>
+
 </html>

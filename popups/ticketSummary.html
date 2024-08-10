@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,10 +18,12 @@
             box-sizing: border-box;
             padding-bottom: 60px;
         }
+
         .loading {
             font-size: 60px;
             margin-bottom: 20px;
         }
+
         .summary {
             font-size: 16px;
             text-align: left;
@@ -29,6 +32,7 @@
             line-height: 1.5;
             display: none;
         }
+
         .loading-icon {
             border: 16px solid #f3f3f3;
             border-radius: 50%;
@@ -38,6 +42,7 @@
             animation: spin 2s linear infinite;
             margin-bottom: 20px;
         }
+
         .footer {
             position: absolute;
             bottom: 0;
@@ -51,20 +56,28 @@
             font-size: 12px;
             box-sizing: border-box;
         }
+
         .footer a {
             color: #333;
             text-decoration: none;
         }
+
         .footer a:hover {
             text-decoration: underline;
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
     </style>
 </head>
+
 <body>
     <div id="loading">
         <div class="loading-icon"></div>
@@ -80,4 +93,5 @@
         <span id="versionText">Version </span>
     </div>
 </body>
+
 </html>

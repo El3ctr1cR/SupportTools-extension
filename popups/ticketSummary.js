@@ -1,7 +1,7 @@
 window.addEventListener('message', (event) => {
     console.log('Received message:', event.data);
     const { loading, summary } = event.data;
-  
+
     if (loading) {
         document.getElementById('loading').style.display = 'block';
         document.getElementById('summary').style.display = 'none';
