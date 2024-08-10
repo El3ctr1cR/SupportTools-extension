@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
   const summarizeButton = document.getElementById('summarizeTicket');
+  const setApiKeyButton = document.getElementById('setApiKey');
   const warningContainer = document.getElementById('warningContainer');
   const updateButton = document.getElementById('updateButton');
   const versionText = document.getElementById('versionText');
@@ -14,29 +15,50 @@ document.addEventListener('DOMContentLoaded', () => {
   const importConfigButton = document.getElementById('importConfig');
   const importFileInput = document.getElementById('importFile');
 
+  setApiKeyButton.addEventListener('click', () => {
+    const apiKey = prompt('Enter your OpenAI API key:');
+    if (apiKey) {
+      chrome.storage.sync.set({ openAiApiKey: apiKey }, () => {
+        chrome.runtime.sendMessage({ action: 'apiKeyUpdated' });
+      });
+    }
+  });
+
   summarizeButton.addEventListener('click', () => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       const activeTab = tabs[0];
-      const summaryPopup = window.open('ticketSummary.html', 'Summarize Ticket', 'width=1200,height=1200');
-      summaryPopup.onload = function() {
-        summaryPopup.postMessage({ loading: true }, '*');
-      };
       chrome.scripting.executeScript(
         {
           target: { tabId: activeTab.id },
-          files: ['functions/templateManager.js']
+          func: () => !!document.querySelector('.Normal.Section .ContentContainer .Content'),
         },
-        () => {
-          chrome.tabs.sendMessage(activeTab.id, { action: 'summarizeTicket' }, (response) => {
-            if (chrome.runtime.lastError) {
-              console.error('Error sending message:', chrome.runtime.lastError);
-              alert('Could not connect to the content script.');
-            } else if (response && response.summary) {
-              summaryPopup.postMessage({ loading: false, summary: response.summary }, '*');
-            } else {
-              alert('Failed to summarize the ticket.');
+        (results) => {
+          if (chrome.runtime.lastError || !results || !results[0].result) {
+            alert('No ticket content found on the page.');
+            return;
+          }
+          const summaryPopup = window.open('ticketSummary.html', 'Summarize Ticket', 'width=1200,height=1200');
+          summaryPopup.onload = function() {
+            summaryPopup.postMessage({ loading: true }, '*');
+          };
+          chrome.scripting.executeScript(
+            {
+              target: { tabId: activeTab.id },
+              files: ['functions/AI.js']
+            },
+            () => {
+              chrome.tabs.sendMessage(activeTab.id, { action: 'summarizeTicket' }, (response) => {
+                if (chrome.runtime.lastError) {
+                  console.error('Error sending message:', chrome.runtime.lastError);
+                  alert('Could not connect to the content script.');
+                } else if (response && response.summary) {
+                  summaryPopup.postMessage({ loading: false, summary: response.summary }, '*');
+                } else {
+                  alert('Failed to summarize the ticket.');
+                }
+              });
             }
-          });
+          );
         }
       );
     });

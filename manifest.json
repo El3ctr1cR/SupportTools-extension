@@ -34,7 +34,7 @@
   "content_scripts": [
     {
       "matches": ["https://*.autotask.net/*"],
-      "js": ["functions/templateManager.js"]
+      "js": ["functions/templateManager.js", "functions/AI.js"]
     }
   ],
   "web_accessible_resources": [
