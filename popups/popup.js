@@ -17,21 +17,18 @@ document.addEventListener('DOMContentLoaded', () => {
   summarizeButton.addEventListener('click', () => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       const activeTab = tabs[0];
-
-      // Inject the content script if it hasn't been injected already
       chrome.scripting.executeScript(
         {
           target: { tabId: activeTab.id },
-          files: ['functions/templateManager.js'] // Ensure the AI integration is here
+          files: ['functions/templateManager.js']
         },
         () => {
-          // Send message to the content script
           chrome.tabs.sendMessage(activeTab.id, { action: 'summarizeTicket' }, (response) => {
             if (chrome.runtime.lastError) {
               console.error('Error sending message:', chrome.runtime.lastError);
               alert('Could not connect to the content script.');
             } else if (response && response.summary) {
-              alert(`Summary and Suggested Solutions:\n\n${response.summary}`);
+              alert(`${response.summary}`);
             } else {
               alert('Failed to summarize the ticket.');
             }
