@@ -94,3 +94,9 @@ document.addEventListener('DOMContentLoaded', () => {
     chrome.runtime.sendMessage({ action: 'updateDropdown' });
   }
 });
+
+document.addEventListener('DOMContentLoaded', () => {
+  const manifestData = chrome.runtime.getManifest();
+  const versionText = document.getElementById('versionText');
+  versionText.textContent = `Version ${manifestData.version}`;
+});

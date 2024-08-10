@@ -99,6 +99,39 @@
       margin-bottom: 20px;
     }
 
+    .footer {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 20px;
+      background-color: #f9f9f9;
+      border-top: 1px solid #d3d3d3;
+      font-size: 12px;
+      box-sizing: border-box;
+    }
+
+    .footer a {
+      color: #333;
+      text-decoration: none;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
     #templatesContainer {
       flex-grow: 1;
       overflow-y: auto;
@@ -155,6 +188,10 @@
   </ul>
   <div id="templatesContainer"></div>
   <button id="saveTemplates">Save Templates</button>
+  <div class="footer">
+    <a href="https://github.com/El3ctr1cR" target="_blank">https://github.com/El3ctr1cR</a>
+    <span id="versionText">Version </span>
+  </div>
   <script src="templateEditor.js"></script>
 </body>
 
