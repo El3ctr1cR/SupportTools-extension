@@ -37,7 +37,8 @@
       font-size: 14px;
       padding: 10px;
       box-sizing: border-box;
-      resize: none;
+      resize: vertical;
+      /* Allow vertical resizing only */
       border-radius: 5px;
       border: 1px solid #ccc;
     }
@@ -117,13 +118,31 @@
     #saveTemplates:hover {
       background-color: #218838;
     }
+
+    #variableList {
+      margin-top: 10px;
+      list-style-type: none;
+      padding: 0;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.5s ease;
+    }
+
+    #toggleVariables {
+      background-color: #17a2b8;
+      margin-bottom: 10px;
+    }
+
+    #toggleVariables:hover {
+      background-color: #138496;
+    }
   </style>
 </head>
 
 <body>
   <h2>Edit Templates</h2>
-  <p class="note">You can use the following variables in your templates:</p>
-  <ul class="note">
+  <button id="toggleVariables">Show usable variables</button>
+  <ul id="variableList" class="note">
     <li><code>${loggedinUser}</code> - The name of the logged-in user.</li>
     <li><code>${ticketContact}</code> - The name of the ticket contact person.</li>
     <li><code>${ticketPrimaryResource}</code> - The primary resource assigned to the ticket.</li>

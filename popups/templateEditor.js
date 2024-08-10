@@ -1,11 +1,23 @@
 document.addEventListener('DOMContentLoaded', () => {
   const templatesContainer = document.getElementById('templatesContainer');
   const saveTemplatesButton = document.getElementById('saveTemplates');
+  const toggleVariablesButton = document.getElementById('toggleVariables');
+  const variableList = document.getElementById('variableList');
+
+  toggleVariablesButton.addEventListener('click', () => {
+    if (variableList.style.maxHeight === '0px' || variableList.style.maxHeight === '') {
+      variableList.style.maxHeight = variableList.scrollHeight + 'px';
+      toggleVariablesButton.textContent = 'Hide usable variables';
+    } else {
+      variableList.style.maxHeight = '0px';
+      toggleVariablesButton.textContent = 'Show usable variables';
+    }
+  });
 
   chrome.storage.sync.get(['templates'], (result) => {
     const templates = result.templates || {};
 
-    Object.keys(templates).forEach((key, index) => {
+    Object.keys(templates).forEach((key) => {
       const templateName = key;
       const templateContent = templates[key];
       addTemplateGroup(templateName, templateContent);
@@ -19,7 +31,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   function addTemplateGroup(name, content) {
-    const templateCount = templatesContainer.children.length + 1;
     const templateGroup = document.createElement('div');
     templateGroup.className = 'template-group';
     templateGroup.innerHTML = `
@@ -64,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
   saveTemplatesButton.addEventListener('click', () => {
     const templates = {};
     const templateGroups = templatesContainer.querySelectorAll('.template-group');
-    templateGroups.forEach((group, index) => {
+    templateGroups.forEach((group) => {
       const templateName = group.querySelector('.template-name').value.trim();
       const templateContent = group.querySelector('textarea').value.trim();
       if (templateName !== '' && templateContent !== '') {
