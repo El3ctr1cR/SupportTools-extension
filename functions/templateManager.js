@@ -136,12 +136,28 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
       if (selectedTemplate) {
         const emailText = processTemplate(selectedTemplate, ticketDetails);
-        const contentEditableDiv = document.querySelector('div.ContentEditable2.Small[contenteditable="true"]');
+        let contentEditableDiv = document.querySelector('div.ContentEditable2.Small[contenteditable="true"]');
+
+        if (!contentEditableDiv) {
+          contentEditableDiv = document.querySelector('div.ContentEditable2.Large[contenteditable="true"]');
+        }
+
         if (contentEditableDiv) {
           contentEditableDiv.innerHTML = emailText.replace(/\n/g, '<br>');
           sendResponse({ success: true });
         } else {
-          sendResponse({ success: false, message: 'Content editable div not found' });
+          const textAreaContainer = document.querySelector('div.TextArea2');
+          if (textAreaContainer) {
+            const textArea = textAreaContainer.querySelector('textarea.Normal');
+            if (textArea) {
+              textArea.value = emailText;
+              sendResponse({ success: true });
+            } else {
+              sendResponse({ success: false, message: 'Textarea element not found' });
+            }
+          } else {
+            sendResponse({ success: false, message: 'No suitable content area found to insert text' });
+          }
         }
       } else {
         sendResponse({ success: false, message: 'Template not found' });
