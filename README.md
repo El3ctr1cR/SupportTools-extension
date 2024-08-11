@@ -1,14 +1,15 @@
-# Support Tools Extension
-
-This Chrome extension is designed primarily for IT Support teams using the Autotask ticketing system. It provides automated handling of specific URLs and offers customizable Autotask email templates with variables.
+> [!IMPORTANT]
+> This extension is specifically designed for IT teams utilizing the Autotask platform.
 
 ## Features
 
-### 1. Office URLs in Incognito Mode
-- Automatically opens specified Office URLs (e.g., `portal.office.com`, `microsoft365.com`, `admin.microsoft.com`, `portal.azure.com`) in incognito mode.
-- A bypass filter can be enabled to prevent this automatic behavior, allowing the URLs to open in the normal browsing mode.
+### AI Summarization of Tickets
+- The extension integrates with OpenAI's GPT-4o mini to provide AI-driven summarization of Autotask tickets.
+- This feature helps to generate concise summaries of ticket details, including action points and pending tasks, directly within the Autotask system.
+> [!WARNING]
+> You will need your own OpenAI API key to use this feature. You can set this key in the extension menu.
 
-### 2. Autotask Email Template Variables
+### Autotask response templates with dynamic variables
 - You can create custom email templates within Autotask using predefined variables for dynamic content.
 - **List of available variables:**
   - `${loggedinUser}`: The name of the logged-in user.
@@ -20,13 +21,17 @@ This Chrome extension is designed primarily for IT Support teams using the Autot
   - `${ticketNewStatus}`: The new status that has been set for the ticket.
   - `${currentTime}`: The current time.
   - `${currentDate}`: The current date.
+  
+### Office URLs in Incognito Mode
+- Automatically opens specified Office URLs (e.g., `portal.office.com`, `microsoft365.com`, `admin.microsoft.com`, `portal.azure.com`) in incognito mode.
+- A bypass filter can be enabled to prevent this automatic behavior, allowing the URLs to open in the normal browsing mode.
 
-### 3. Configuration Export and Import
+### Configuration Export and Import
 - The extension allows you to export and import configuration settings, making it easy to transfer settings between different environments or users.
 
 ## Installation
 
-1. Clone or download this repository.
+1. [Download](https://github.com/El3ctr1cR/SupportTools-extension/archive/refs/heads/main.zip) the latest release.
 2. Open Chrome and navigate to `chrome://extensions/`.
 3. Enable "Developer mode" in the top right corner.
 4. Click "Load unpacked" and select the directory where this extension is located.
