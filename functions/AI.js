@@ -20,9 +20,9 @@ async function getTicketSummary(formattedDetails) {
                 model: 'gpt-4o-mini',
                 messages: [{
                     "role": "user",
-                    "content": `Wij zijn een IT support afdeling en we hebben het volgende ticket binnen gekregen. Maak een samenvatting en beschrijf de actiepunten die zijn ondernomen en die nog ondernomen moeten worden:\n\n${formattedDetails}`
+                    "content": `Wij zijn een IT Support team en hebben een ticket binnen gekregen. Doe het volgende:\n1. Maak een korte samenvatting van de originele ticket.\n2. Noteer alle punten die zijn uitgevoerd.\n3. Noteer alle punten die nog uitgevoerd moeten worden.\n\n${formattedDetails}`
                 }],
-                max_tokens: 700,
+                max_tokens: 1500,
                 temperature: 0.7
             })
         });
