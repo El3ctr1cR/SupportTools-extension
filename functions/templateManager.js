@@ -17,6 +17,14 @@ function getTextUnderLabel(labelText, valueSelector) {
   return '';
 }
 
+function splitName(fullName) {
+  fullName = fullName.replace(/^(Dhr\.|Mevr\.)\s*/, '').trim();
+  const nameParts = fullName.split(' ');
+  const firstName = nameParts[0];
+  const lastName = nameParts[nameParts.length - 1];
+  return { firstName, lastName };
+}
+
 function getCurrentDate() {
   const now = new Date();
   return now.toLocaleDateString('nl-NL', {
@@ -101,8 +109,11 @@ function getLoggedinUser() {
 }
 
 function getTicketDetails() {
+  const fullName = getTextUnderLabel('Contact', '.ReadOnlyValueContainer .Text2').trim();
+  const { firstName, lastName } = splitName(fullName);
   return {
-    ticketContact: getTextUnderLabel('Contact', '.ReadOnlyValueContainer .Text2').replace('Dhr. ', '').replace('Mevr. ', ''),
+    ticketContactFirstname: firstName,
+    ticketContactLastname: lastName,
     ticketPrimaryResource: getTicketPrimaryResource(),
     ticketLastActivityTime: getLastTicketActivityTime(),
     ticketPriority: getTicketPriority(),
@@ -116,7 +127,8 @@ function getTicketDetails() {
 
 function processTemplate(template, ticketDetails) {
   return template
-    .replace('${ticketContact}', ticketDetails.ticketContact)
+    .replace('${ticketContactFirstname}', ticketDetails.ticketContactFirstname)
+    .replace('${ticketContactLastname}', ticketDetails.ticketContactLastname)
     .replace('${ticketPrimaryResource}', ticketDetails.ticketPrimaryResource)
     .replace('${ticketLastActivityTime}', ticketDetails.ticketLastActivityTime)
     .replace('${ticketPriority}', ticketDetails.ticketPriority)

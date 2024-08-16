@@ -38,7 +38,6 @@
       padding: 10px;
       box-sizing: border-box;
       resize: vertical;
-      /* Allow vertical resizing only */
       border-radius: 5px;
       border: 1px solid #ccc;
     }
@@ -177,7 +176,8 @@
   <button id="toggleVariables">Show usable variables</button>
   <ul id="variableList" class="note">
     <li><code>${loggedinUser}</code> - The name of the logged-in user.</li>
-    <li><code>${ticketContact}</code> - The name of the ticket contact person.</li>
+    <li><code>${ticketContactFirstname}</code> - The first name of the ticket contact</li>
+    <li><code>${ticketContactLastname}</code> - The last name of the ticket contact</li>
     <li><code>${ticketPrimaryResource}</code> - The primary resource assigned to the ticket.</li>
     <li><code>${ticketLastActivityTime}</code> - The date and time of the last activity on the ticket.</li>
     <li><code>${ticketPriority}</code> - The priority level of the ticket.</li>
