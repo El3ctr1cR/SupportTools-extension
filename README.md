@@ -24,7 +24,7 @@
   - `${currentDate}`: The current date.
 
 ### TOTP Hex and Base32 Generator
-- The extension includes a TOTP (Time-based One-Time Password) generator that provides both Hex and Base32 encoded keys.
+- A TOTP generator that provides both Hex and Base32 encoded keys.
 - This feature is particularly useful for integrating with Duo Security and IT Glue, where such keys are often required.
   
 ### Office URLs in Incognito Mode
