@@ -48,7 +48,9 @@
         "popups/templateEditor.html",
         "popups/templateEditor.js",
         "popups/ticketSummary.html",
-        "popups/ticketSummary.js"
+        "popups/ticketSummary.js",
+        "popups/totpGenerator.html",
+        "popups/totpGenerator.js"
       ],
       "matches": [
         "<all_urls>"

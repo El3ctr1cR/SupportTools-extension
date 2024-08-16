@@ -14,6 +14,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const exportConfigButton = document.getElementById('exportConfig');
   const importConfigButton = document.getElementById('importConfig');
   const importFileInput = document.getElementById('importFile');
+  const generateTOTPButton = document.getElementById('generateTOTP');
+
+  generateTOTPButton.addEventListener('click', () => {
+    chrome.windows.create({
+      url: chrome.runtime.getURL('popups/totpGenerator.html'),
+      type: 'popup',
+      width: 600,
+      height: 320
+    });
+  });
 
   setApiKeyButton.addEventListener('click', () => {
     const apiKey = prompt('Enter your OpenAI API key:');
