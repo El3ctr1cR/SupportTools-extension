@@ -100,9 +100,9 @@ function getLoggedinUser() {
   const scriptTags = document.querySelectorAll('script');
   for (let script of scriptTags) {
     const scriptContent = script.innerHTML;
-    const match = scriptContent.match(/'*Solutions','(.*?)','(.*?)','(.*?)'/);
-    if (match && match[3]) {
-      return match[3];
+    const match = scriptContent.match(/'([A-Za-z\s]+)','[A-Za-z\s]+','([A-Za-z\s]+ [A-Za-z\s]+)',\d{3,}/);
+    if (match && match[2]) {
+      return match[2];
     }
   }
   return 'Unknown User';
