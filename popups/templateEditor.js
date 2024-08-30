@@ -4,14 +4,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const toggleVariablesButton = document.getElementById('toggleVariables');
   const variableList = document.getElementById('variableList');
 
+  variableList.style.display = 'none';
+  toggleVariablesButton.textContent = 'Show usable variables';
+
   toggleVariablesButton.addEventListener('click', () => {
-    if (variableList.style.maxHeight === '0px' || variableList.style.maxHeight === '') {
-      variableList.style.maxHeight = variableList.scrollHeight + 'px';
+    if (variableList.style.display === 'none' || variableList.style.display === '') {
+      variableList.style.display = 'block';
       toggleVariablesButton.textContent = 'Hide usable variables';
     } else {
-      variableList.style.maxHeight = '0px';
+      variableList.style.display = 'none';
       toggleVariablesButton.textContent = 'Show usable variables';
     }
+    adjustTemplateContainerHeight();
   });
 
   chrome.storage.sync.get(['templates'], (result) => {
@@ -28,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     renumberTemplates();
+    adjustTemplateContainerHeight();
   });
 
   function addTemplateGroup(name, content) {
@@ -47,6 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
     removeButton.addEventListener('click', () => {
       templateGroup.remove();
       renumberTemplates();
+      adjustTemplateContainerHeight();
     });
 
     renumberTemplates();
@@ -66,10 +72,19 @@ document.addEventListener('DOMContentLoaded', () => {
           const newTemplateId = `Template ${templatesContainer.children.length + 1}`;
           addTemplateGroup(newTemplateId, '');
           renumberTemplates();
+          adjustTemplateContainerHeight();
         });
         group.appendChild(addButton);
       }
     });
+  }
+
+  function adjustTemplateContainerHeight() {
+    const windowHeight = window.innerHeight;
+    const variableListHeight = variableList.style.display !== 'none' ? variableList.scrollHeight : 0;
+    const footerHeight = document.querySelector('.footer').offsetHeight;
+    const remainingHeight = windowHeight - variableListHeight - footerHeight - 60;
+    templatesContainer.style.height = `${remainingHeight}px`;
   }
 
   saveTemplatesButton.addEventListener('click', () => {
@@ -93,6 +108,8 @@ document.addEventListener('DOMContentLoaded', () => {
   function updateDropdown(templates) {
     chrome.runtime.sendMessage({ action: 'updateDropdown' });
   }
+
+  window.addEventListener('resize', adjustTemplateContainerHeight);
 });
 
 document.addEventListener('DOMContentLoaded', () => {

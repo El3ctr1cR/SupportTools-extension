@@ -33,13 +33,14 @@
 
     textarea {
       width: 100%;
-      height: 100px;
+      height: 120px;
       font-size: 14px;
       padding: 10px;
       box-sizing: border-box;
       resize: vertical;
       border-radius: 5px;
       border: 1px solid #ccc;
+      overflow-y: auto;
     }
 
     button {
@@ -59,7 +60,7 @@
     }
 
     .template-group {
-      margin-bottom: 15px;
+      margin-bottom: 10px;
       display: flex;
       align-items: flex-start;
       gap: 10px;
@@ -67,6 +68,8 @@
 
     .template-group .textarea-container {
       flex-grow: 1;
+      overflow: hidden;
+      /* Ensure the container doesn't expand */
     }
 
     .remove-template-btn,
@@ -121,18 +124,7 @@
       text-decoration: underline;
     }
 
-    @keyframes spin {
-      0% {
-        transform: rotate(0deg);
-      }
-
-      100% {
-        transform: rotate(360deg);
-      }
-    }
-
     #templatesContainer {
-      flex-grow: 1;
       overflow-y: auto;
       margin-bottom: 20px;
     }
@@ -155,9 +147,7 @@
       margin-top: 10px;
       list-style-type: none;
       padding: 0;
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.5s ease;
+      display: block;
     }
 
     #toggleVariables {
