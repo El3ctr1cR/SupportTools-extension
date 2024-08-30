@@ -5,7 +5,9 @@
   <title>Support Tools</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #121212;
+      color: #e0e0e0;
       width: 400px;
       height: 600px;
       padding: 0;
@@ -17,8 +19,8 @@
     }
 
     .header {
-      background-color: #333;
-      color: white;
+      background: linear-gradient(45deg, #1f1f1f, #2a2a2a);
+      color: #ffffff;
       padding: 10px 0;
       text-align: center;
       font-weight: bold;
@@ -26,131 +28,129 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+      border-bottom: 2px solid #333;
     }
 
     .header img {
       height: 25px;
       width: 25px;
-      margin-right: 10px;
+      margin-right: 8px;
     }
 
     .content {
-      padding: 20px;
+      padding: 15px;
       flex-grow: 1;
     }
 
     .form-group {
-      margin-bottom: 15px;
+      margin-bottom: 12px;
     }
 
     .form-group-inline {
       display: flex;
       align-items: center;
-      margin-bottom: 15px;
+      margin-bottom: 12px;
     }
 
     .form-group-inline input[type="text"] {
       flex: 1;
+      background-color: #2a2a2a;
+      color: #e0e0e0;
+      border: 1px solid #444;
+      border-radius: 3px;
+      padding: 6px;
+      transition: box-shadow 0.3s ease;
+    }
+
+    .form-group-inline input[type="text"]:focus {
+      box-shadow: 0 0 5px rgba(91, 192, 222, 0.8);
     }
 
     label {
-      margin-right: 10px;
-      font-size: 14px;
+      margin-right: 8px;
+      font-size: 13px;
     }
 
     input[type="checkbox"] {
-      margin-right: 10px;
+      margin-right: 8px;
+      transform: scale(1.1);
     }
 
     button,
     select,
     input {
-      padding: 8px 12px;
-      font-size: 14px;
+      padding: 6px 8px;
+      font-size: 12px;
       cursor: pointer;
-      margin-bottom: 5px;
-      border-radius: 4px;
+      margin-bottom: 6px;
+      border-radius: 3px;
       transition: background-color 0.3s ease, box-shadow 0.3s ease;
+      background-color: #2a2a2a;
+      color: #e0e0e0;
+      border: 1px solid #444;
+      position: relative;
+      overflow: hidden;
     }
 
     input[type="text"],
     select {
       width: 100%;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-
-    button {
-      width: auto;
-      border: none;
-      background-color: #e0e0e0;
-      color: #333;
+      background-color: #2a2a2a;
+      color: #e0e0e0;
+      border: 1px solid #444;
+      border-radius: 3px;
     }
 
     button:hover {
-      background-color: #d0d0d0;
-      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    .save-btn {
-      margin-left: 10px;
+      background-color: #3a3a3a;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
 
     .config-buttons {
       display: flex;
-      gap: 10px;
+      gap: 8px;
     }
 
     .config-buttons button {
       flex: 1;
-      padding: 10px 15px;
-      font-weight: bold;
-      color: white;
+      padding: 6px 8px;
+      background-color: #2a2a2a;
+      border: 1px solid #444;
+      color: #e0e0e0;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
     }
 
-    .clear-config-btn {
-      background-color: #d9534f;
-    }
-
-    .clear-config-btn:hover {
-      background-color: #c9302c;
-      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
-    }
-
-    .export-config-btn,
-    .import-config-btn {
-      background-color: #5bc0de;
-    }
-
-    .export-config-btn:hover,
-    .import-config-btn:hover {
-      background-color: #31b0d5;
-      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    .config-buttons button:hover {
+      background: linear-gradient(45deg, #3a3a3a, #444);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
     }
 
     .category-header {
       font-weight: bold;
       font-size: 14px;
-      margin-top: 15px;
-      padding-bottom: 5px;
-      border-bottom: 2px solid #d3d3d3;
+      margin-top: 12px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid #444;
+      color: #ffffff;
     }
 
     .category-content {
-      padding-top: 10px;
+      padding-top: 8px;
     }
 
     .footer {
       display: flex;
       justify-content: space-between;
-      padding: 10px 20px;
-      background-color: #f9f9f9;
-      border-top: 1px solid #d3d3d3;
-      font-size: 12px;
+      padding: 10px 15px;
+      background-color: #1f1f1f;
+      border-top: 2px solid #333;
+      font-size: 11px;
+      color: #a0a0a0;
     }
 
     .footer a {
-      color: #333;
+      color: #5bc0de;
       text-decoration: none;
     }
 
@@ -159,46 +159,84 @@
     }
 
     .button-group-inline button {
-      background-color: #e0e0e0;
-      color: #333;
+      background-color: #2a2a2a;
+      color: #e0e0e0;
+      border: 1px solid #333;
+      border-radius: 3px;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
     }
 
     .button-group-inline button:hover {
-      background-color: #d0d0d0;
-      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+      background-color: #3a3a3a;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
     }
 
     #warningContainer {
       display: none;
-      padding: 15px 20px;
-      background-color: #fef7d8;
-      border: 1px solid #ffe08a;
+      padding: 12px 16px;
+      background-color: #3a3a3a;
+      border: 1px solid #555;
       border-radius: 10px;
-      color: #856404;
-      font-size: 14px;
+      color: #e0e0e0;
+      font-size: 13px;
       font-weight: 500;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      margin-bottom: 20px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+      margin-bottom: 15px;
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      /* Align items vertically in the center */
+      justify-content: space-between;
     }
 
     #updateButton {
       padding: 8px 16px;
-      background-color: #ff0000;
+      background-color: #ff4c4c;
       color: #fff;
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 600;
       transition: background-color 0.3s ease, box-shadow 0.3s ease;
+      margin-top: 5px;
     }
 
+
     #updateButton:hover {
-      background-color: #0056b3;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      background-color: #e60000;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    }
+
+    .warning-icon {
+      margin-right: -15px;
+      margin-bottom: 3px;
+      font-size: 25px;
+      color: #ffcc00;
+    }
+
+    /* Fancy hover effect for buttons */
+    button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 0%;
+      height: 100%;
+      background-color: rgba(255, 255, 255, 0.1);
+      transition: width 0.3s ease;
+      border-radius: 3px;
+    }
+
+    button:hover::before {
+      width: 100%;
+    }
+
+    /* Glow effect for inputs and select */
+    input[type="text"]:focus,
+    select:focus {
+      outline: none;
+      box-shadow: 0 0 10px rgba(91, 192, 222, 0.8);
+      border-color: #5bc0de;
     }
   </style>
 </head>
@@ -209,7 +247,8 @@
     <span>Support Tools</span>
   </div>
   <div class="content">
-    <div class="warning-container" id="warningContainer" style="display:none;">
+    <div class="warning-container" id="warningContainer" style="display: flex;">
+      <span class="warning-icon">&#9888;</span>
       <span id="warningText">Version mismatch, please update.</span>
       <button id="updateButton">Update</button>
     </div>
@@ -222,7 +261,7 @@
       </div>
       <div class="form-group">
         <button id="backupCheck">Back-up check</button>
-        <button id="summarizeTicket">Summarize Ticket</button>
+        <button id="summarizeTicket">Summarize ticket</button>
         <button id="generateTOTP">Generate TOTP</button>
       </div>
     </div>
@@ -243,10 +282,10 @@
     <div class="category-header">Configuration</div>
     <div class="category-content">
       <div class="form-group config-buttons">
-        <button id="exportConfig" class="export-config-btn">Export Config</button>
-        <button id="importConfig" class="import-config-btn">Import Config</button>
+        <button id="exportConfig">Export config</button>
+        <button id="importConfig">Import config</button>
         <input type="file" id="importFile" style="display: none;">
-        <button id="clearConfig" class="clear-config-btn">Reset Config</button>
+        <button id="clearConfig">Reset config</button>
       </div>
       <button id="setApiKey">Set OpenAI API Key</button>
     </div>
