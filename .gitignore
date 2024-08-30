@@ -1,3 +1,4 @@
 *.zip
 *.py
 *.txt
+.vscode/settings.json
