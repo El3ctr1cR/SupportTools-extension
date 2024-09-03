@@ -15,7 +15,6 @@
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
     }
 
     .header {
@@ -36,6 +35,60 @@
       height: 25px;
       width: 25px;
       margin-right: 8px;
+    }
+
+    .tab-container {
+      display: flex;
+      justify-content: space-around;
+      background-color: #1f1f1f;
+      margin-top: 0;
+      padding: 0;
+      border-bottom: 2px solid #333;
+    }
+
+    .tab {
+      flex: 1;
+      text-align: center;
+      cursor: pointer;
+      padding: 10px;
+      font-size: 14px;
+      color: #e0e0e0;
+      background-color: #2a2a2a;
+      border: none;
+      transition: background-color 0.3s ease, border-radius 0s !important;
+      border-radius: 0 !important;
+      margin-bottom: -2px;
+      box-shadow: none !important;
+      position: relative;
+    }
+
+    .tab:hover {
+      background-color: #3a3a3a;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+    }
+
+    .tab.active {
+      background-color: #444;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+    }
+
+    .tab:hover::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #3a3a3a;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      z-index: -1;
+    }
+
+    .tab::before {
+      transition: background-color 0.3s ease, border-radius 0s !important;
     }
 
     .content {
@@ -109,11 +162,12 @@
 
     .config-buttons {
       display: flex;
+      flex-direction: column;
       gap: 8px;
     }
 
     .config-buttons button {
-      flex: 1;
+      width: 100%;
       padding: 6px 8px;
       background-color: #2a2a2a;
       border: 1px solid #444;
@@ -125,6 +179,7 @@
       background: linear-gradient(45deg, #3a3a3a, #444);
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
     }
+
 
     .category-header {
       font-weight: bold;
@@ -171,8 +226,10 @@
       box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
     }
 
-    #warningContainer {
-      display: none;
+    .warning-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       padding: 12px 16px;
       background-color: #3a3a3a;
       border: 1px solid #555;
@@ -181,11 +238,12 @@
       font-size: 13px;
       font-weight: 500;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-      margin-bottom: 15px;
-      display: flex;
-      align-items: center;
-      /* Align items vertically in the center */
-      justify-content: space-between;
+      margin: 10px 10px 15px 10px;
+    }
+
+    #warningText {
+      flex-grow: 1;
+      margin-left: 3px;
     }
 
     #updateButton {
@@ -198,9 +256,9 @@
       font-size: 13px;
       font-weight: 600;
       transition: background-color 0.3s ease, box-shadow 0.3s ease;
+      margin-left: 16px;
       margin-top: 5px;
     }
-
 
     #updateButton:hover {
       background-color: #e60000;
@@ -208,13 +266,12 @@
     }
 
     .warning-icon {
-      margin-right: -15px;
-      margin-bottom: 3px;
-      font-size: 25px;
-      color: #ffcc00;
+      width: 35px;
+      height: 35px;
+      margin-right: 8px;
+      filter: invert(26%) sepia(88%) saturate(6776%) hue-rotate(357deg) brightness(104%) contrast(107%);
     }
 
-    /* Fancy hover effect for buttons */
     button::before {
       content: '';
       position: absolute;
@@ -231,7 +288,6 @@
       width: 100%;
     }
 
-    /* Glow effect for inputs and select */
     input[type="text"]:focus,
     select:focus {
       outline: none;
@@ -246,12 +302,20 @@
     <img src="../icons/icon.png" alt="Icon">
     <span>Support Tools</span>
   </div>
-  <div class="content">
-    <div class="warning-container" id="warningContainer" style="display:none;">
-      <span class="warning-icon">&#9888;</span>
-      <span id="warningText">Version mismatch, please update.</span>
-      <button id="updateButton">Update</button>
-    </div>
+
+  <div class="tab-container">
+    <button class="tab active" id="tabAutotask">Autotask</button>
+    <button class="tab" id="tabMisc">Misc</button>
+    <button class="tab" id="tabSettings">Settings</button>
+  </div>
+
+  <div class="warning-container" id="warningContainer" style="display:none;">
+    <img src="../icons/error.png" alt="Error Icon" class="warning-icon">
+    <span id="warningText"></span>
+    <button id="updateButton">Update</button>
+  </div>
+
+  <div class="content" id="contentAutotask">
     <div class="category-header">General</div>
     <div class="category-content">
       <div class="form-group-inline">
@@ -259,9 +323,7 @@
         <label for="bypassToggle">Bypass Incognito Redirection</label>
       </div>
       <div class="form-group">
-        <button id="backupCheck">Back-up check</button>
         <button id="summarizeTicket">Summarize ticket</button>
-        <button id="generateTOTP">Generate TOTP</button>
       </div>
     </div>
 
@@ -277,7 +339,22 @@
         <button id="editTemplates">Edit Templates</button>
       </div>
     </div>
+  </div>
 
+  <div class="content" id="contentMisc" style="display: none;">
+    <div class="category-header">Miscellaneous</div>
+    <div class="category-content">
+      <button id="hexBase32Gen">Hex/Base32 Gen</button>
+    </div>
+  </div>
+
+  <div class="content" id="contentSettings" style="display: none;">
+    <div class="category-header">Miscellaneous</div>
+    <div class="category-content">
+      <div class="form-group config-buttons">
+        <button id="setApiKey">Set OpenAI API Key</button>
+      </div>
+    </div>
     <div class="category-header">Configuration</div>
     <div class="category-content">
       <div class="form-group config-buttons">
@@ -286,9 +363,9 @@
         <input type="file" id="importFile" style="display: none;">
         <button id="clearConfig">Reset config</button>
       </div>
-      <button id="setApiKey">Set OpenAI API Key</button>
     </div>
   </div>
+
   <div class="footer">
     <a href="https://github.com/El3ctr1cR" target="_blank">https://github.com/El3ctr1cR</a>
     <span id="versionText">Version </span>

@@ -1,11 +1,24 @@
 document.addEventListener('DOMContentLoaded', () => {
+  const tabs = document.querySelectorAll('.tab');
+  const contentSections = document.querySelectorAll('.content');
+
+  tabs.forEach((tab, index) => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+
+      contentSections.forEach(section => section.style.display = 'none');
+      contentSections[index].style.display = 'block';
+    });
+  });
+
   const summarizeButton = document.getElementById('summarizeTicket');
   const setApiKeyButton = document.getElementById('setApiKey');
   const warningContainer = document.getElementById('warningContainer');
   const updateButton = document.getElementById('updateButton');
   const versionText = document.getElementById('versionText');
+  const warningText = document.getElementById('warningText'); // Get the warning text element
   const bypassToggle = document.getElementById('bypassToggle');
-  const backupCheckButton = document.getElementById('backupCheck');
   const inputMailButton = document.getElementById('inputMail');
   const copyMailButton = document.getElementById('copyMail');
   const editTemplatesButton = document.getElementById('editTemplates');
@@ -14,11 +27,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const exportConfigButton = document.getElementById('exportConfig');
   const importConfigButton = document.getElementById('importConfig');
   const importFileInput = document.getElementById('importFile');
-  const generateTOTPButton = document.getElementById('generateTOTP');
+  const hexBase32GenButton = document.getElementById('hexBase32Gen');
 
-  generateTOTPButton.addEventListener('click', () => {
+  hexBase32GenButton.addEventListener('click', () => {
     chrome.windows.create({
-      url: chrome.runtime.getURL('popups/totpGenerator.html'),
+      url: chrome.runtime.getURL('popups/hexBase32Gen.html'),
       type: 'popup',
       width: 600,
       height: 320
@@ -78,7 +91,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-
   fetch(chrome.runtime.getURL('manifest.json'))
     .then(response => response.json())
     .then(manifest => {
@@ -91,6 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
           const latestVersion = latestRelease.tag_name.replace('v', '');
 
           if (currentVersion !== latestVersion) {
+            warningText.textContent = `Version ${latestVersion} is available for download`; // Set the dynamic version text
             warningContainer.style.display = 'flex';
           }
         });
@@ -121,11 +134,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   bypassToggle.addEventListener('change', () => {
     chrome.storage.sync.set({ bypassIncognito: bypassToggle.checked });
-  });
-
-  backupCheckButton.addEventListener('click', () => {
-    const urls = ['https://manage.altaro.com', 'https://backup.management', 'https://portal.dattobackup.com'];
-    urls.forEach(url => chrome.tabs.create({ url }));
   });
 
   inputMailButton.addEventListener('click', () => {
@@ -197,12 +205,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-
   editTemplatesButton.addEventListener('click', () => {
     chrome.windows.create({
       url: chrome.runtime.getURL('popups/templateEditor.html'),
       type: 'popup',
-      width: 550,
+      width: 620,
       height: 1035
     });
   });
