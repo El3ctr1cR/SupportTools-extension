@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const warningContainer = document.getElementById('warningContainer');
   const updateButton = document.getElementById('updateButton');
   const versionText = document.getElementById('versionText');
-  const warningText = document.getElementById('warningText'); // Get the warning text element
+  const warningText = document.getElementById('warningText');
   const bypassToggle = document.getElementById('bypassToggle');
   const inputMailButton = document.getElementById('inputMail');
   const copyMailButton = document.getElementById('copyMail');
@@ -28,6 +28,41 @@ document.addEventListener('DOMContentLoaded', () => {
   const importConfigButton = document.getElementById('importConfig');
   const importFileInput = document.getElementById('importFile');
   const hexBase32GenButton = document.getElementById('hexBase32Gen');
+
+  function handleAiAction(action, popupHtml, contentSelector) {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      const activeTab = tabs[0];
+      chrome.scripting.executeScript({
+        target: { tabId: activeTab.id },
+        func: (selector) => !!document.querySelector(selector),
+        args: [contentSelector],
+      }, (results) => {
+        if (chrome.runtime.lastError || !results || !results[0].result) {
+          alert('No ticket content found on the page.');
+          return;
+        }
+
+        const aiPopup = window.open(popupHtml, 'AI Task', 'width=1200,height=1200');
+        aiPopup.onload = function () {
+          aiPopup.postMessage({ loading: true }, '*');
+        };
+
+        chrome.scripting.executeScript({
+          target: { tabId: activeTab.id },
+          files: ['functions/aiTaskHandler.js']
+        }, () => {
+          chrome.tabs.sendMessage(activeTab.id, { action }, (response) => {
+            if (response && response.summary) {
+              aiPopup.postMessage({ loading: false, summary: response.summary }, '*');
+            } else {
+              alert('Failed to handle AI action.');
+            }
+          });
+        });
+      });
+    });
+  }
+  summarizeButton.addEventListener('click', () => handleAiAction('summarizeTicket', 'ticketSummary.html', '.Normal.Section .ContentContainer .Content'));
 
   hexBase32GenButton.addEventListener('click', () => {
     chrome.windows.create({
@@ -49,46 +84,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
       });
     }
-  });
-
-  summarizeButton.addEventListener('click', () => {
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      const activeTab = tabs[0];
-      chrome.scripting.executeScript(
-        {
-          target: { tabId: activeTab.id },
-          func: () => !!document.querySelector('.Normal.Section .ContentContainer .Content'),
-        },
-        (results) => {
-          if (chrome.runtime.lastError || !results || !results[0].result) {
-            alert('No ticket content found on the page.');
-            return;
-          }
-          const summaryPopup = window.open('ticketSummary.html', 'Summarize Ticket', 'width=1200,height=1200');
-          summaryPopup.onload = function () {
-            summaryPopup.postMessage({ loading: true }, '*');
-          };
-          chrome.scripting.executeScript(
-            {
-              target: { tabId: activeTab.id },
-              files: ['functions/AI.js']
-            },
-            () => {
-              chrome.tabs.sendMessage(activeTab.id, { action: 'summarizeTicket' }, (response) => {
-                if (chrome.runtime.lastError) {
-                  console.error('Error sending message:', chrome.runtime.lastError);
-                  alert('Could not connect to the content script.');
-                } else if (response && response.summary) {
-                  summaryPopup.postMessage({ loading: false, summary: response.summary }, '*');
-                } else {
-                  alert('Failed to summarize the ticket.');
-                }
-              });
-            }
-          );
-        }
-      );
-    });
   });
 
   fetch(chrome.runtime.getURL('manifest.json'))

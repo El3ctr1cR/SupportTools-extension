@@ -36,7 +36,7 @@
       ],
       "js": [
         "functions/templateManager.js",
-        "functions/AI.js"
+        "functions/aiTaskHandler.js"
       ]
     }
   ],
