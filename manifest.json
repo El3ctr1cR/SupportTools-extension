@@ -6,16 +6,14 @@
     "tabs",
     "storage",
     "activeTab",
-    "scripting"
+    "scripting",
+    "webNavigation"
   ],
   "background": {
     "service_worker": "functions/incognito.js"
   },
+  "incognito": "split",
   "host_permissions": [
-    "https://*.microsoft.com/*",
-    "https://*.azure.com/*",
-    "https://*.office.com/*",
-    "https://*.microsoft365.com/*",
     "https://*.autotask.net/*"
   ],
   "action": {
@@ -48,9 +46,7 @@
         "popups/templateEditor.html",
         "popups/templateEditor.js",
         "popups/ticketSummary.html",
-        "popups/ticketSummary.js",
-        "popups/totpGenerator.html",
-        "popups/totpGenerator.js"
+        "popups/ticketSummary.js"
       ],
       "matches": [
         "<all_urls>"
