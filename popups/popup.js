@@ -62,11 +62,11 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
   }
-  summarizeButton.addEventListener('click', () => handleAiAction('summarizeTicket', 'ticketSummary.html', '.Normal.Section .ContentContainer .Content'));
+  summarizeButton.addEventListener('click', () => handleAiAction('summarizeTicket', '../popups/autotask/ticketSummary.html', '.Normal.Section .ContentContainer .Content'));
 
   hexBase32GenButton.addEventListener('click', () => {
     chrome.windows.create({
-      url: chrome.runtime.getURL('popups/hexBase32Gen.html'),
+      url: chrome.runtime.getURL('../popups/misc/hexBase32Gen.html'),
       type: 'popup',
       width: 600,
       height: 320
@@ -202,7 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   editTemplatesButton.addEventListener('click', () => {
     chrome.windows.create({
-      url: chrome.runtime.getURL('popups/templateEditor.html'),
+      url: chrome.runtime.getURL('../popups/autotask/templateEditor.html'),
       type: 'popup',
       width: 620,
       height: 1035

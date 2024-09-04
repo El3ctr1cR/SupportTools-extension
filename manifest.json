@@ -43,10 +43,10 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "popups/templateEditor.html",
-        "popups/templateEditor.js",
-        "popups/ticketSummary.html",
-        "popups/ticketSummary.js"
+        "popups/autotask/templateEditor.html",
+        "popups/autotask/templateEditor.js",
+        "popups/autotask/ticketSummary.html",
+        "popups/autotask/ticketSummary.js"
       ],
       "matches": [
         "<all_urls>"
