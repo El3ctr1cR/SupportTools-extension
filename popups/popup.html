@@ -62,6 +62,13 @@
       position: relative;
     }
 
+    .tab img {
+      display: block;
+      margin: 6px auto 0;
+      height: 16px;
+      width: 16px;
+    }
+
     .tab:hover {
       background-color: #3a3a3a;
       border-radius: 0 !important;
@@ -304,9 +311,18 @@
   </div>
 
   <div class="tab-container">
-    <button class="tab active" id="tabAutotask">Autotask</button>
-    <button class="tab" id="tabMisc">Misc</button>
-    <button class="tab" id="tabSettings">Settings</button>
+    <button class="tab active" id="tabAutotask">
+      Autotask
+      <img src="../icons/ticket.png" alt="Autotask Icon">
+    </button>
+    <button class="tab" id="tabMisc">
+      Misc
+      <img src="../icons/misc.png" alt="Misc Icon">
+    </button>
+    <button class="tab" id="tabSettings">
+      Settings
+      <img src="../icons/settings.png" alt="Settings Icon">
+    </button>
   </div>
 
   <div class="warning-container" id="warningContainer" style="display:none;">
@@ -349,7 +365,7 @@
   </div>
 
   <div class="content" id="contentSettings" style="display: none;">
-    <div class="category-header">Miscellaneous</div>
+    <div class="category-header">OpenAI settings</div>
     <div class="category-content">
       <div class="form-group config-buttons">
         <button id="setApiKey">Set OpenAI API Key</button>
