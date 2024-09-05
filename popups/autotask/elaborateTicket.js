@@ -9,7 +9,7 @@ window.addEventListener('message', (event) => {
     } else {
         document.getElementById('loading').style.display = 'none';
         const summaryElement = document.getElementById('summary');
-        summaryElement.innerHTML = marked.parse(summary);  // This will use the actual summary from the AI
+        summaryElement.innerHTML = marked.parse(summary);
         summaryElement.style.display = 'block';
         document.querySelector('.buttons').style.display = 'block';
     }
@@ -31,17 +31,20 @@ document.addEventListener('DOMContentLoaded', () => {
                         console.error("Script injection failed: " + chrome.runtime.lastError.message);
                     } else {
                         console.log("AI response successfully pasted into autotask.net.");
+                        window.close();
                     }
                 });
             });
-            document.getElementById('denyButton').addEventListener('click', () => {
-                alert('Action Denied');
+
+            document.getElementById('closeButton').addEventListener('click', () => {
+                window.close();
             });
         } else {
             console.error("No saved tab ID found.");
         }
     });
 });
+
 
 function pasteToActiveTab(selector, summary) {
     const targetDiv = document.querySelector(selector);
