@@ -1,62 +1,3 @@
-function getTicketDescription() {
-    const descriptionElement = document.querySelector('.Normal.Section .ContentContainer .Content');
-    if (descriptionElement) {
-        let description = '';
-        const childNodes = descriptionElement.childNodes;
-        childNodes.forEach(node => {
-            if (node.nodeType === Node.TEXT_NODE) {
-                description += node.textContent.trim() + ' ';
-            } else if (node.nodeType === Node.ELEMENT_NODE && node.tagName !== 'IMG') {
-                description += node.innerText.trim() + ' ';
-            }
-        });
-        return description.trim();
-    }
-    console.error('Ticket description element not found');
-    return '';
-}
-
-function getTicketComments() {
-    const commentElements = document.querySelectorAll('.ConversationItem');
-    let comments = [];
-    commentElements.forEach((commentElement, index) => {
-        let commentText = '';
-        const messageElements = commentElement.querySelectorAll('.Message, .Message.Internal, .Searchable');
-        messageElements.forEach(messageElement => {
-            if (messageElement) {
-                const textContent = messageElement.textContent.trim();
-                if (textContent && !commentText.includes(textContent)) {
-                    commentText += textContent + '\n';
-                }
-            }
-        });
-
-        if (commentText.trim()) {
-            comments.push(commentText.trim());
-        }
-    });
-    comments.reverse();
-    return comments.map((comment, index) => `TICKET RESPONSE ${index + 1}:\n${comment}`);
-}
-
-function formatTicketDetails(description, comments) {
-    let formattedText = `---\nORIGINAL TICKET DESCRIPTION:\n${description}\n---\n`;
-    comments.forEach(comment => {
-        formattedText += `${comment}\n---\n`;
-    });
-
-    return formattedText.trim();
-}
-
-function getTicketDetails() {
-    const description = getTicketDescription();
-    const comments = getTicketComments();
-    const formattedDetails = formatTicketDetails(description, comments);
-    return {
-        ticketDescription: formattedDetails
-    };
-}
-
 async function callOpenAiApi(prompt, options = {}) {
     try {
         const { openAiApiKey } = await new Promise((resolve, reject) => {
@@ -100,25 +41,75 @@ async function callOpenAiApi(prompt, options = {}) {
     }
 }
 
+function getTicketDetails() {
+    const descriptionElement = document.querySelector('.Normal.Section .ContentContainer .Content');
+    let description = '';
+    if (descriptionElement) {
+        const childNodes = descriptionElement.childNodes;
+        childNodes.forEach(node => {
+            if (node.nodeType === Node.TEXT_NODE) {
+                description += node.textContent.trim() + ' ';
+            } else if (node.nodeType === Node.ELEMENT_NODE && node.tagName !== 'IMG') {
+                description += node.innerText.trim() + ' ';
+            }
+        });
+        description = description.trim();
+    } else {
+        console.error('Ticket description element not found');
+        description = '';
+    }
+
+    const commentElements = document.querySelectorAll('.ConversationItem');
+    let comments = [];
+    commentElements.forEach((commentElement, index) => {
+        let commentText = '';
+        const messageElements = commentElement.querySelectorAll('.Message, .Message.Internal, .Searchable');
+        messageElements.forEach(messageElement => {
+            if (messageElement) {
+                const textContent = messageElement.textContent.trim();
+                if (textContent && !commentText.includes(textContent)) {
+                    commentText += textContent + '\n';
+                }
+            }
+        });
+
+        if (commentText.trim()) {
+            comments.push(commentText.trim());
+        }
+    });
+    comments.reverse();
+
+    let formattedText = `---\nORIGINAL TICKET DESCRIPTION:\n${description}\n---\n`;
+    comments.forEach((comment, index) => {
+        formattedText += `TICKET RESPONSE ${index + 1}:\n${comment}\n---\n`;
+    });
+
+    return formattedText.trim();
+}
+
+function getNewTicketDescription() {
+    const editableDiv = document.querySelector('div.ContentEditable2.Large[contenteditable="true"]');
+
+    if (editableDiv) {
+        return editableDiv.textContent.trim();
+    } else {
+        console.error('Editable div not found.');
+        return '';
+    }
+}
+
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    const ticketDetails = getTicketDetails();
+
     if (request.action === 'summarizeTicket') {
-        const ticketDetails = getTicketDetails();
-        const prompt = `Summarize the following ticket:\n${ticketDetails.ticketDescription}`;
+        const prompt = `Give a precise summarization of the following ticket in Dutch. Use the format to make the summarization:\n1. Ticket in short\n2. Tasks that have been completed\n3. Tasks that still have to be done\n\nFull ticket:\n${ticketDetails}`;
         callOpenAiApi(prompt).then(summary => sendResponse({ summary }));
         return true;
     }
 
-    if (request.action === 'generateResponse') {
-        const ticketDetails = getTicketDetails();
-        const prompt = `Generate a response to the following ticket:\n${ticketDetails.ticketDescription}`;
-        callOpenAiApi(prompt).then(response => sendResponse({ summary: response }));
-        return true;
-    }
-
-    if (request.action === 'translateContent') {
-        const ticketDetails = getTicketDetails();
-        const prompt = `Translate the following content to Dutch:\n${ticketDetails.ticketDescription}`;
-        callOpenAiApi(prompt).then(translation => sendResponse({ summary: translation }));
+    if (request.action === 'elaborateTicket') {
+        const prompt = `Please make a clear problem/request description out of it in Dutch. No headers and ticket numbers, just the description. Notes:\n${ticketDetails}`;
+        callOpenAiApi(prompt).then(summary => sendResponse({ summary }));
         return true;
     }
 });
