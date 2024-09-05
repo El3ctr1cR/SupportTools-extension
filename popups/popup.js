@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  const elaborateButton = document.getElementById('elaborateTicket');
   const summarizeButton = document.getElementById('summarizeTicket');
   const setApiKeyButton = document.getElementById('setApiKey');
   const warningContainer = document.getElementById('warningContainer');
@@ -28,41 +29,92 @@ document.addEventListener('DOMContentLoaded', () => {
   const importConfigButton = document.getElementById('importConfig');
   const importFileInput = document.getElementById('importFile');
   const hexBase32GenButton = document.getElementById('hexBase32Gen');
+  const dropdownButton = document.getElementById('dropdownButton');
+  const dropdownContent = document.getElementById('dropdownContent');
+  const selectedFlag = document.getElementById('selectedFlag');
+  const selectedLanguageText = document.getElementById('selectedLanguageText');
 
   function handleAiAction(action, popupHtml, contentSelector) {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       const activeTab = tabs[0];
-      chrome.scripting.executeScript({
-        target: { tabId: activeTab.id },
-        func: (selector) => !!document.querySelector(selector),
-        args: [contentSelector],
-      }, (results) => {
-        if (chrome.runtime.lastError || !results || !results[0].result) {
-          alert('No ticket content found on the page.');
-          return;
-        }
-
-        const aiPopup = window.open(popupHtml, 'AI Task', 'width=1200,height=1200');
-        aiPopup.onload = function () {
-          aiPopup.postMessage({ loading: true }, '*');
-        };
-
+      chrome.storage.local.set({ activeTabId: activeTab.id }, () => {
+        console.log('Tab ID saved:', activeTab.id);
         chrome.scripting.executeScript({
           target: { tabId: activeTab.id },
-          files: ['functions/aiTaskHandler.js']
-        }, () => {
-          chrome.tabs.sendMessage(activeTab.id, { action }, (response) => {
-            if (response && response.summary) {
-              aiPopup.postMessage({ loading: false, summary: response.summary }, '*');
-            } else {
-              alert('Failed to handle AI action.');
-            }
+          func: (selector) => !!document.querySelector(selector),
+          args: [contentSelector],
+        }, (results) => {
+          if (chrome.runtime.lastError || !results || !results[0].result) {
+            alert('No ticket content found on the page.');
+            return;
+          }
+          const aiPopup = window.open(popupHtml, 'AI Task', 'width=1200,height=1200');
+          aiPopup.onload = function () {
+            aiPopup.postMessage({ loading: true }, '*');
+          };
+          chrome.scripting.executeScript({
+            target: { tabId: activeTab.id },
+            files: ['functions/aiTaskHandler.js']
+          }, () => {
+            chrome.tabs.sendMessage(activeTab.id, { action }, (response) => {
+              if (response && response.summary) {
+                aiPopup.postMessage({ loading: false, summary: response.summary }, '*');
+              } else {
+                alert('Failed to handle AI action.');
+              }
+            });
           });
         });
       });
     });
   }
   summarizeButton.addEventListener('click', () => handleAiAction('summarizeTicket', '../popups/autotask/ticketSummary.html', '.Normal.Section .ContentContainer .Content'));
+  elaborateButton.addEventListener('click', () => handleAiAction('elaborateTicket', '../popups/autotask/elaborateTicket.html', 'div.ContentEditable2.Large[contenteditable="true"]'));
+
+  // Load saved language from chrome.storage
+  chrome.storage.sync.get(['selectedLanguage'], (result) => {
+    const language = result.selectedLanguage || 'nl'; // Default to Dutch
+    updateDropdownSelection(language);
+  });
+
+  // Toggle dropdown visibility on button click
+  dropdownButton.addEventListener('click', () => {
+    dropdownContent.classList.toggle('show');
+  });
+
+  // Event listener for selecting a dropdown item
+  dropdownContent.addEventListener('click', (event) => {
+    const selectedItem = event.target.closest('.dropdown-item');
+    if (selectedItem) {
+      const selectedValue = selectedItem.getAttribute('data-value');
+      updateDropdownSelection(selectedValue);
+
+      // Save selected language to chrome.storage
+      chrome.storage.sync.set({ selectedLanguage: selectedValue }, () => {
+        console.log(`Language preference saved: ${selectedValue}`);
+      });
+
+      // Hide the dropdown after selection
+      dropdownContent.classList.remove('show');
+    }
+  });
+
+  // Close the dropdown if clicked outside
+  window.addEventListener('click', (event) => {
+    if (!dropdownButton.contains(event.target) && !dropdownContent.contains(event.target)) {
+      dropdownContent.classList.remove('show');
+    }
+  });
+
+  function updateDropdownSelection(language) {
+    if (language === 'nl') {
+      selectedFlag.src = '../icons/nl.png';
+      selectedLanguageText.textContent = 'Dutch';
+    } else if (language === 'en') {
+      selectedFlag.src = '../icons/us.png';
+      selectedLanguageText.textContent = 'English';
+    }
+  }
 
   hexBase32GenButton.addEventListener('click', () => {
     chrome.windows.create({
@@ -98,7 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
           const latestVersion = latestRelease.tag_name.replace('v', '');
 
           if (currentVersion !== latestVersion) {
-            warningText.textContent = `Version ${latestVersion} is available for download`; // Set the dynamic version text
+            warningText.textContent = `Version ${latestVersion} is available for download`;
             warningContainer.style.display = 'flex';
           }
         });
