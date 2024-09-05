@@ -312,7 +312,6 @@
       background-color: #2a2a2a;
       color: white;
       padding: 6px 10px;
-      /* Reduced padding */
       font-size: 12px;
       border: 1px solid #444;
       width: 100%;
@@ -321,7 +320,6 @@
       align-items: center;
       justify-content: space-between;
       height: 30px;
-      /* Set fixed height */
     }
 
     .dropdown-btn img {
@@ -355,7 +353,6 @@
       height: 16px;
     }
 
-    /* Arrow adjustments */
     .arrow-down {
       border: solid white;
       border-width: 0 3px 3px 0;
@@ -364,7 +361,6 @@
       transform: rotate(45deg);
       margin-left: auto;
       margin-top: -4px;
-      /* Adjust this value to move it slightly upwards */
       vertical-align: middle;
     }
 
@@ -402,12 +398,13 @@
   </div>
 
   <div class="content" id="contentAutotask">
-    <div class="category-header">General</div>
+    <div class="category-header">AI</div>
     <div class="category-content">
       <div class="form-group">
         <button id="summarizeTicket">Summarize ticket</button>
         <button id="elaborateTicket">Elaborate ticket</button>
         <div class="custom-dropdown">
+          <label for="templateDropdownButton">AI response language</label>
           <button id="dropdownButton" class="dropdown-btn">
             <img id="selectedFlag" src="../icons/nl.png" alt="Dutch Flag">
             <span id="selectedLanguageText">Dutch</span>
@@ -415,12 +412,32 @@
           </button>
           <div id="dropdownContent" class="dropdown-content">
             <div class="dropdown-item" data-value="nl">
-              <img src="../icons/nl.png" alt="Dutch Flag">
+              <img src="../icons/flags/nl.png" alt="Dutch Flag">
               <span>Dutch</span>
             </div>
             <div class="dropdown-item" data-value="en">
-              <img src="../icons/us.png" alt="English Flag">
+              <img src="../icons/flags/us.png" alt="English Flag">
               <span>English</span>
+            </div>
+            <div class="dropdown-item" data-value="de">
+              <img src="../icons/flags/de.png" alt="German Flag">
+              <span>German</span>
+            </div>
+            <div class="dropdown-item" data-value="fr">
+              <img src="../icons/flags/fr.png" alt="French Flag">
+              <span>French</span>
+            </div>
+            <div class="dropdown-item" data-value="es">
+              <img src="../icons/flags/es.png" alt="Spanish Flag">
+              <span>Spanish</span>
+            </div>
+            <div class="dropdown-item" data-value="ru">
+              <img src="../icons/flags/ru.png" alt="Russian Flag">
+              <span>Russian</span>
+            </div>
+            <div class="dropdown-item" data-value="cn">
+              <img src="../icons/flags/cn.png" alt="Chinese Flag">
+              <span>Chinese</span>
             </div>
           </div>
         </div>
@@ -430,8 +447,15 @@
     <div class="category-header">Templates</div>
     <div class="category-content">
       <div class="form-group">
-        <label for="templateSelector">Select Template:</label>
-        <select id="templateSelector"></select>
+        <div class="custom-dropdown">
+          <label for="templateDropdownButton">Template to use</label>
+          <button id="templateDropdownButton" class="dropdown-btn">
+            <span id="selectedTemplateText">Select a Template</span>
+            <i class="arrow-down"></i>
+          </button>
+          <div id="templateDropdownContent" class="dropdown-content">
+          </div>
+        </div>
       </div>
       <div class="form-group button-group-inline">
         <button id="inputMail">Input mail</button>

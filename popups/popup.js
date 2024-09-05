@@ -23,7 +23,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const inputMailButton = document.getElementById('inputMail');
   const copyMailButton = document.getElementById('copyMail');
   const editTemplatesButton = document.getElementById('editTemplates');
-  const templateSelector = document.getElementById('templateSelector');
   const clearConfigButton = document.getElementById('clearConfig');
   const exportConfigButton = document.getElementById('exportConfig');
   const importConfigButton = document.getElementById('importConfig');
@@ -71,35 +70,34 @@ document.addEventListener('DOMContentLoaded', () => {
   summarizeButton.addEventListener('click', () => handleAiAction('summarizeTicket', '../popups/autotask/ticketSummary.html', '.Normal.Section .ContentContainer .Content'));
   elaborateButton.addEventListener('click', () => handleAiAction('elaborateTicket', '../popups/autotask/elaborateTicket.html', 'div.ContentEditable2.Large[contenteditable="true"]'));
 
-  // Load saved language from chrome.storage
+  chrome.storage.sync.get(['lastSelectedTemplate'], (result) => {
+    const lastSelectedTemplate = result.lastSelectedTemplate;
+    if (lastSelectedTemplate) {
+      selectedTemplateText.textContent = lastSelectedTemplate;
+    }
+  });
+
   chrome.storage.sync.get(['selectedLanguage'], (result) => {
-    const language = result.selectedLanguage || 'nl'; // Default to Dutch
+    const language = result.selectedLanguage || 'nl';
     updateDropdownSelection(language);
   });
 
-  // Toggle dropdown visibility on button click
   dropdownButton.addEventListener('click', () => {
     dropdownContent.classList.toggle('show');
   });
 
-  // Event listener for selecting a dropdown item
   dropdownContent.addEventListener('click', (event) => {
     const selectedItem = event.target.closest('.dropdown-item');
     if (selectedItem) {
       const selectedValue = selectedItem.getAttribute('data-value');
       updateDropdownSelection(selectedValue);
-
-      // Save selected language to chrome.storage
       chrome.storage.sync.set({ selectedLanguage: selectedValue }, () => {
         console.log(`Language preference saved: ${selectedValue}`);
       });
-
-      // Hide the dropdown after selection
       dropdownContent.classList.remove('show');
     }
   });
 
-  // Close the dropdown if clicked outside
   window.addEventListener('click', (event) => {
     if (!dropdownButton.contains(event.target) && !dropdownContent.contains(event.target)) {
       dropdownContent.classList.remove('show');
@@ -108,11 +106,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function updateDropdownSelection(language) {
     if (language === 'nl') {
-      selectedFlag.src = '../icons/nl.png';
+      selectedFlag.src = '../icons/flags/nl.png';
       selectedLanguageText.textContent = 'Dutch';
     } else if (language === 'en') {
-      selectedFlag.src = '../icons/us.png';
+      selectedFlag.src = '../icons/flags/us.png';
       selectedLanguageText.textContent = 'English';
+    } else if (language === 'de') {
+      selectedFlag.src = '../icons/flags/de.png';
+      selectedLanguageText.textContent = 'German';
+    } else if (language === 'fr') {
+      selectedFlag.src = '../icons/flags/fr.png';
+      selectedLanguageText.textContent = 'French';
+    } else if (language === 'es') {
+      selectedFlag.src = '../icons/flags/es.png';
+      selectedLanguageText.textContent = 'Spanish';
+    } else if (language === 'ru') {
+      selectedFlag.src = '../icons/flags/ru.png';
+      selectedLanguageText.textContent = 'Russian';
+    } else if (language === 'cn') {
+      selectedFlag.src = '../icons/flags/cn.png';
+      selectedLanguageText.textContent = 'Chinese';
     }
   }
 
@@ -168,23 +181,55 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   function populateTemplateDropdown(templates) {
-    templateSelector.innerHTML = '';
+    templateDropdownContent.innerHTML = '';
+
     Object.keys(templates).forEach((key) => {
       if (templates[key].trim() !== '') {
-        const option = document.createElement('option');
-        option.value = key;
-        option.textContent = key;
-        templateSelector.appendChild(option);
+        const dropdownItem = document.createElement('div');
+        dropdownItem.classList.add('dropdown-item');
+        dropdownItem.setAttribute('data-value', key);
+        dropdownItem.textContent = key;
+        dropdownItem.addEventListener('click', () => {
+          selectedTemplateText.textContent = key;
+          templateDropdownContent.classList.remove('show');
+
+          chrome.storage.sync.set({ lastSelectedTemplate: key }, () => {
+            console.log(`Last selected template saved: ${key}`);
+          });
+        });
+
+        templateDropdownContent.appendChild(dropdownItem);
       }
     });
   }
+
+  templateDropdownButton.addEventListener('click', () => {
+    templateDropdownContent.classList.toggle('show');
+  });
+
+  window.addEventListener('click', (event) => {
+    if (!templateDropdownButton.contains(event.target) && !templateDropdownContent.contains(event.target)) {
+      templateDropdownContent.classList.remove('show');
+    }
+  });
+
+  chrome.storage.sync.get(['templates'], (result) => {
+    const templates = result.templates || {};
+    populateTemplateDropdown(templates);
+  });
 
   bypassToggle.addEventListener('change', () => {
     chrome.storage.sync.set({ bypassIncognito: bypassToggle.checked });
   });
 
   inputMailButton.addEventListener('click', () => {
-    const selectedTemplate = templateSelector.value;
+    const selectedTemplate = document.getElementById('selectedTemplateText').textContent;
+
+    if (!selectedTemplate || selectedTemplate === 'Select a Template') {
+      alert('Please select a template before proceeding.');
+      return;
+    }
+
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       const activeTab = tabs[0];
 
@@ -207,7 +252,13 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   copyMailButton.addEventListener('click', () => {
-    const selectedTemplateName = templateSelector.value;
+    const selectedTemplateName = document.getElementById('selectedTemplateText').textContent;
+
+    if (!selectedTemplateName || selectedTemplateName === 'Select a Template') {
+      alert('Please select a template before proceeding.');
+      return;
+    }
+
     chrome.storage.sync.get(['templates'], (result) => {
       const templates = result.templates || {};
       const selectedTemplateContent = templates[selectedTemplateName];
@@ -224,21 +275,27 @@ document.addEventListener('DOMContentLoaded', () => {
             () => {
               chrome.tabs.sendMessage(activeTab.id, { action: 'getTicketDetails' }, (response) => {
                 if (response) {
-                  chrome.tabs.sendMessage(activeTab.id, {
-                    action: 'processTemplate',
-                    template: selectedTemplateContent,
-                    ticketDetails: response
-                  }, (response) => {
-                    if (response && response.processedText) {
-                      navigator.clipboard.writeText(response.processedText).then(() => {
-                        console.log('Email text copied to clipboard');
-                      }).catch(err => {
-                        console.error('Failed to copy text: ', err);
-                      });
-                    } else {
-                      alert('Failed to process the template.');
+                  chrome.tabs.sendMessage(
+                    activeTab.id,
+                    {
+                      action: 'processTemplate',
+                      template: selectedTemplateContent,
+                      ticketDetails: response
+                    },
+                    (response) => {
+                      if (response && response.processedText) {
+                        navigator.clipboard.writeText(response.processedText)
+                          .then(() => {
+                            console.log('Email text copied to clipboard');
+                          })
+                          .catch((err) => {
+                            console.error('Failed to copy text: ', err);
+                          });
+                      } else {
+                        alert('Failed to process the template.');
+                      }
                     }
-                  });
+                  );
                 } else {
                   alert('Failed to retrieve ticket details.');
                 }
@@ -251,6 +308,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   });
+
 
   editTemplatesButton.addEventListener('click', () => {
     chrome.windows.create({

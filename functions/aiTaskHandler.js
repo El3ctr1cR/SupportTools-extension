@@ -99,17 +99,39 @@ function getNewTicketDescription() {
 }
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    const getLanguage = (callback) => {
+        const languageMap = {
+            'nl': 'Dutch',
+            'en': 'English',
+            'de': 'German',
+            'fr': 'French',
+            'es': 'Spanish',
+            'ru': 'Russian',
+            'cn': 'Chinese'
+        };
+
+        chrome.storage.sync.get(['selectedLanguage'], (result) => {
+            const selectedLanguage = result.selectedLanguage || 'nl';
+            const language = languageMap[selectedLanguage] || languageMap['nl'];
+            callback(language);
+        });
+    };
+
     const ticketDetails = getTicketDetails();
 
-    if (request.action === 'summarizeTicket') {
-        const prompt = `Give a precise summarization of the following ticket in Dutch. Use the format to make the summarization:\n1. Ticket in short\n2. Tasks that have been completed\n3. Tasks that still have to be done\n\nFull ticket:\n${ticketDetails}`;
-        callOpenAiApi(prompt).then(summary => sendResponse({ summary }));
-        return true;
-    }
+    getLanguage((language) => {
+        if (request.action === 'summarizeTicket') {
+            const prompt = `Give a precise summarization of the following ticket in ${language}. Use the format to make the summarization:\n1. Issue or request in short\n2. Tasks that have been completed\n3. Tasks that still have to be done\n\nFull ticket:\n${ticketDetails}`;
+            callOpenAiApi(prompt).then(summary => sendResponse({ summary }));
+            return true;
+        }
 
-    if (request.action === 'elaborateTicket') {
-        const prompt = `Please make a clear problem/request description out of it in Dutch. No headers and ticket numbers, just the description. Notes:\n${ticketDetails}`;
-        callOpenAiApi(prompt).then(summary => sendResponse({ summary }));
-        return true;
-    }
+        if (request.action === 'elaborateTicket') {
+            const prompt = `Please make a clear problem/request description out of it in ${language}. No headers and ticket numbers, just the description. Notes:\n${ticketDetails}`;
+            callOpenAiApi(prompt).then(summary => sendResponse({ summary }));
+            return true;
+        }
+    });
+
+    return true;
 });
