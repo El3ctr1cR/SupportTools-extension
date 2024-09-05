@@ -46,10 +46,12 @@
         "popups/autotask/templateEditor.html",
         "popups/autotask/templateEditor.js",
         "popups/autotask/ticketSummary.html",
-        "popups/autotask/ticketSummary.js"
+        "popups/autotask/ticketSummary.js",
+        "popups/autotask/elaborateTicket.html",
+        "popups/autotask/elaborateTicket.js"
       ],
       "matches": [
-        "<all_urls>"
+        "https://*.autotask.net/*"
       ]
     }
   ]
