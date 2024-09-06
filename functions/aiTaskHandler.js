@@ -121,7 +121,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
     getLanguage((language) => {
         if (request.action === 'summarizeTicket') {
-            const prompt = `Give a precise summarization of the following ticket in ${language}. Use the format to make the summarization:\n1. Issue or request in short\n2. Tasks that have been completed\n3. Tasks that still have to be done\n\nFull ticket:\n${ticketDetails}`;
+            const prompt = `Give detailed information about this ticket in ${language}. Use the format the following format:\n1. Ticket details in short\n2. Tasks that have been completed\n3. Tasks that still have to be done\n\nFull ticket:\n${ticketDetails}`;
+            callOpenAiApi(prompt).then(summary => sendResponse({ summary }));
+            return true;
+        }
+
+        if (request.action === 'findSolution') {
+            const prompt = `Analyze this ticket carefully. If it's a issue, find possible solutions for it. If it's a request, describe the best way to process the request. Write it down in ${language}.\n\nFull ticket:\n${ticketDetails}`;
             callOpenAiApi(prompt).then(summary => sendResponse({ summary }));
             return true;
         }

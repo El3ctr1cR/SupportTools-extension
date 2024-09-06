@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const elaborateButton = document.getElementById('elaborateTicket');
   const summarizeButton = document.getElementById('summarizeTicket');
+  const findSolution = document.getElementById('findSolution');
   const setApiKeyButton = document.getElementById('setApiKey');
   const warningContainer = document.getElementById('warningContainer');
   const updateButton = document.getElementById('updateButton');
@@ -68,6 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   summarizeButton.addEventListener('click', () => handleAiAction('summarizeTicket', '../popups/autotask/ticketSummary.html', '.Normal.Section .ContentContainer .Content'));
+  findSolution.addEventListener('click', () => handleAiAction('findSolution', '../popups/autotask/ticketSummary.html', '.Normal.Section .ContentContainer .Content'));
   elaborateButton.addEventListener('click', () => handleAiAction('elaborateTicket', '../popups/autotask/elaborateTicket.html', 'div.ContentEditable2.Large[contenteditable="true"]'));
 
   chrome.storage.sync.get(['lastSelectedTemplate'], (result) => {
