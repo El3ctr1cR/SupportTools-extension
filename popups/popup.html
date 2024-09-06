@@ -328,7 +328,7 @@
     #dropdownContent {
       position: absolute;
       width: auto;
-      top: 165px;
+      top: 156px;
       left: 0;
       z-index: 1000;
       margin-left: 28px;
@@ -346,6 +346,11 @@
       vertical-align: middle;
       margin-left: -1px;
       height: 16px;
+    }
+
+    #contentAutotask {
+      padding-top: 1px;
+      margin-top: 1px;
     }
   </style>
 </head>
@@ -380,7 +385,7 @@
   <div class="content" id="contentAutotask">
     <div class="category-header category-header-ai">
       AI
-      <button id="dropdownButton" class="dropdown-btn">
+      <button id="dropdownButton" class="dropdown-btn" title="Language the AI will respond in">
         <img id="selectedFlag" src="../icons/nl.png" alt="Dutch Flag">
         <span id="selectedLanguageText">Dutch</span>
         <i class="arrow-down"></i>
@@ -420,9 +425,6 @@
       <div class="form-group">
         <button id="summarizeTicket">Summarize ticket</button>
         <button id="elaborateTicket">Elaborate ticket (beta)</button>
-        <div class="custom-dropdown">
-          <label for="templateDropdownButton">AI response language</label>
-        </div>
       </div>
     </div>
 
