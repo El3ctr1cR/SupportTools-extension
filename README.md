@@ -3,9 +3,11 @@
 
 ## Features
 
-### AI Summarization of Tickets
-- The extension integrates with OpenAI's GPT-4o mini to provide AI-driven summarization of Autotask tickets.
-- This feature helps to generate concise summaries of ticket details, including action points and pending tasks, directly within the Autotask system.
+### AI Functions
+- The extension integrates with OpenAI's GPT-4o mini.
+- Summarize Ticket: This feature helps to generate concise summaries of ticket details, including action points and pending tasks, directly within the Autotask system.
+- Elaborate Ticket: This feature helps generate more detailed and clear descriptions of tickets.
+- Find Solution: This feature uses AI to suggest potential solutions for ticket issues based on the provided information.
 > [!WARNING]
 > You will need your own OpenAI API key to use this feature. You can set this key in the extension menu.
 
@@ -28,7 +30,7 @@
 - This feature is particularly useful for integrating with Duo Security and IT Glue, where such keys are often required.
   
 ### Office URLs in Incognito Mode
-- Automatically opens specified Office URLs (e.g., `portal.office.com`, `microsoft365.com`, `admin.microsoft.com`, `portal.azure.com`) in incognito mode.
+- Automatically opens specified Office URLs (e.g., `portal.office.com`, `microsoft365.com`, `admin.microsoft.com`, `portal.azure.com`, `admin.google.com`) in incognito mode.
 - A bypass filter can be enabled to prevent this automatic behavior, allowing the URLs to open in the normal browsing mode.
 
 ### Configuration Export and Import
