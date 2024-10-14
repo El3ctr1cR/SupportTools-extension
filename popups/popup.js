@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const elaborateButton = document.getElementById('elaborateTicket');
   const summarizeButton = document.getElementById('summarizeTicket');
   const findSolution = document.getElementById('findSolution');
+  const grammarCheckButton = document.getElementById('grammarCheck');
   const setApiKeyButton = document.getElementById('setApiKey');
   const warningContainer = document.getElementById('warningContainer');
   const updateButton = document.getElementById('updateButton');
@@ -71,6 +72,24 @@ document.addEventListener('DOMContentLoaded', () => {
   summarizeButton.addEventListener('click', () => handleAiAction('summarizeTicket', '../popups/autotask/ticketSummary.html', '.Normal.Section .ContentContainer .Content'));
   findSolution.addEventListener('click', () => handleAiAction('findSolution', '../popups/autotask/ticketSummary.html', '.Normal.Section .ContentContainer .Content'));
   elaborateButton.addEventListener('click', () => handleAiAction('elaborateTicket', '../popups/autotask/elaborateTicket.html', 'div.ContentEditable2.Large[contenteditable="true"]'));
+
+  grammarCheckButton.addEventListener('click', () => {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      const activeTab = tabs[0];
+      chrome.scripting.executeScript({
+        target: { tabId: activeTab.id },
+        files: ['functions/aiTaskHandler.js']
+      }, () => {
+        chrome.tabs.sendMessage(activeTab.id, { action: 'grammarCheck' }, (response) => {
+          if (response && response.success) {
+            console.log('Grammar check completed successfully');
+          } else {
+            alert('Failed to perform grammar check' + (response && response.error ? ': ' + response.error : ''));
+          }
+        });
+      });
+    });
+  });
 
   chrome.storage.sync.get(['lastSelectedTemplate'], (result) => {
     const lastSelectedTemplate = result.lastSelectedTemplate;

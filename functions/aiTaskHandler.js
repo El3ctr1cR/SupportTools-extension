@@ -20,7 +20,7 @@ async function callOpenAiApi(prompt, options = {}) {
                 model: options.model || 'gpt-4o-mini',
                 messages: [{ role: 'user', content: prompt }],
                 max_tokens: options.max_tokens || 1500,
-                temperature: options.temperature || 0.7
+                temperature: options.temperature !== undefined ? options.temperature : 0.7
             })
         });
 
@@ -98,6 +98,33 @@ function getNewTicketDescription() {
     }
 }
 
+function getEditableSmallContent() {
+    const editableDiv = document.querySelector('div.ContentEditable2.Small[contenteditable="true"]');
+    if (editableDiv) {
+        // Replace <br> and <div> tags with newline characters to get the text with line breaks
+        let text = editableDiv.innerHTML;
+        text = text.replace(/<br\s*\/?>/gi, '\n');
+        text = text.replace(/<div>/gi, '\n').replace(/<\/div>/gi, '');
+        const tempElement = document.createElement('div');
+        tempElement.innerHTML = text;
+        return tempElement.textContent.trim();
+    } else {
+        console.error('Editable small content div not found.');
+        return '';
+    }
+}
+
+function setEditableSmallContent(text) {
+    const editableDiv = document.querySelector('div.ContentEditable2.Small[contenteditable="true"]');
+    if (editableDiv) {
+        // Replace newline characters with <br> tags to preserve line breaks
+        const htmlContent = text.replace(/\n/g, '<br>');
+        editableDiv.innerHTML = htmlContent;
+    } else {
+        console.error('Editable small content div not found.');
+    }
+}
+
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     const getLanguage = (callback) => {
         const languageMap = {
@@ -127,7 +154,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         }
 
         if (request.action === 'findSolution') {
-            const prompt = `Analyze this ticket carefully. If it's a issue, find possible solutions for it. If it's a request, describe the best way to process the request. Write it down in ${language}.\n\nFull ticket:\n${ticketDetails}`;
+            const prompt = `Analyze this ticket carefully. If it's an issue, find possible solutions for it. If it's a request, describe the best way to process the request. Write it down in ${language}.\n\nFull ticket:\n${ticketDetails}`;
             callOpenAiApi(prompt).then(summary => sendResponse({ summary }));
             return true;
         }
@@ -135,6 +162,23 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         if (request.action === 'elaborateTicket') {
             const prompt = `Please make a clear problem/request description out of it in ${language}. No headers and ticket numbers, just the description. Notes:\n${ticketDetails}`;
             callOpenAiApi(prompt).then(summary => sendResponse({ summary }));
+            return true;
+        }
+
+        if (request.action === 'grammarCheck') {
+            const originalText = getEditableSmallContent();
+            if (!originalText) {
+                sendResponse({ success: false, error: 'No text found to grammar check.' });
+                return;
+            }
+            const prompt = `Please correct the following text for grammar and spelling errors and make it a proper sentence in the original language. Output only the corrected text, preserving the original formatting, spacing and language. Do not include any explanations or additional text.\n\n${originalText}`;
+
+            callOpenAiApi(prompt, { temperature: 0 }).then(correctedText => {
+                setEditableSmallContent(correctedText);
+                sendResponse({ success: true });
+            }).catch(error => {
+                sendResponse({ success: false, error: error.message });
+            });
             return true;
         }
     });
