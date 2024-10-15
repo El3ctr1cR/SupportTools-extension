@@ -6,6 +6,7 @@
 ### AI Functions
 - The extension integrates with OpenAI's GPT-4o mini.
 - Summarize Ticket: This feature helps to generate concise summaries of ticket details, including action points and pending tasks, directly within the Autotask system.
+- Grammar Check: This feature corrects spelling errors and basic grammatical mistakes in Autotask notes, ensuring clear and professional communication.
 - Elaborate Ticket: This feature helps generate more detailed and clear descriptions of tickets.
 - Find Solution: This feature uses AI to suggest potential solutions for ticket issues based on the provided information.
 > [!WARNING]
