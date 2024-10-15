@@ -98,30 +98,56 @@ function getNewTicketDescription() {
     }
 }
 
-function getEditableSmallContent() {
-    const editableDiv = document.querySelector('div.ContentEditable2.Small[contenteditable="true"]');
-    if (editableDiv) {
-        // Replace <br> and <div> tags with newline characters to get the text with line breaks
-        let text = editableDiv.innerHTML;
-        text = text.replace(/<br\s*\/?>/gi, '\n');
-        text = text.replace(/<div>/gi, '\n').replace(/<\/div>/gi, '');
-        const tempElement = document.createElement('div');
-        tempElement.innerHTML = text;
-        return tempElement.textContent.trim();
-    } else {
-        console.error('Editable small content div not found.');
-        return '';
+function getEditableContent() {
+    let editableElement = document.querySelector('div.ContentEditable2.Small[contenteditable="true"]');
+    if (editableElement) {
+        return {
+            element: editableElement,
+            text: extractTextFromContentEditable(editableElement)
+        };
     }
+
+    editableElement = document.querySelector('div.ContentEditable2.Large[contenteditable="true"]');
+    if (editableElement) {
+        return {
+            element: editableElement,
+            text: extractTextFromContentEditable(editableElement)
+        };
+    }
+
+    const textareaElement = document.querySelector('div.TextArea2 textarea.Normal');
+    if (textareaElement) {
+        return {
+            element: textareaElement,
+            text: textareaElement.value.trim()
+        };
+    }
+
+    console.error('No editable content element found.');
+    return null;
 }
 
-function setEditableSmallContent(text) {
-    const editableDiv = document.querySelector('div.ContentEditable2.Small[contenteditable="true"]');
-    if (editableDiv) {
-        // Replace newline characters with <br> tags to preserve line breaks
-        const htmlContent = text.replace(/\n/g, '<br>');
-        editableDiv.innerHTML = htmlContent;
+function extractTextFromContentEditable(element) {
+    let text = element.innerHTML;
+    text = text.replace(/<br\s*\/?>/gi, '\n');
+    text = text.replace(/<div>/gi, '\n').replace(/<\/div>/gi, '');
+    const tempElement = document.createElement('div');
+    tempElement.innerHTML = text;
+    return tempElement.textContent.trim();
+}
+
+function setEditableContent(element, text) {
+    if (element) {
+        if (element.tagName.toLowerCase() === 'div') {
+            const htmlContent = text.replace(/\n/g, '<br>');
+            element.innerHTML = htmlContent;
+        } else if (element.tagName.toLowerCase() === 'textarea') {
+            element.value = text;
+        } else {
+            console.error('Unsupported element type.');
+        }
     } else {
-        console.error('Editable small content div not found.');
+        console.error('No element to set content.');
     }
 }
 
@@ -166,15 +192,16 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         }
 
         if (request.action === 'grammarCheck') {
-            const originalText = getEditableSmallContent();
-            if (!originalText) {
+            const contentData = getEditableContent();
+            if (!contentData || !contentData.text) {
                 sendResponse({ success: false, error: 'No text found to grammar check.' });
                 return;
             }
+            const originalText = contentData.text;
             const prompt = `Please correct the following text for grammar and spelling errors and make it a proper sentence in the original language. Output only the corrected text, preserving the original formatting, spacing and language. Do not include any explanations or additional text.\n\n${originalText}`;
 
             callOpenAiApi(prompt, { temperature: 0 }).then(correctedText => {
-                setEditableSmallContent(correctedText);
+                setEditableContent(contentData.element, correctedText);
                 sendResponse({ success: true });
             }).catch(error => {
                 sendResponse({ success: false, error: error.message });

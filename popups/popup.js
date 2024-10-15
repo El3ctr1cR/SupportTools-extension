@@ -34,6 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const dropdownContent = document.getElementById('dropdownContent');
   const selectedFlag = document.getElementById('selectedFlag');
   const selectedLanguageText = document.getElementById('selectedLanguageText');
+  const loadingOverlay = document.getElementById('loadingOverlay');
 
   function handleAiAction(action, popupHtml, contentSelector) {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -74,6 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
   elaborateButton.addEventListener('click', () => handleAiAction('elaborateTicket', '../popups/autotask/elaborateTicket.html', 'div.ContentEditable2.Large[contenteditable="true"]'));
 
   grammarCheckButton.addEventListener('click', () => {
+    loadingOverlay.style.display = 'flex';
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       const activeTab = tabs[0];
       chrome.scripting.executeScript({
@@ -81,6 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
         files: ['functions/aiTaskHandler.js']
       }, () => {
         chrome.tabs.sendMessage(activeTab.id, { action: 'grammarCheck' }, (response) => {
+          loadingOverlay.style.display = 'none';
           if (response && response.success) {
             console.log('Grammar check completed successfully');
           } else {
