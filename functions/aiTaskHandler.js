@@ -98,12 +98,12 @@ function getNewTicketDescription() {
     }
 }
 
-function getEditableContent() {
+function getNotes() {
     let editableElement = document.querySelector('div.ContentEditable2.Small[contenteditable="true"]');
     if (editableElement) {
         return {
             element: editableElement,
-            text: extractTextFromContentEditable(editableElement)
+            text: extractText(editableElement)
         };
     }
 
@@ -111,7 +111,7 @@ function getEditableContent() {
     if (editableElement) {
         return {
             element: editableElement,
-            text: extractTextFromContentEditable(editableElement)
+            text: extractText(editableElement)
         };
     }
 
@@ -127,7 +127,7 @@ function getEditableContent() {
     return null;
 }
 
-function extractTextFromContentEditable(element) {
+function extractText(element) {
     let text = element.innerHTML;
     text = text.replace(/<br\s*\/?>/gi, '\n');
     text = text.replace(/<div>/gi, '\n').replace(/<\/div>/gi, '');
@@ -136,7 +136,7 @@ function extractTextFromContentEditable(element) {
     return tempElement.textContent.trim();
 }
 
-function setEditableContent(element, text) {
+function setNotes(element, text) {
     if (element) {
         if (element.tagName.toLowerCase() === 'div') {
             const htmlContent = text.replace(/\n/g, '<br>');
@@ -174,34 +174,34 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
     getLanguage((language) => {
         if (request.action === 'summarizeTicket') {
-            const prompt = `Give detailed information about this ticket in ${language}. Use the format the following format:\n1. Ticket details in short\n2. Tasks that have been completed\n3. Tasks that still have to be done\n\nFull ticket:\n${ticketDetails}`;
+            const prompt = `Summarize the following ticket in a clear and detailed manner in ${language}. Use the following format for the summary:\n\n1. Brief overview of the ticket (problem or request)\n2. Tasks that have been completed (if any)\n3. Tasks that still need to be completed (if any)\n\nEnsure that the summary is concise, well-structured, and captures the essential information. Avoid adding unnecessary details.\n\nFull ticket:\n${ticketDetails}`;
             callOpenAiApi(prompt).then(summary => sendResponse({ summary }));
             return true;
         }
 
         if (request.action === 'findSolution') {
-            const prompt = `Analyze this ticket carefully. If it's an issue, find possible solutions for it. If it's a request, describe the best way to process the request. Write it down in ${language}.\n\nFull ticket:\n${ticketDetails}`;
+            const prompt = `Carefully analyze the following ticket. If it describes an issue, suggest possible solutions with clear, actionable steps. If it is a request, describe the best way to process or fulfill it, considering any potential constraints or best practices. Provide a professional and detailed description in ${language}, ensuring the solution or process is easy to follow and implement.\n\nFull ticket:\n${ticketDetails}`;
             callOpenAiApi(prompt).then(summary => sendResponse({ summary }));
             return true;
         }
 
         if (request.action === 'elaborateTicket') {
-            const prompt = `Please make a clear problem/request description out of it in ${language}. No headers and ticket numbers, just the description. Notes:\n${ticketDetails}`;
+            const prompt = `Please create a clear, concise, and well-structured problem or request description based on the following details in ${language}. Exclude any headers, ticket numbers, or unrelated information. Only output the refined description of the issue/request. Keep the language professional and straightforward.\n\nNotes:\n${ticketDetails}`;
             callOpenAiApi(prompt).then(summary => sendResponse({ summary }));
             return true;
         }
 
         if (request.action === 'grammarCheck') {
-            const contentData = getEditableContent();
+            const contentData = getNotes();
             if (!contentData || !contentData.text) {
                 sendResponse({ success: false, error: 'No text found to grammar check.' });
                 return;
             }
             const originalText = contentData.text;
-            const prompt = `Please correct the following text for grammar and spelling errors and make it a proper sentence in the original language. Output only the corrected text, preserving the original formatting, spacing and language. Do not include any explanations or additional text.\n\n${originalText}`;
+            const prompt = `Please thoroughly correct the following text, ensuring perfect spelling, capitalization, punctuation, and grammar, while maintaining the proper structure and style of the original language. Be especially careful to preserve the nuances and conventions of the language in which the note is written. Correct all spelling and capitalization errors along with any other language-related mistakes. Output only the corrected text, preserving the original formatting, spacing, and language. Do not include any explanations or additional text. Only output the fully corrected version of the text without missing any detail.\n\n${originalText}`;
 
             callOpenAiApi(prompt, { temperature: 0 }).then(correctedText => {
-                setEditableContent(contentData.element, correctedText);
+                setNotes(contentData.element, correctedText);
                 sendResponse({ success: true });
             }).catch(error => {
                 sendResponse({ success: false, error: error.message });
