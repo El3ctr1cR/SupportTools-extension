@@ -129,28 +129,27 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   function updateDropdownSelection(language) {
-    if (language === 'nl') {
-      selectedFlag.src = '../icons/flags/nl.png';
-      selectedLanguageText.textContent = 'Dutch';
-    } else if (language === 'en') {
-      selectedFlag.src = '../icons/flags/us.png';
-      selectedLanguageText.textContent = 'English';
-    } else if (language === 'de') {
-      selectedFlag.src = '../icons/flags/de.png';
-      selectedLanguageText.textContent = 'German';
-    } else if (language === 'fr') {
-      selectedFlag.src = '../icons/flags/fr.png';
-      selectedLanguageText.textContent = 'French';
-    } else if (language === 'es') {
-      selectedFlag.src = '../icons/flags/es.png';
-      selectedLanguageText.textContent = 'Spanish';
-    } else if (language === 'ru') {
-      selectedFlag.src = '../icons/flags/ru.png';
-      selectedLanguageText.textContent = 'Russian';
-    } else if (language === 'cn') {
-      selectedFlag.src = '../icons/flags/cn.png';
-      selectedLanguageText.textContent = 'Chinese';
-    }
+    const flagMap = {
+      'nl': '../icons/flags/nl.png',
+      'en': '../icons/flags/us.png',
+      'de': '../icons/flags/de.png',
+      'fr': '../icons/flags/fr.png',
+      'es': '../icons/flags/es.png',
+      'ru': '../icons/flags/ru.png',
+      'cn': '../icons/flags/cn.png'
+    };
+    const languageTextMap = {
+      'nl': 'Dutch',
+      'en': 'English',
+      'de': 'German',
+      'fr': 'French',
+      'es': 'Spanish',
+      'ru': 'Russian',
+      'cn': 'Chinese'
+    };
+
+    selectedFlag.src = flagMap[language] || flagMap['nl'];
+    selectedLanguageText.textContent = languageTextMap[language] || languageTextMap['nl'];
   }
 
   hexBase32GenButton.addEventListener('click', () => {

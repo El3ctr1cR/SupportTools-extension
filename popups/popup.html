@@ -61,7 +61,6 @@
       transition: background-color 0.3s ease;
       margin-bottom: -2px;
       border-radius: 0;
-      /* Ensure no rounded corners */
     }
 
     .tab img {
@@ -75,13 +74,18 @@
     .tab.active {
       background-color: #3a3a3a;
       border-radius: 0;
-      /* Ensure no rounded corners on hover/active state */
     }
 
     /* Content Styles */
     .content {
       padding: 15px;
       flex-grow: 1;
+      overflow-y: scroll;
+      scrollbar-width: none;
+    }
+
+    .content::-webkit-scrollbar {
+      display: none;
     }
 
     /* Form Styles */
@@ -384,6 +388,90 @@
         transform: rotate(360deg);
       }
     }
+    
+    #passwordLength {
+      width: 93%;
+    }
+
+    /* Generated Password Styles */
+    .generated-password-group {
+      margin-bottom: 20px;
+    }
+
+    .generated-password-container {
+      display: flex;
+      align-items: center;
+      background-color: #2a2a2a;
+      border: 1px solid #444;
+      border-radius: 3px;
+      padding: 6px 8px;
+      min-height: 30px;
+    }
+
+    .generated-password {
+      flex-grow: 1;
+      font-size: 14px;
+      overflow-x: auto;
+      white-space: nowrap;
+      display: flex;
+    }
+
+    .password-icons {
+      display: flex;
+      align-items: center;
+    }
+
+    .password-icons img {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      margin-left: 8px;
+      opacity: 0.7;
+    }
+
+    .password-icons img:hover {
+      opacity: 1;
+    }
+
+    .generated-password::-webkit-scrollbar {
+      display: none;
+    }
+
+    .generated-password {
+      scrollbar-width: none;
+    }
+
+    /* Password History Styles */
+    #passwordHistory {
+      list-style-type: none;
+      padding: 0;
+      max-height: 150px;
+      overflow-y: auto;
+      scrollbar-width: none;
+    }
+
+    #passwordHistory::-webkit-scrollbar {
+      display: none;
+    }
+
+    #passwordHistory li {
+      margin-bottom: 5px;
+      font-size: 12px;
+      word-break: break-all;
+    }
+
+    /* Colored Characters */
+    .char-letter {
+      color: white;
+    }
+
+    .char-number {
+      color: lightblue;
+    }
+
+    .char-special {
+      color: lightcoral;
+    }
   </style>
 </head>
 
@@ -397,6 +485,10 @@
     <button class="tab active" id="tabAutotask">
       Autotask
       <img src="../icons/ticket.png" alt="Autotask Icon">
+    </button>
+    <button class="tab" id="tabPasswordGenerator" data-target="contentPasswordGenerator">
+      Generator
+      <img src="../icons/password.png" alt="Password Icon">
     </button>
     <button class="tab" id="tabMisc">
       Misc
@@ -483,6 +575,49 @@
     </div>
   </div>
 
+  <div class="content" id="contentPasswordGenerator" style="display: none;">
+    <div class="category-header">Password Generator</div>
+    <div class="category-content">
+      <div class="form-group generated-password-group">
+        <div class="generated-password-container">
+          <div id="generatedPassword" class="generated-password"></div>
+          <div class="password-icons">
+            <img src="../icons/refresh.png" id="refreshPassword" alt="Refresh Password" title="Generate New Password">
+            <img src="../icons/copy.png" id="copyPassword" alt="Copy Password" title="Copy Password">
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="passwordLength">Password Length: <span id="passwordLengthValue">12</span></label>
+        <input type="range" id="passwordLength" min="4" max="64" value="12">
+      </div>
+      <div class="form-group">
+        <input type="checkbox" id="includeLowercase" checked>
+        <label for="includeLowercase">Include Lowercase Letters</label>
+      </div>
+      <div class="form-group">
+        <input type="checkbox" id="includeUppercase" checked>
+        <label for="includeUppercase">Include Uppercase Letters</label>
+      </div>
+      <div class="form-group">
+        <input type="checkbox" id="includeNumbers" checked>
+        <label for="includeNumbers">Include Numbers</label>
+      </div>
+      <div class="form-group">
+        <input type="checkbox" id="includeSymbols" checked>
+        <label for="includeSymbols">Include Symbols</label>
+      </div>
+      <div class="form-group">
+        <input type="checkbox" id="usePassphrase">
+        <label for="usePassphrase">Use Passphrase</label>
+      </div>
+      <div class="category-header">Password History</div>
+      <div class="category-content">
+        <ul id="passwordHistory"></ul>
+      </div>
+    </div>
+  </div>
+
   <div class="content" id="contentMisc" style="display: none;">
     <div class="category-header">Miscellaneous</div>
     <div class="category-content">
@@ -522,6 +657,7 @@
   </div>
 
   <script src="popup.js"></script>
+  <script src="../functions/passwordGenerator.js"></script>
 </body>
 
 </html>

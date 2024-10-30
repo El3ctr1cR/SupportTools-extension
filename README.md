@@ -26,6 +26,28 @@
   - `${currentTime}`: The current time.
   - `${currentDate}`: The current date.
 
+### Password generator
+The password generator is a tool designed to help you create secure and customizable passwords with the following features:
+
+- **Adjustable Password Length:** Choose a password length between 4 and 64 characters using a slider for precise control over password complexity.
+
+- **Character Inclusion Options:**
+  - Lowercase Letters: Include lowercase alphabets (a-z).
+  - Uppercase Letters: Include uppercase alphabets (A-Z).
+  - Numbers: Include digits (0-9).
+  - Symbols: Include special characters (e.g., !@#$%^&*).
+  - You can select any combination of these character types to tailor your password.
+
+- **Passphrase Generation:**
+  - Opt to generate a passphrase consisting of three random words joined by hyphens (e.g., Apple-Dog-Sunshine).
+  - Language Selection: Generates words in your selected language (currently supports English and Dutch).
+  - Unique Words: Ensures no word is repeated in the same passphrase.
+  - Capitalized Words: Each word starts with a capital letter for better readability and memorability.
+
+- **Password History:**
+  - Maintains a history of your last 20 generated passwords or passphrases.
+  - Each entry includes the password and the timestamp of when it was generated.
+
 ### TOTP Hex and Base32 Generator
 - A TOTP generator that provides both Hex and Base32 encoded keys.
 - This feature is particularly useful for integrating with Duo Security and IT Glue, where such keys are often required.
