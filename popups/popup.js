@@ -35,6 +35,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const selectedFlag = document.getElementById('selectedFlag');
   const selectedLanguageText = document.getElementById('selectedLanguageText');
   const loadingOverlay = document.getElementById('loadingOverlay');
+  const templateDropdownButton = document.getElementById('templateDropdownButton');
+  const templateDropdownContent = document.getElementById('templateDropdownContent');
+  const selectedTemplateText = document.getElementById('selectedTemplateText');
 
   function handleAiAction(action, popupHtml, contentSelector) {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -70,6 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
   }
+
   summarizeButton.addEventListener('click', () => handleAiAction('summarizeTicket', '../popups/autotask/ticketSummary.html', '.Normal.Section .ContentContainer .Content'));
   findSolution.addEventListener('click', () => handleAiAction('findSolution', '../popups/autotask/ticketSummary.html', '.Normal.Section .ContentContainer .Content'));
   elaborateButton.addEventListener('click', () => handleAiAction('elaborateTicket', '../popups/autotask/elaborateTicket.html', 'div.ContentEditable2.Large[contenteditable="true"]'));
@@ -331,7 +335,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   });
-
 
   editTemplatesButton.addEventListener('click', () => {
     chrome.windows.create({

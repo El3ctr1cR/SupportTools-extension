@@ -309,54 +309,7 @@
       display: block;
     }
 
-    #selectedFlag {
-      visibility: visible;
-      display: inline-block;
-      margin-left: 3px;
-      margin-top: 3px;
-    }
-
-    #dropdownButton:hover {
-      background-color: transparent;
-    }
-
-    #selectedFlag:hover {
-      background-color: transparent;
-    }
-
-    .category-header-ai {
-      margin-bottom: 0px;
-      padding-bottom: 0px;
-    }
-
-    #dropdownContent {
-      position: absolute;
-      width: auto;
-      top: 156px;
-      left: 0;
-      z-index: 1000;
-      margin-left: 28px;
-    }
-
-    #dropdownButton {
-      visibility: hidden;
-      display: inline-block;
-      position: relative;
-      margin-left: -6px;
-      margin-top: 2px;
-    }
-
-    .category-header-ai img {
-      vertical-align: middle;
-      margin-left: -1px;
-      height: 16px;
-    }
-
-    #contentAutotask {
-      padding-top: 1px;
-      margin-top: 1px;
-    }
-
+    /* Loading Overlay Styles */
     #loadingOverlay {
       position: absolute;
       top: 0;
@@ -388,7 +341,7 @@
         transform: rotate(360deg);
       }
     }
-    
+
     #passwordLength {
       width: 93%;
     }
@@ -507,43 +460,8 @@
   </div>
 
   <div class="content" id="contentAutotask">
-    <div class="category-header category-header-ai">
+    <div class="category-header">
       AI
-      <button id="dropdownButton" class="dropdown-btn" title="Language the AI will respond in">
-        <img id="selectedFlag" src="../icons/nl.png" alt="Dutch Flag">
-        <span id="selectedLanguageText">Dutch</span>
-        <i class="arrow-down"></i>
-      </button>
-      <div id="dropdownContent" class="dropdown-content">
-        <div class="dropdown-item" data-value="nl">
-          <img src="../icons/flags/nl.png" alt="Dutch Flag">
-          <span>Dutch</span>
-        </div>
-        <div class="dropdown-item" data-value="en">
-          <img src="../icons/flags/us.png" alt="English Flag">
-          <span>English</span>
-        </div>
-        <div class="dropdown-item" data-value="de">
-          <img src="../icons/flags/de.png" alt="German Flag">
-          <span>German</span>
-        </div>
-        <div class="dropdown-item" data-value="fr">
-          <img src="../icons/flags/fr.png" alt="French Flag">
-          <span>French</span>
-        </div>
-        <div class="dropdown-item" data-value="es">
-          <img src="../icons/flags/es.png" alt="Spanish Flag">
-          <span>Spanish</span>
-        </div>
-        <div class="dropdown-item" data-value="ru">
-          <img src="../icons/flags/ru.png" alt="Russian Flag">
-          <span>Russian</span>
-        </div>
-        <div class="dropdown-item" data-value="cn">
-          <img src="../icons/flags/cn.png" alt="Chinese Flag">
-          <span>Chinese</span>
-        </div>
-      </div>
     </div>
     <div class="category-content">
       <div class="form-group">
@@ -636,6 +554,51 @@
         <button id="setApiKey">Set OpenAI API Key</button>
       </div>
     </div>
+
+    <div class="category-header">Language</div>
+    <div class="category-content">
+      <div class="form-group">
+        <label for="dropdownButton">Select AI and password generator language</label>
+        <div class="custom-dropdown">
+          <button id="dropdownButton" class="dropdown-btn" title="Language the extension will use">
+            <img id="selectedFlag" src="../icons/flags/nl.png" alt="Dutch Flag">
+            <span id="selectedLanguageText">Dutch</span>
+            <i class="arrow-down"></i>
+          </button>
+          <div id="dropdownContent" class="dropdown-content">
+            <div class="dropdown-item" data-value="nl">
+              <img src="../icons/flags/nl.png" alt="Dutch Flag">
+              <span>Dutch</span>
+            </div>
+            <div class="dropdown-item" data-value="en">
+              <img src="../icons/flags/us.png" alt="English Flag">
+              <span>English</span>
+            </div>
+            <div class="dropdown-item" data-value="de">
+              <img src="../icons/flags/de.png" alt="German Flag">
+              <span>German</span>
+            </div>
+            <div class="dropdown-item" data-value="fr">
+              <img src="../icons/flags/fr.png" alt="French Flag">
+              <span>French</span>
+            </div>
+            <div class="dropdown-item" data-value="es">
+              <img src="../icons/flags/es.png" alt="Spanish Flag">
+              <span>Spanish</span>
+            </div>
+            <div class="dropdown-item" data-value="ru">
+              <img src="../icons/flags/ru.png" alt="Russian Flag">
+              <span>Russian</span>
+            </div>
+            <div class="dropdown-item" data-value="cn">
+              <img src="../icons/flags/cn.png" alt="Chinese Flag">
+              <span>Chinese</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="category-header">Configuration</div>
     <div class="category-content">
       <div class="form-group config-buttons">
