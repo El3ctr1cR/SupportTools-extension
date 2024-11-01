@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   const passwordLengthSlider = document.getElementById('passwordLength');
   const passwordLengthValue = document.getElementById('passwordLengthValue');
+  const passwordLengthContainer = document.getElementById('passwordLengthContainer');
   const includeLowercaseCheckbox = document.getElementById('includeLowercase');
   const includeUppercaseCheckbox = document.getElementById('includeUppercase');
   const includeNumbersCheckbox = document.getElementById('includeNumbers');
@@ -120,11 +121,13 @@ document.addEventListener('DOMContentLoaded', () => {
       includeUppercaseCheckbox.parentElement.style.display = 'none';
       includeNumbersCheckbox.parentElement.style.display = 'none';
       includeSymbolsCheckbox.parentElement.style.display = 'none';
+      passwordLengthContainer.style.display = 'none';
     } else {
       includeLowercaseCheckbox.parentElement.style.display = 'block';
       includeUppercaseCheckbox.parentElement.style.display = 'block';
       includeNumbersCheckbox.parentElement.style.display = 'block';
       includeSymbolsCheckbox.parentElement.style.display = 'block';
+      passwordLengthContainer.style.display = 'block';
     }
   }
 

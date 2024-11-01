@@ -561,15 +561,15 @@
         </div>
       </div>
       <div class="form-group">
-        <label for="passwordLength">Password Length: <span id="passwordLengthValue">12</span></label>
-        <input type="range" id="passwordLength" min="4" max="64" value="12">
-      </div>
-      <div class="form-group">
         <label>Select Type:</label><br>
         <input type="radio" id="typePassword" name="passwordType" checked>
         <label for="typePassword">Password</label>
         <input type="radio" id="typePassphrase" name="passwordType">
         <label for="typePassphrase">Passphrase</label>
+      </div>
+      <div class="form-group" id="passwordLengthContainer">
+        <label for="passwordLength">Password Length: <span id="passwordLengthValue">12</span></label>
+        <input type="range" id="passwordLength" min="4" max="64" value="12">
       </div>
       <div class="form-group">
         <input type="checkbox" id="includeLowercase" checked>
