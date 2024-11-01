@@ -81,11 +81,23 @@
       padding: 15px;
       flex-grow: 1;
       overflow-y: scroll;
-      scrollbar-width: none;
+      scrollbar-width: thin;
+      scrollbar-color: #444 #2a2a2a;
     }
 
+    /* Custom Scrollbar Styles for .content */
     .content::-webkit-scrollbar {
-      display: none;
+      width: 8px;
+      background-color: #2a2a2a;
+    }
+
+    .content::-webkit-scrollbar-thumb {
+      background-color: #444;
+      border-radius: 4px;
+    }
+
+    .content::-webkit-scrollbar-thumb:hover {
+      background-color: #555;
     }
 
     /* Form Styles */
@@ -108,7 +120,8 @@
       font-size: 13px;
     }
 
-    input[type="checkbox"] {
+    input[type="checkbox"],
+    input[type="radio"] {
       margin-right: 8px;
       transform: scale(1.1);
     }
@@ -344,6 +357,9 @@
 
     #passwordLength {
       width: 93%;
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
     }
 
     /* Generated Password Styles */
@@ -364,9 +380,10 @@
     .generated-password {
       flex-grow: 1;
       font-size: 14px;
-      overflow-x: auto;
-      white-space: nowrap;
+      overflow: hidden;
+      white-space: normal;
       display: flex;
+      flex-wrap: wrap;
     }
 
     .password-icons {
@@ -386,31 +403,45 @@
       opacity: 1;
     }
 
-    .generated-password::-webkit-scrollbar {
-      display: none;
-    }
-
-    .generated-password {
-      scrollbar-width: none;
-    }
-
     /* Password History Styles */
     #passwordHistory {
       list-style-type: none;
       padding: 0;
       max-height: 150px;
       overflow-y: auto;
-      scrollbar-width: none;
+      scrollbar-width: thin;
+      scrollbar-color: #444 #2a2a2a;
+      padding-right: 8px;
     }
 
+    /* Custom Scrollbar Styles for #passwordHistory */
     #passwordHistory::-webkit-scrollbar {
-      display: none;
+      width: 8px;
+      background-color: #2a2a2a;
+    }
+
+    #passwordHistory::-webkit-scrollbar-thumb {
+      background-color: #444;
+      border-radius: 4px;
+    }
+
+    #passwordHistory::-webkit-scrollbar-thumb:hover {
+      background-color: #555;
     }
 
     #passwordHistory li {
-      margin-bottom: 5px;
+      margin-bottom: 10px;
       font-size: 12px;
       word-break: break-all;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Timestamp Styles */
+    .timestamp {
+      color: #888;
+      font-size: 11px;
+      margin-top: 4px;
     }
 
     /* Colored Characters */
@@ -424,6 +455,30 @@
 
     .char-special {
       color: lightcoral;
+    }
+
+    /* Copy Icon in History */
+    .history-password-container {
+      display: flex;
+      align-items: center;
+    }
+
+    .history-password {
+      flex-grow: 1;
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    .history-copy-icon {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      margin-left: 8px;
+      opacity: 0.7;
+    }
+
+    .history-copy-icon:hover {
+      opacity: 1;
     }
   </style>
 </head>
@@ -510,6 +565,13 @@
         <input type="range" id="passwordLength" min="4" max="64" value="12">
       </div>
       <div class="form-group">
+        <label>Select Type:</label><br>
+        <input type="radio" id="typePassword" name="passwordType" checked>
+        <label for="typePassword">Password</label>
+        <input type="radio" id="typePassphrase" name="passwordType">
+        <label for="typePassphrase">Passphrase</label>
+      </div>
+      <div class="form-group">
         <input type="checkbox" id="includeLowercase" checked>
         <label for="includeLowercase">Include Lowercase Letters</label>
       </div>
@@ -524,10 +586,6 @@
       <div class="form-group">
         <input type="checkbox" id="includeSymbols" checked>
         <label for="includeSymbols">Include Symbols</label>
-      </div>
-      <div class="form-group">
-        <input type="checkbox" id="usePassphrase">
-        <label for="usePassphrase">Use Passphrase</label>
       </div>
       <div class="category-header">Password History</div>
       <div class="category-content">
