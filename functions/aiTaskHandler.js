@@ -198,7 +198,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 return;
             }
             const originalText = contentData.text;
-            const prompt = `Please thoroughly correct the following text, ensuring perfect spelling, capitalization, punctuation, and grammar, while maintaining the proper structure and style of the original language. Be especially careful to preserve the nuances and conventions of the language in which the note is written. Correct all spelling and capitalization errors along with any other language-related mistakes. Output only the corrected text, preserving the original formatting, spacing, and language. Do not include any explanations or additional text. Only output the fully corrected version of the text without missing any detail.\n\n${originalText}`;
+            const prompt = `Make the following text better and maintain the same language it's written in. Do not include any explanations or additional text. Only output the fully corrected version of the text without missing any detail.\n\n${originalText}`;
 
             callOpenAiApi(prompt, { temperature: 0 }).then(correctedText => {
                 setNotes(contentData.element, correctedText);
