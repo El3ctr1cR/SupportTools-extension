@@ -200,7 +200,8 @@ document.addEventListener('DOMContentLoaded', () => {
   function getLanguage(callback) {
     const languageMap = {
       'nl': 'Dutch',
-      'en': 'English'
+      'en': 'English',
+      'de': 'German'
     };
 
     chrome.storage.sync.get(['selectedLanguage'], (result) => {
@@ -211,43 +212,40 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function fetchRandomWords(language, count) {
-    return new Promise((resolve, reject) => {
-      const wordLists = {
-        'English': [
-          'Apple', 'Banana', 'Cherry', 'Dog', 'Elephant', 'Flower', 'Guitar', 'House', 'Island', 'Jungle',
-          'Kangaroo', 'Lion', 'Mountain', 'Notebook', 'Ocean', 'Piano', 'Queen', 'Rainbow', 'Sunshine', 'Tiger',
-          'Umbrella', 'Violin', 'Whale', 'Xylophone', 'Yellow', 'Zebra', 'Falcon', 'Galaxy', 'Harmony', 'Iceberg',
-          'Journey', 'Knowledge', 'Liberty', 'Miracle', 'Nature', 'Oxygen', 'Phoenix', 'Quantum', 'Rocket', 'Symphony'
-        ],
-        'Dutch': [
-          'Appel', 'Banaan', 'Kers', 'Hond', 'Olifant', 'Bloem', 'Gitaar', 'Huis', 'Eiland', 'Jungle',
-          'Kangoeroe', 'Leeuw', 'Berg', 'Notitieboek', 'Oceaan', 'Piano', 'Koningin', 'Regenboog', 'Zonneschijn', 'Tijger',
-          'Paraplu', 'Viool', 'Walvis', 'Xylofoon', 'Geel', 'Zebra', 'Valk', 'Galaxie', 'Harmonie', 'IJsberg',
-          'Reis', 'Kennis', 'Vrijheid', 'Wonder', 'Natuur', 'Zuurstof', 'Feniks', 'Kwantum', 'Raket', 'Symfonie'
-        ]
-      };
+    return new Promise(async (resolve, reject) => {
+      try {
+        const response = await fetch('../libs/words.json');
+        if (!response.ok) {
+          reject(new Error('Failed to fetch words.json'));
+          return;
+        }
 
-      let words = wordLists[language];
-      if (!words) {
-        reject(new Error('Language not supported'));
-        return;
+        const wordLists = await response.json();
+
+        const words = wordLists.words[language];
+        if (!words) {
+          reject(new Error(`Language '${language}' not supported`));
+          return;
+        }
+
+        if (words.length < count) {
+          reject(new Error('Not enough words to choose from'));
+          return;
+        }
+
+        const wordPool = [...words];
+
+        const selectedWords = [];
+        for (let i = 0; i < count; i++) {
+          const randomIndex = Math.floor(Math.random() * wordPool.length);
+          const word = wordPool.splice(randomIndex, 1)[0];
+          selectedWords.push(word);
+        }
+
+        resolve(selectedWords);
+      } catch (error) {
+        reject(new Error('Error fetching or processing words: ' + error.message));
       }
-
-      if (words.length < count) {
-        reject(new Error('Not enough words to choose from'));
-        return;
-      }
-
-      words = [...words];
-
-      const selectedWords = [];
-      for (let i = 0; i < count; i++) {
-        const randomIndex = Math.floor(Math.random() * words.length);
-        const word = words.splice(randomIndex, 1)[0];
-        selectedWords.push(word);
-      }
-
-      resolve(selectedWords);
     });
   }
 
