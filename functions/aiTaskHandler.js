@@ -179,18 +179,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             return true;
         }
 
-        if (request.action === 'findSolution') {
-            const prompt = `Carefully analyze the following ticket. If it describes an issue, suggest possible solutions with clear, actionable steps. If it is a request, describe the best way to process or fulfill it, considering any potential constraints or best practices. Provide a professional and detailed description in ${language}, ensuring the solution or process is easy to follow and implement.\n\nFull ticket:\n${ticketDetails}`;
-            callOpenAiApi(prompt).then(summary => sendResponse({ summary }));
-            return true;
-        }
-
-        if (request.action === 'elaborateTicket') {
-            const prompt = `Please create a clear, concise, and well-structured problem or request description based on the following details in ${language}. Exclude any headers, ticket numbers, or unrelated information. Only output the refined description of the issue/request. Keep the language professional and straightforward.\n\nNotes:\n${ticketDetails}`;
-            callOpenAiApi(prompt).then(summary => sendResponse({ summary }));
-            return true;
-        }
-
         if (request.action === 'grammarCheck') {
             const contentData = getNotes();
             if (!contentData || !contentData.text) {
@@ -198,7 +186,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 return;
             }
             const originalText = contentData.text;
-            const prompt = `Make the following text better and maintain the same language it's written in. Do not include any explanations or additional text. Only output the fully corrected version of the text without missing any detail.\n\n${originalText}`;
+            const prompt = `Make the following text better and maintain the same language. Do not include any explanations or additional text. Only output the fully corrected version of the text.\n\n${originalText}`;
 
             callOpenAiApi(prompt, { temperature: 0 }).then(correctedText => {
                 setNotes(contentData.element, correctedText);

@@ -46,9 +46,7 @@
         "popups/autotask/templateEditor.html",
         "popups/autotask/templateEditor.js",
         "popups/autotask/ticketSummary.html",
-        "popups/autotask/ticketSummary.js",
-        "popups/autotask/elaborateTicket.html",
-        "popups/autotask/elaborateTicket.js"
+        "popups/autotask/ticketSummary.js"
       ],
       "matches": [
         "https://*.autotask.net/*"
