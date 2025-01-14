@@ -1,32 +1,35 @@
-const urlMappings = {
-  "https://portal.office.com": "https://admin.microsoft.com",
-  "https://admin.microsoft.com": "https://admin.microsoft.com",
-  "https://portal.azure.com": "https://portal.azure.com",
-  "https://admin.google.com": "https://admin.google.com"
-};
-
 chrome.webNavigation.onBeforeNavigate.addListener((details) => {
-  chrome.storage.sync.get(['bypassIncognito'], (result) => {
+  if (details.frameId !== 0) return;
+
+  chrome.storage.sync.get(['bypassIncognito', 'urlMappings'], (result) => {
     const bypassIncognito = result.bypassIncognito || false;
+    const urlMappings = result.urlMappings || {};
 
     if (bypassIncognito) return;
 
     chrome.tabs.get(details.tabId, (tab) => {
       if (tab.incognito) return;
 
-      const url = new URL(details.url);
-      const targetUrl = urlMappings[url.origin];
+      const currentUrl = new URL(details.url);
+      const currentHost = currentUrl.hostname.replace(/^www\./i, '');
 
-      if (targetUrl) {
-        chrome.windows.create({
-          url: targetUrl,
-          incognito: true
-        }, () => {
-          chrome.tabs.remove(details.tabId);
-        });
+      for (const [sourceValue, targetValue] of Object.entries(urlMappings)) {
+        let sourceHost = sourceValue;
+        try {
+          const parsed = new URL(sourceValue);
+          sourceHost = parsed.hostname;
+        } catch (err) {
+        }
+        sourceHost = sourceHost.replace(/^www\./i, '');
+
+        if (currentHost === sourceHost) {
+          const finalUrl = targetValue?.trim() || details.url;
+          chrome.windows.create({ url: finalUrl, incognito: true }, () => {
+            chrome.tabs.remove(details.tabId);
+          });
+          break;
+        }
       }
     });
   });
-}, {
-  url: Object.keys(urlMappings).map(origin => ({ urlMatches: `${origin}/*` }))
 });
