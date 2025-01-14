@@ -52,8 +52,9 @@ The password generator is a tool designed to help you create secure and customiz
 - A TOTP generator that provides both Hex and Base32 encoded keys.
 - This feature is particularly useful for integrating with Duo Security and IT Glue, where such keys are often required.
   
-### Office URLs in Incognito Mode
-- Automatically opens specified Office URLs (e.g., `portal.office.com`, `microsoft365.com`, `admin.microsoft.com`, `portal.azure.com`, `admin.google.com`) in incognito mode.
+### Automatically open URLs in incognito
+- Automatically opens specified URLs (e.g., `portal.office.com`, `microsoft365.com`, `admin.microsoft.com`, `portal.azure.com`, `admin.google.com`) in incognito mode.
+- Your own URLs can be setup
 - A bypass filter can be enabled to prevent this automatic behavior, allowing the URLs to open in the normal browsing mode.
 
 ### Configuration Export and Import
