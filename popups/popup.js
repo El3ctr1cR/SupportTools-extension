@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  const urlMappingsButton = document.getElementById('urlMappingsButton');
   const summarizeButton = document.getElementById('summarizeTicket');
   const grammarCheckButton = document.getElementById('grammarCheck');
   const setApiKeyButton = document.getElementById('setApiKey');
@@ -158,6 +159,15 @@ document.addEventListener('DOMContentLoaded', () => {
       type: 'popup',
       width: 600,
       height: 320
+    });
+  });
+
+  urlMappingsButton.addEventListener('click', () => {
+    chrome.windows.create({
+      url: chrome.runtime.getURL('../popups/misc/urlMappingEditor.html'),
+      type: 'popup',
+      width: 620,
+      height: 1035
     });
   });
 
