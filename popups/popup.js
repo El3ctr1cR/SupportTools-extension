@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
       tabs.forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
 
-      contentSections.forEach(section => section.style.display = 'none');
+      contentSections.forEach(section => (section.style.display = 'none'));
       contentSections[index].style.display = 'block';
     });
   });
@@ -38,60 +38,99 @@ document.addEventListener('DOMContentLoaded', () => {
   const templateDropdownContent = document.getElementById('templateDropdownContent');
   const selectedTemplateText = document.getElementById('selectedTemplateText');
 
+  const radioPassword = document.getElementById('typePassword');
+  const radioPassphrase = document.getElementById('typePassphrase');
+
+  const lowercaseRow = document.getElementById('lowercaseRow');
+  const uppercaseRow = document.getElementById('uppercaseRow');
+  const numbersRow = document.getElementById('numbersRow');
+  const symbolsRow = document.getElementById('symbolsRow');
+
+  function updateToggleVisibility() {
+    if (radioPassphrase.checked) {
+      lowercaseRow.style.display = 'none';
+      uppercaseRow.style.display = 'none';
+      numbersRow.style.display = 'none';
+      symbolsRow.style.display = 'none';
+    } else {
+      lowercaseRow.style.display = 'flex';
+      uppercaseRow.style.display = 'flex';
+      numbersRow.style.display = 'flex';
+      symbolsRow.style.display = 'flex';
+    }
+  }
+
+  radioPassword.addEventListener('change', updateToggleVisibility);
+  radioPassphrase.addEventListener('change', updateToggleVisibility);
+  updateToggleVisibility();
+
   function handleAiAction(action, popupHtml, contentSelector) {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       const activeTab = tabs[0];
       chrome.storage.local.set({ activeTabId: activeTab.id }, () => {
         console.log('Tab ID saved:', activeTab.id);
-        chrome.scripting.executeScript({
-          target: { tabId: activeTab.id },
-          func: (selector) => !!document.querySelector(selector),
-          args: [contentSelector],
-        }, (results) => {
-          if (chrome.runtime.lastError || !results || !results[0].result) {
-            alert('No ticket content found on the page.');
-            return;
-          }
-          const aiPopup = window.open(popupHtml, 'AI Task', 'width=1200,height=1200');
-          aiPopup.onload = function () {
-            aiPopup.postMessage({ loading: true }, '*');
-          };
-          chrome.scripting.executeScript({
+        chrome.scripting.executeScript(
+          {
             target: { tabId: activeTab.id },
-            files: ['functions/aiTaskHandler.js']
-          }, () => {
-            chrome.tabs.sendMessage(activeTab.id, { action }, (response) => {
-              if (response && response.summary) {
-                aiPopup.postMessage({ loading: false, summary: response.summary }, '*');
-              } else {
-                alert('Failed to handle AI action.');
+            func: (selector) => !!document.querySelector(selector),
+            args: [contentSelector],
+          },
+          (results) => {
+            if (chrome.runtime.lastError || !results || !results[0].result) {
+              alert('No ticket content found on the page.');
+              return;
+            }
+            const aiPopup = window.open(popupHtml, 'AI Task', 'width=1200,height=1200');
+            aiPopup.onload = function () {
+              aiPopup.postMessage({ loading: true }, '*');
+            };
+            chrome.scripting.executeScript(
+              {
+                target: { tabId: activeTab.id },
+                files: ['functions/aiTaskHandler.js']
+              },
+              () => {
+                chrome.tabs.sendMessage(activeTab.id, { action }, (response) => {
+                  if (response && response.summary) {
+                    aiPopup.postMessage({ loading: false, summary: response.summary }, '*');
+                  } else {
+                    alert('Failed to handle AI action.');
+                  }
+                });
               }
-            });
-          });
-        });
+            );
+          }
+        );
       });
     });
   }
 
-  summarizeButton.addEventListener('click', () => handleAiAction('summarizeTicket', '../popups/autotask/ticketSummary.html', '.Normal.Section .ContentContainer .Content'));
+  summarizeButton.addEventListener('click', () =>
+    handleAiAction('summarizeTicket', '../popups/autotask/ticketSummary.html', '.Normal.Section .ContentContainer .Content')
+  );
 
   grammarCheckButton.addEventListener('click', () => {
     loadingOverlay.style.display = 'flex';
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       const activeTab = tabs[0];
-      chrome.scripting.executeScript({
-        target: { tabId: activeTab.id },
-        files: ['functions/aiTaskHandler.js']
-      }, () => {
-        chrome.tabs.sendMessage(activeTab.id, { action: 'grammarCheck' }, (response) => {
-          loadingOverlay.style.display = 'none';
-          if (response && response.success) {
-            console.log('Grammar check completed successfully');
-          } else {
-            alert('Failed to perform grammar check' + (response && response.error ? ': ' + response.error : ''));
-          }
-        });
-      });
+      chrome.scripting.executeScript(
+        {
+          target: { tabId: activeTab.id },
+          files: ['functions/aiTaskHandler.js']
+        },
+        () => {
+          chrome.tabs.sendMessage(activeTab.id, { action: 'grammarCheck' }, (response) => {
+            loadingOverlay.style.display = 'none';
+            if (response && response.success) {
+              console.log('Grammar check completed successfully');
+            } else {
+              alert(
+                'Failed to perform grammar check' + (response && response.error ? ': ' + response.error : '')
+              );
+            }
+          });
+        }
+      );
     });
   });
 

@@ -4,7 +4,6 @@
 <head>
   <title>Support Tools</title>
   <style>
-    /* General Styles */
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background-color: #121212;
@@ -18,7 +17,6 @@
       flex-direction: column;
     }
 
-    /* Header Styles */
     .header {
       background: linear-gradient(45deg, #1f1f1f, #2a2a2a);
       color: #ffffff;
@@ -39,7 +37,6 @@
       margin-right: 8px;
     }
 
-    /* Tab Styles */
     .tab-container {
       display: flex;
       justify-content: space-around;
@@ -76,7 +73,6 @@
       border-radius: 0;
     }
 
-    /* Content Styles */
     .content {
       padding: 15px;
       flex-grow: 1;
@@ -85,7 +81,6 @@
       scrollbar-color: #444 #2a2a2a;
     }
 
-    /* Custom Scrollbar Styles for .content */
     .content::-webkit-scrollbar {
       width: 8px;
       background-color: #2a2a2a;
@@ -100,7 +95,6 @@
       background-color: #555;
     }
 
-    /* Form Styles */
     .form-group {
       margin-bottom: 12px;
     }
@@ -120,13 +114,18 @@
       font-size: 13px;
     }
 
-    input[type="checkbox"],
+    input[type="checkbox"] {
+      opacity: 0;
+      width: 0;
+      height: 0;
+      position: absolute;
+    }
+
     input[type="radio"] {
       margin-right: 8px;
       transform: scale(1.1);
     }
 
-    /* Input Styles */
     button,
     select,
     input {
@@ -152,7 +151,6 @@
       background-color: #3a3a3a;
     }
 
-    /* Button Styles */
     .config-buttons {
       display: flex;
       flex-direction: column;
@@ -167,7 +165,6 @@
       background: linear-gradient(45deg, #3a3a3a, #444);
     }
 
-    /* Category Styles */
     .category-header {
       font-weight: bold;
       font-size: 14px;
@@ -209,7 +206,6 @@
       text-decoration: underline;
     }
 
-    /* Warning Styles */
     .warning-container {
       display: flex;
       align-items: center;
@@ -255,7 +251,6 @@
       filter: invert(26%) sepia(88%) saturate(6776%) hue-rotate(357deg) brightness(104%) contrast(107%);
     }
 
-    /* Dropdown Styles */
     .custom-dropdown {
       position: relative;
       display: inline-block;
@@ -322,7 +317,6 @@
       display: block;
     }
 
-    /* Loading Overlay Styles */
     #loadingOverlay {
       position: absolute;
       top: 0;
@@ -362,7 +356,6 @@
       box-sizing: border-box;
     }
 
-    /* Generated Password Styles */
     .generated-password-group {
       margin-bottom: 20px;
     }
@@ -403,7 +396,6 @@
       opacity: 1;
     }
 
-    /* Password History Styles */
     #passwordHistory {
       list-style-type: none;
       padding: 0;
@@ -414,7 +406,6 @@
       padding-right: 8px;
     }
 
-    /* Custom Scrollbar Styles for #passwordHistory */
     #passwordHistory::-webkit-scrollbar {
       width: 8px;
       background-color: #2a2a2a;
@@ -437,14 +428,12 @@
       flex-direction: column;
     }
 
-    /* Timestamp Styles */
     .timestamp {
       color: #888;
       font-size: 11px;
       margin-top: 4px;
     }
 
-    /* Colored Characters */
     .char-letter {
       color: white;
     }
@@ -457,7 +446,6 @@
       color: lightcoral;
     }
 
-    /* Copy Icon in History */
     .history-password-container {
       display: flex;
       align-items: center;
@@ -479,6 +467,53 @@
 
     .history-copy-icon:hover {
       opacity: 1;
+    }
+
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 40px;
+      height: 20px;
+      margin-right: 0px;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #666;
+      transition: 0.4s;
+      border-radius: 34px;
+    }
+
+    .slider:before {
+      content: "";
+      position: absolute;
+      height: 14px;
+      width: 14px;
+      left: 3px;
+      bottom: 3px;
+      background-color: #fff;
+      transition: 0.4s;
+      border-radius: 50%;
+    }
+
+    input[type="checkbox"]:checked+.slider {
+      background-color: #1d57c4;
+    }
+
+    input[type="checkbox"]:checked+.slider:before {
+      transform: translateX(20px);
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
     }
   </style>
 </head>
@@ -514,6 +549,7 @@
     <button id="updateButton">Update</button>
   </div>
 
+  <!-- ======== CONTENT: Autotask ======== -->
   <div class="content" id="contentAutotask">
     <div class="category-header">
       AI
@@ -524,7 +560,6 @@
         <button id="grammarCheck">Grammar check</button>
       </div>
     </div>
-
     <div class="category-header">Templates</div>
     <div class="category-content">
       <div class="form-group">
@@ -534,8 +569,7 @@
             <span id="selectedTemplateText">Select a Template</span>
             <i class="arrow-down"></i>
           </button>
-          <div id="templateDropdownContent" class="dropdown-content">
-          </div>
+          <div id="templateDropdownContent" class="dropdown-content"></div>
         </div>
       </div>
       <div class="form-group button-group-inline">
@@ -546,6 +580,7 @@
     </div>
   </div>
 
+  <!-- ======== CONTENT: Password Generator ======== -->
   <div class="content" id="contentPasswordGenerator" style="display: none;">
     <div class="category-header">Password Generator</div>
     <div class="category-content">
@@ -558,6 +593,7 @@
           </div>
         </div>
       </div>
+
       <div class="form-group">
         <label>Select Type:</label><br>
         <input type="radio" id="typePassword" name="passwordType" checked>
@@ -565,26 +601,41 @@
         <input type="radio" id="typePassphrase" name="passwordType">
         <label for="typePassphrase">Passphrase</label>
       </div>
+
       <div class="form-group" id="passwordLengthContainer">
         <label for="passwordLength">Password Length: <span id="passwordLengthValue">12</span></label>
         <input type="range" id="passwordLength" min="4" max="64" value="12">
       </div>
-      <div class="form-group">
-        <input type="checkbox" id="includeLowercase" checked>
+
+      <div class="toggle-row" id="lowercaseRow">
+        <label class="toggle-switch">
+          <input type="checkbox" id="includeLowercase" checked>
+          <span class="slider"></span>
+        </label>
         <label for="includeLowercase">Include Lowercase Letters</label>
       </div>
-      <div class="form-group">
-        <input type="checkbox" id="includeUppercase" checked>
+      <div class="toggle-row" id="uppercaseRow">
+        <label class="toggle-switch">
+          <input type="checkbox" id="includeUppercase" checked>
+          <span class="slider"></span>
+        </label>
         <label for="includeUppercase">Include Uppercase Letters</label>
       </div>
-      <div class="form-group">
-        <input type="checkbox" id="includeNumbers" checked>
+      <div class="toggle-row" id="numbersRow">
+        <label class="toggle-switch">
+          <input type="checkbox" id="includeNumbers" checked>
+          <span class="slider"></span>
+        </label>
         <label for="includeNumbers">Include Numbers</label>
       </div>
-      <div class="form-group">
-        <input type="checkbox" id="includeSymbols" checked>
+      <div class="toggle-row" id="symbolsRow">
+        <label class="toggle-switch">
+          <input type="checkbox" id="includeSymbols" checked>
+          <span class="slider"></span>
+        </label>
         <label for="includeSymbols">Include Symbols</label>
       </div>
+
       <div class="category-header">Password History</div>
       <div class="category-content">
         <ul id="passwordHistory"></ul>
@@ -592,18 +643,27 @@
     </div>
   </div>
 
+  <!-- ======== CONTENT: Misc ======== -->
   <div class="content" id="contentMisc" style="display: none;">
     <div class="category-header">Miscellaneous</div>
     <div class="category-content">
-      <div class="form-group-inline">
-        <input type="checkbox" id="bypassToggle">
-        <label for="bypassToggle">Bypass Incognito Redirection</label>
+      <div class="form-group-inline" style="display: flex; align-items: center; gap: 8px;">
+        <label class="toggle-switch">
+          <input type="checkbox" id="bypassToggle">
+          <span class="slider"></span>
+        </label>
+        <label for="bypassToggle" style="position: relative; top: -2px;">
+          Bypass Incognito Redirection
+        </label>
+        <button id="urlMappingsButton" style="position: relative; top: 2px; right: 10px">
+          URL Mappings
+        </button>
       </div>
       <button id="hexBase32Gen">Hex/Base32 Gen</button>
-      <button id="urlMappingsButton">URL Mappings</button>
     </div>
   </div>
 
+  <!-- ======== CONTENT: Settings ======== -->
   <div class="content" id="contentSettings" style="display: none;">
     <div class="category-header">OpenAI settings</div>
     <div class="category-content">
