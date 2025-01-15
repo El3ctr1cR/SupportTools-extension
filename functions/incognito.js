@@ -5,7 +5,7 @@ chrome.webNavigation.onBeforeNavigate.addListener((details) => {
     const bypassIncognito = result.bypassIncognito || false;
     const urlMappings = result.urlMappings || {};
 
-    if (bypassIncognito) return;
+    if (!bypassIncognito) return;
 
     chrome.tabs.get(details.tabId, (tab) => {
       if (tab.incognito) return;
