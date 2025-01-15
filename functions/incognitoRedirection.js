@@ -1,11 +1,11 @@
 chrome.webNavigation.onBeforeNavigate.addListener((details) => {
   if (details.frameId !== 0) return;
 
-  chrome.storage.sync.get(['bypassIncognito', 'urlMappings'], (result) => {
-    const bypassIncognito = result.bypassIncognito || false;
+  chrome.storage.sync.get(['incognitoRedirection', 'urlMappings'], (result) => {
+    const incognitoRedirection = result.incognitoRedirection || false;
     const urlMappings = result.urlMappings || {};
 
-    if (!bypassIncognito) return;
+    if (!incognitoRedirection) return;
 
     chrome.tabs.get(details.tabId, (tab) => {
       if (tab.incognito) return;

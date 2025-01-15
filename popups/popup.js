@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const updateButton = document.getElementById('updateButton');
   const versionText = document.getElementById('versionText');
   const warningText = document.getElementById('warningText');
-  const bypassToggle = document.getElementById('bypassToggle');
+  const incognitoToggle = document.getElementById('incognitoToggle');
   const inputMailButton = document.getElementById('inputMail');
   const copyMailButton = document.getElementById('copyMail');
   const editTemplatesButton = document.getElementById('editTemplates');
@@ -267,8 +267,8 @@ document.addEventListener('DOMContentLoaded', () => {
     window.open('https://github.com/El3ctr1cR/SupportTools-extension/releases/latest', '_blank');
   });
 
-  chrome.storage.sync.get(['bypassIncognito', 'templates'], (result) => {
-    bypassToggle.checked = result.bypassIncognito || false;
+  chrome.storage.sync.get(['incognitoRedirection', 'templates'], (result) => {
+    incognitoToggle.checked = result.incognitoRedirection || false;
 
     const templates = result.templates || {};
     populateTemplateDropdown(templates);
@@ -312,8 +312,8 @@ document.addEventListener('DOMContentLoaded', () => {
     populateTemplateDropdown(templates);
   });
 
-  bypassToggle.addEventListener('change', () => {
-    chrome.storage.sync.set({ bypassIncognito: bypassToggle.checked });
+  incognitoToggle.addEventListener('change', () => {
+    chrome.storage.sync.set({ incognitoRedirection: incognitoToggle.checked });
   });
 
   inputMailButton.addEventListener('click', () => {

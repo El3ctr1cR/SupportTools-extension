@@ -10,7 +10,7 @@
     "webNavigation"
   ],
   "background": {
-    "service_worker": "functions/incognito.js"
+    "service_worker": "functions/incognitoRedirection.js"
   },
   "incognito": "split",
   "host_permissions": [
