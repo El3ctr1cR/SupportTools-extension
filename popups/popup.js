@@ -12,6 +12,57 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  const radioPassword = document.getElementById('typePassword');
+  const radioPassphrase = document.getElementById('typePassphrase');
+  const lowercaseRow = document.getElementById('lowercaseRow');
+  const uppercaseRow = document.getElementById('uppercaseRow');
+  const numbersRow = document.getElementById('numbersRow');
+  const symbolsRow = document.getElementById('symbolsRow');
+
+  chrome.storage.sync.get(['passwordGeneratorSettings'], (res) => {
+    const settings = res.passwordGeneratorSettings || {};
+
+    if (settings.passwordType === 'passphrase') {
+      radioPassphrase.checked = true;
+    } else {
+      radioPassword.checked = true;
+    }
+
+    updateToggleVisibility();
+  });
+
+  radioPassword.addEventListener('change', () => {
+    storePasswordType('password');
+  });
+  radioPassphrase.addEventListener('change', () => {
+    storePasswordType('passphrase');
+  });
+
+  function storePasswordType(newType) {
+    chrome.storage.sync.get(['passwordGeneratorSettings'], (res) => {
+      const existing = res.passwordGeneratorSettings || {};
+      existing.passwordType = newType;
+
+      chrome.storage.sync.set({ passwordGeneratorSettings: existing }, () => {
+        updateToggleVisibility();
+      });
+    });
+  }
+
+  function updateToggleVisibility() {
+    if (radioPassphrase.checked) {
+      lowercaseRow.style.display = 'none';
+      uppercaseRow.style.display = 'none';
+      numbersRow.style.display = 'none';
+      symbolsRow.style.display = 'none';
+    } else {
+      lowercaseRow.style.display = 'flex';
+      uppercaseRow.style.display = 'flex';
+      numbersRow.style.display = 'flex';
+      symbolsRow.style.display = 'flex';
+    }
+  }
+
   const urlMappingsButton = document.getElementById('urlMappingsButton');
   const summarizeButton = document.getElementById('summarizeTicket');
   const grammarCheckButton = document.getElementById('grammarCheck');
@@ -37,32 +88,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const templateDropdownButton = document.getElementById('templateDropdownButton');
   const templateDropdownContent = document.getElementById('templateDropdownContent');
   const selectedTemplateText = document.getElementById('selectedTemplateText');
-
-  const radioPassword = document.getElementById('typePassword');
-  const radioPassphrase = document.getElementById('typePassphrase');
-
-  const lowercaseRow = document.getElementById('lowercaseRow');
-  const uppercaseRow = document.getElementById('uppercaseRow');
-  const numbersRow = document.getElementById('numbersRow');
-  const symbolsRow = document.getElementById('symbolsRow');
-
-  function updateToggleVisibility() {
-    if (radioPassphrase.checked) {
-      lowercaseRow.style.display = 'none';
-      uppercaseRow.style.display = 'none';
-      numbersRow.style.display = 'none';
-      symbolsRow.style.display = 'none';
-    } else {
-      lowercaseRow.style.display = 'flex';
-      uppercaseRow.style.display = 'flex';
-      numbersRow.style.display = 'flex';
-      symbolsRow.style.display = 'flex';
-    }
-  }
-
-  radioPassword.addEventListener('change', updateToggleVisibility);
-  radioPassphrase.addEventListener('change', updateToggleVisibility);
-  updateToggleVisibility();
 
   function handleAiAction(action, popupHtml, contentSelector) {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -124,9 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response && response.success) {
               console.log('Grammar check completed successfully');
             } else {
-              alert(
-                'Failed to perform grammar check' + (response && response.error ? ': ' + response.error : '')
-              );
+              alert('Failed to perform grammar check' + (response && response.error ? ': ' + response.error : ''));
             }
           });
         }
@@ -170,26 +193,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function updateDropdownSelection(language) {
     const flagMap = {
-      'nl': '../icons/flags/nl.png',
-      'en': '../icons/flags/us.png',
-      'de': '../icons/flags/de.png',
-      'fr': '../icons/flags/fr.png',
-      'es': '../icons/flags/es.png',
-      'ru': '../icons/flags/ru.png',
-      'cn': '../icons/flags/cn.png'
+      nl: '../icons/flags/nl.png',
+      en: '../icons/flags/us.png',
+      de: '../icons/flags/de.png',
+      fr: '../icons/flags/fr.png',
+      es: '../icons/flags/es.png',
+      ru: '../icons/flags/ru.png',
+      cn: '../icons/flags/cn.png'
     };
     const languageTextMap = {
-      'nl': 'Dutch',
-      'en': 'English',
-      'de': 'German',
-      'fr': 'French',
-      'es': 'Spanish',
-      'ru': 'Russian',
-      'cn': 'Chinese'
+      nl: 'Dutch',
+      en: 'English',
+      de: 'German',
+      fr: 'French',
+      es: 'Spanish',
+      ru: 'Russian',
+      cn: 'Chinese'
     };
 
-    selectedFlag.src = flagMap[language] || flagMap['nl'];
-    selectedLanguageText.textContent = languageTextMap[language] || languageTextMap['nl'];
+    selectedFlag.src = flagMap[language] || flagMap.nl;
+    selectedLanguageText.textContent = languageTextMap[language] || languageTextMap.nl;
   }
 
   hexBase32GenButton.addEventListener('click', () => {
@@ -233,7 +256,6 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(response => response.json())
         .then(latestRelease => {
           const latestVersion = latestRelease.tag_name.replace('v', '');
-
           if (currentVersion !== latestVersion) {
             warningText.textContent = `Version ${latestVersion} is available for download`;
             warningContainer.style.display = 'flex';
@@ -296,7 +318,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   inputMailButton.addEventListener('click', () => {
     const selectedTemplate = document.getElementById('selectedTemplateText').textContent;
-
     if (!selectedTemplate || selectedTemplate === 'Select a Template') {
       alert('Please select a template before proceeding.');
       return;
@@ -306,10 +327,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const activeTab = tabs[0];
 
       chrome.scripting.executeScript(
-        {
-          target: { tabId: activeTab.id },
-          files: ['functions/templateManager.js']
-        },
+        { target: { tabId: activeTab.id }, files: ['functions/templateManager.js'] },
         () => {
           chrome.tabs.sendMessage(activeTab.id, { action: 'getEmailText', template: selectedTemplate }, (response) => {
             if (response && response.success) {
@@ -325,7 +343,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   copyMailButton.addEventListener('click', () => {
     const selectedTemplateName = document.getElementById('selectedTemplateText').textContent;
-
     if (!selectedTemplateName || selectedTemplateName === 'Select a Template') {
       alert('Please select a template before proceeding.');
       return;
@@ -334,16 +351,12 @@ document.addEventListener('DOMContentLoaded', () => {
     chrome.storage.sync.get(['templates'], (result) => {
       const templates = result.templates || {};
       const selectedTemplateContent = templates[selectedTemplateName];
-
       if (selectedTemplateContent) {
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
           const activeTab = tabs[0];
 
           chrome.scripting.executeScript(
-            {
-              target: { tabId: activeTab.id },
-              files: ['functions/templateManager.js']
-            },
+            { target: { tabId: activeTab.id }, files: ['functions/templateManager.js'] },
             () => {
               chrome.tabs.sendMessage(activeTab.id, { action: 'getTicketDetails' }, (response) => {
                 if (response) {
@@ -354,9 +367,9 @@ document.addEventListener('DOMContentLoaded', () => {
                       template: selectedTemplateContent,
                       ticketDetails: response
                     },
-                    (response) => {
-                      if (response && response.processedText) {
-                        navigator.clipboard.writeText(response.processedText)
+                    (res2) => {
+                      if (res2 && res2.processedText) {
+                        navigator.clipboard.writeText(res2.processedText)
                           .then(() => {
                             console.log('Email text copied to clipboard');
                           })
