@@ -14,7 +14,7 @@
   },
   "incognito": "split",
   "host_permissions": [
-    "https://*.autotask.net/*"
+    "*://*.autotask.net/*"
   ],
   "action": {
     "default_popup": "popups/popup.html",
@@ -32,12 +32,16 @@
   "content_scripts": [
     {
       "matches": [
-        "https://*.autotask.net/*"
+        "*://*.autotask.net/*"
       ],
       "js": [
         "functions/templateManager.js",
-        "functions/aiTaskHandler.js"
-      ]
+        "functions/aiTaskHandler.js",
+        "functions/calendarChanger.js"
+      ],
+      "all_frames": true,
+      "match_about_blank": true,
+      "run_at": "document_idle"
     }
   ],
   "web_accessible_resources": [
