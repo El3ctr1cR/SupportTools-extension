@@ -67,10 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const summarizeButton = document.getElementById('summarizeTicket');
   const grammarCheckButton = document.getElementById('grammarCheck');
   const setApiKeyButton = document.getElementById('setApiKey');
-  const warningContainer = document.getElementById('warningContainer');
-  const updateButton = document.getElementById('updateButton');
   const versionText = document.getElementById('versionText');
-  const warningText = document.getElementById('warningText');
   const openTicketButtonToggle = document.getElementById('openTicketButtonToggle');
   const incognitoToggle = document.getElementById('incognitoToggle');
   const inputMailButton = document.getElementById('inputMail');
@@ -268,21 +265,7 @@ document.addEventListener('DOMContentLoaded', () => {
     .then(manifest => {
       const currentVersion = manifest.version;
       versionText.textContent = `Version ${currentVersion}`;
-
-      fetch('https://api.github.com/repos/El3ctr1cR/SupportTools-extension/releases/latest')
-        .then(response => response.json())
-        .then(latestRelease => {
-          const latestVersion = latestRelease.tag_name.replace('v', '');
-          if (currentVersion !== latestVersion) {
-            warningText.textContent = `Version ${latestVersion} is available for download`;
-            warningContainer.style.display = 'flex';
-          }
-        });
     });
-
-  updateButton.addEventListener('click', () => {
-    window.open('https://github.com/El3ctr1cR/SupportTools-extension/releases/latest', '_blank');
-  });
 
   chrome.storage.sync.get(['incognitoRedirection', 'templates'], (result) => {
     incognitoToggle.checked = result.incognitoRedirection || false;
