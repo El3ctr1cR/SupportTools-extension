@@ -148,28 +148,27 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
       if (selectedTemplate) {
         const emailText = processTemplate(selectedTemplate, ticketDetails);
-        let contentEditableDiv = document.querySelector('div.ContentEditable2.Small[contenteditable="true"]');
+        let inserted = false;
 
-        if (!contentEditableDiv) {
-          contentEditableDiv = document.querySelector('div.ContentEditable2.Large[contenteditable="true"]');
-        }
-
+        let contentEditableDiv = document.querySelector('div.ContentEditable2.Small[contenteditable="true"]') ||
+          document.querySelector('div.ContentEditable2.Large[contenteditable="true"]');
         if (contentEditableDiv) {
           contentEditableDiv.innerHTML = emailText.replace(/\n/g, '<br>');
+          inserted = true;
+        }
+
+        if (!inserted) {
+          const textArea = document.querySelector('div.TextArea2 textarea.Normal');
+          if (textArea) {
+            textArea.value = emailText;
+            inserted = true;
+          }
+        }
+
+        if (inserted) {
           sendResponse({ success: true });
         } else {
-          const textAreaContainer = document.querySelector('div.TextArea2');
-          if (textAreaContainer) {
-            const textArea = textAreaContainer.querySelector('textarea.Normal');
-            if (textArea) {
-              textArea.value = emailText;
-              sendResponse({ success: true });
-            } else {
-              sendResponse({ success: false, message: 'Textarea element not found' });
-            }
-          } else {
-            sendResponse({ success: false, message: 'No suitable content area found to insert text' });
-          }
+          sendResponse({ success: false, message: 'No suitable content area found to insert text' });
         }
       } else {
         sendResponse({ success: false, message: 'Template not found' });
