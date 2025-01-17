@@ -71,6 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const updateButton = document.getElementById('updateButton');
   const versionText = document.getElementById('versionText');
   const warningText = document.getElementById('warningText');
+  const openTicketButtonToggle = document.getElementById('openTicketButtonToggle');
   const incognitoToggle = document.getElementById('incognitoToggle');
   const inputMailButton = document.getElementById('inputMail');
   const copyMailButton = document.getElementById('copyMail');
@@ -164,6 +165,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  chrome.storage.sync.get(['openTicketButtonEnabled'], (result) => {
+    openTicketButtonToggle.checked = result.openTicketButtonEnabled || false;
+  });
+
   chrome.storage.sync.get(['selectedLanguage'], (result) => {
     const language = result.selectedLanguage || 'nl';
     updateDropdownSelection(language);
@@ -214,6 +219,18 @@ document.addEventListener('DOMContentLoaded', () => {
     selectedFlag.src = flagMap[language] || flagMap.nl;
     selectedLanguageText.textContent = languageTextMap[language] || languageTextMap.nl;
   }
+
+  openTicketButtonToggle.addEventListener('change', () => {
+    chrome.storage.sync.set({ openTicketButtonEnabled: openTicketButtonToggle.checked }, () => {
+      console.log('Open Ticket Button setting updated:', openTicketButtonToggle.checked);
+    });
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      chrome.tabs.sendMessage(tabs[0].id, {
+        action: 'toggleOpenTicketButton',
+        enabled: openTicketButtonToggle.checked,
+      });
+    });
+  });
 
   hexBase32GenButton.addEventListener('click', () => {
     chrome.windows.create({
