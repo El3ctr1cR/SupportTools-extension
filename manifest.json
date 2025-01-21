@@ -35,24 +35,33 @@
         "*://*.autotask.net/*"
       ],
       "js": [
-        "functions/templateManager.js",
-        "functions/aiTaskHandler.js",
         "functions/calendarChanger.js"
       ],
       "all_frames": true,
       "match_about_blank": true,
       "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "*://*.autotask.net/Mvc/ServiceDesk*"
+      ],
+      "js": [
+        "functions/templateManager.js",
+        "functions/aiTaskHandler.js"
+      ]
     }
   ],
   "web_accessible_resources": [
-  {
-    "resources": [
-      "popups/autotask/templateEditor.html",
-      "popups/autotask/templateEditor.js",
-      "popups/autotask/ticketSummary.html",
-      "popups/autotask/ticketSummary.js"
-    ],
-    "matches": [ "<all_urls>" ]
+    {
+      "resources": [
+        "popups/autotask/templateEditor.html",
+        "popups/autotask/templateEditor.js",
+        "popups/autotask/ticketSummary.html",
+        "popups/autotask/ticketSummary.js"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
     }
   ]
 }
