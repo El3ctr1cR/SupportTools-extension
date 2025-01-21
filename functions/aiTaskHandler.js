@@ -156,11 +156,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         const languageMap = {
             'nl': 'Dutch',
             'en': 'English',
-            'de': 'German',
-            'fr': 'French',
-            'es': 'Spanish',
-            'ru': 'Russian',
-            'cn': 'Chinese'
+            'de': 'German'
         };
 
         chrome.storage.sync.get(['selectedLanguage'], (result) => {

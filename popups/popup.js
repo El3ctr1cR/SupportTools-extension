@@ -197,20 +197,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const flagMap = {
       nl: '../icons/flags/nl.png',
       en: '../icons/flags/us.png',
-      de: '../icons/flags/de.png',
-      fr: '../icons/flags/fr.png',
-      es: '../icons/flags/es.png',
-      ru: '../icons/flags/ru.png',
-      cn: '../icons/flags/cn.png'
+      de: '../icons/flags/de.png'
     };
     const languageTextMap = {
       nl: 'Dutch',
       en: 'English',
-      de: 'German',
-      fr: 'French',
-      es: 'Spanish',
-      ru: 'Russian',
-      cn: 'Chinese'
+      de: 'German'
     };
 
     selectedFlag.src = flagMap[language] || flagMap.nl;
