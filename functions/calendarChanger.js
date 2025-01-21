@@ -83,10 +83,13 @@ function addTicketButtons() {
             text-align: left;
         `;
 
+        const protocol = window.location.protocol;
+        const host = window.location.host;
+
         button.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            const ticketUrl = `https://ww19.autotask.net/Mvc/ServiceDesk/TicketDetail.mvc?workspace=False&mode=0&ticketId=${ticketId}`;
+            const ticketUrl = `${protocol}//${host}/Mvc/ServiceDesk/TicketDetail.mvc?workspace=False&mode=0&ticketId=${ticketId}`;
             console.log(`Opening ticket URL: ${ticketUrl}`);
             window.open(ticketUrl, '_blank');
         });
