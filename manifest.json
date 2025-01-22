@@ -49,6 +49,13 @@
         "functions/templateManager.js",
         "functions/aiTaskHandler.js"
       ]
+    },
+    {
+      "matches": [
+        "*://*.autotask.net/Mvc/ServiceDesk/TicketDetail.mvc*"
+      ],
+      "js": ["functions/ticketHistoryWatcher.js"],
+      "run_at": "document_idle"
     }
   ],
   "web_accessible_resources": [
