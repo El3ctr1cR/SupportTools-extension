@@ -268,26 +268,40 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function populateTemplateDropdown(templates) {
     templateDropdownContent.innerHTML = '';
-
+  
     Object.keys(templates).forEach((key) => {
-      if (templates[key].trim() !== '') {
+      // Handle both old and new template formats
+      let templateContent = '';
+      const templateValue = templates[key];
+  
+      if (typeof templateValue === 'string') {
+        // Old-style string template
+        templateContent = templateValue.trim();
+      } else if (typeof templateValue === 'object' && templateValue !== null) {
+        // New-style object { content, status }
+        templateContent = (templateValue.content || '').trim();
+      }
+  
+      // If the content is NOT empty, display it in the dropdown
+      if (templateContent !== '') {
         const dropdownItem = document.createElement('div');
         dropdownItem.classList.add('dropdown-item');
         dropdownItem.setAttribute('data-value', key);
         dropdownItem.textContent = key;
+  
         dropdownItem.addEventListener('click', () => {
           selectedTemplateText.textContent = key;
           templateDropdownContent.classList.remove('show');
-
+  
           chrome.storage.sync.set({ lastSelectedTemplate: key }, () => {
             console.log(`Last selected template saved: ${key}`);
           });
         });
-
+  
         templateDropdownContent.appendChild(dropdownItem);
       }
     });
-  }
+  }  
 
   templateDropdownButton.addEventListener('click', () => {
     templateDropdownContent.classList.toggle('show');
@@ -387,11 +401,22 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   editTemplatesButton.addEventListener('click', () => {
-    chrome.windows.create({
-      url: chrome.runtime.getURL('../popups/autotask/templateEditor.html'),
-      type: 'popup',
-      width: 620,
-      height: 1035
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (!tabs || !tabs.length) {
+        alert("No active tab found. Make sure you're on an Autotask ticket page.");
+        return;
+      }
+      const activeTabId = tabs[0].id;
+      
+      chrome.storage.local.set({ autotaskTabId: activeTabId }, () => {
+        console.log("Stored Autotask tab ID:", activeTabId);
+        chrome.windows.create({
+          url: chrome.runtime.getURL('../popups/autotask/templateEditor.html'),
+          type: 'popup',
+          width: 620,
+          height: 1035
+        });
+      });
     });
   });
 

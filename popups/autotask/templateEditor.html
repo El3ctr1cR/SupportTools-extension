@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html>
-
 <head>
   <title>Edit Templates</title>
   <style>
@@ -49,6 +48,16 @@
       overflow-y: auto;
     }
 
+    select {
+      width: 100%;
+      margin-top: 8px;
+      background-color: #2a2a2a;
+      color: #e0e0e0;
+      border: 1px solid #444;
+      border-radius: 5px;
+      padding: 6px;
+    }
+
     button {
       padding: 10px 20px;
       font-size: 14px;
@@ -60,7 +69,6 @@
       margin-top: 10px;
       transition: background-color 0.3s ease, box-shadow 0.3s ease;
     }
-
     button:hover {
       background-color: #3a3a3a;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -76,7 +84,6 @@
     .template-group .textarea-container {
       flex-grow: 1;
       overflow: hidden;
-      /* Ensure the container doesn't expand */
     }
 
     .remove-template-btn,
@@ -95,7 +102,6 @@
       border-radius: 5px;
       transition: background-color 0.3s ease, border-color 0.3s ease;
     }
-
     .remove-template-btn:hover,
     .add-template-btn:hover {
       background-color: #3a3a3a;
@@ -128,7 +134,6 @@
       color: #5bc0de;
       text-decoration: none;
     }
-
     .footer a:hover {
       text-decoration: underline;
     }
@@ -139,7 +144,6 @@
     }
 
     #saveTemplates {
-      align-self: flex-start;
       background-color: #28a745;
       color: white;
       border: none;
@@ -147,7 +151,6 @@
       padding: 10px 20px;
       margin-top: 10px;
     }
-
     #saveTemplates:hover {
       background-color: #218838;
     }
@@ -163,35 +166,41 @@
       background-color: #17a2b8;
       margin-bottom: 10px;
     }
-
     #toggleVariables:hover {
       background-color: #138496;
     }
   </style>
 </head>
-
 <body>
   <h2>Edit Templates</h2>
-  <button id="toggleVariables">Show usable variables</button>
+
+  <div>
+    <button id="toggleVariables">Show usable variables</button>
+    <button id="getAllStatusesBtn">Get All Available Statuses</button>
+  </div>
+
   <ul id="variableList" class="note">
     <li><code>${loggedinUser}</code> - The name of the logged-in user.</li>
     <li><code>${ticketContactFirstname}</code> - The first name of the ticket contact</li>
     <li><code>${ticketContactLastname}</code> - The last name of the ticket contact</li>
     <li><code>${ticketPrimaryResource}</code> - The primary resource assigned to the ticket.</li>
-    <li><code>${ticketLastActivityTime}</code> - The date and time of the last activity on the ticket.</li>
+    <li><code>${ticketLastActivityTime}</code> - The date/time of the last ticket activity.</li>
     <li><code>${ticketPriority}</code> - The priority level of the ticket.</li>
     <li><code>${ticketCurrentStatus}</code> - The current status of the ticket.</li>
     <li><code>${ticketNewStatus}</code> - The new status that has been set for the ticket.</li>
     <li><code>${currentTime}</code> - The current time.</li>
     <li><code>${currentDate}</code> - The current date.</li>
   </ul>
+
   <div id="templatesContainer"></div>
+
   <button id="saveTemplates">Save Templates</button>
+
   <div class="footer">
     <a href="https://github.com/El3ctr1cR" target="_blank">https://github.com/El3ctr1cR</a>
     <span id="versionText">Version </span>
   </div>
+
   <script src="templateEditor.js"></script>
 </body>
-
 </html>

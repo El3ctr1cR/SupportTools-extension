@@ -84,7 +84,9 @@ function getTicketCurrentStatus() {
 }
 
 function getTicketNewStatus() {
-  const statusSection = document.querySelector('.Normal.Section .ContentContainer .Content .ReplaceableColumnContainer .Large.Column .SingleItemSelector2 .SelectionDisplay .Text span');
+  const statusSection = document.querySelector(
+    '.Normal.Section .ContentContainer .Content .ReplaceableColumnContainer .Large.Column .SingleItemSelector2 .SelectionDisplay .Text span'
+  );
   if (statusSection) {
     return statusSection.textContent.trim();
   }
@@ -136,7 +138,86 @@ function processTemplate(template, ticketDetails) {
     .replace('${ticketNewStatus}', ticketDetails.ticketNewStatus)
     .replace('${loggedinUser}', ticketDetails.loggedinUser)
     .replace('${currentTime}', ticketDetails.currentTime)
-    .replace('${currentDate}', ticketDetails.currentDate)
+    .replace('${currentDate}', ticketDetails.currentDate);
+}
+
+function setTicketStatus(desiredStatus) {
+  const selectionDisplay = document.querySelector('.SingleItemSelector2 .SelectionDisplay');
+  if (!selectionDisplay) {
+    console.warn("Cannot find the status dropdown button (SelectionDisplay).");
+    return;
+  }
+
+  selectionDisplay.click();
+
+  setTimeout(() => {
+    const statusSpans = document.querySelectorAll('.SingleItemSelector2 .ItemList .Item .Text span');
+    let foundStatus = false;
+
+    for (const span of statusSpans) {
+      if (span.textContent.trim() === desiredStatus) {
+        const parentItem = span.closest('.Item');
+        if (parentItem) {
+          parentItem.click();
+          console.log(`Status changed to "${desiredStatus}"`);
+          foundStatus = true;
+        }
+        break;
+      }
+    }
+
+    if (!foundStatus) {
+      console.warn(`Could not find a dropdown item matching "${desiredStatus}".`);
+    }
+  }, 300);
+}
+
+function getAllStatuses() {
+  console.log("getAllStatuses() called...");
+
+  const statusLabel = Array.from(document.querySelectorAll('.LabelContainer1 .Text .PrimaryText'))
+    .find(el => el.textContent.trim().toLowerCase() === 'status');
+  if (!statusLabel) {
+    console.warn("Could not find a label with text 'Status'.");
+    return Promise.resolve([]);
+  }
+  console.log("Found label:", statusLabel);
+
+  const allSelectors = document.querySelectorAll('.SingleItemSelector2');
+  let statusSelector = null;
+
+  for (const sel of allSelectors) {
+    if (sel.querySelector('.TicketStatusIcon')) {
+      statusSelector = sel;
+      break;
+    }
+  }
+
+  if (!statusSelector) {
+    console.warn("Could not find any .SingleItemSelector2 containing a .TicketStatusIcon.");
+    return Promise.resolve([]);
+  }
+  console.log("Found statusSelector:", statusSelector);
+
+  const selectionDisplay = statusSelector.querySelector('.SelectionDisplay');
+  if (!selectionDisplay) {
+    console.warn("No .SelectionDisplay inside statusSelector");
+    return Promise.resolve([]);
+  }
+  selectionDisplay.click();
+  console.log("Clicked the status dropdown...");
+
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const statusSpans = statusSelector.querySelectorAll('.ItemList .Item .Text span');
+      const statuses = Array.from(statusSpans).map(span => span.textContent.trim());
+
+      selectionDisplay.click();
+
+      console.log("Scraped statuses:", statuses);
+      resolve(statuses);
+    }, 500);
+  });
 }
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
@@ -144,49 +225,72 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     chrome.storage.sync.get(['templates'], async (result) => {
       const ticketDetails = getTicketDetails();
       const templates = result.templates || {};
-      const selectedTemplate = templates[request.template];
 
-      if (selectedTemplate) {
-        const emailText = processTemplate(selectedTemplate, ticketDetails);
-        let inserted = false;
+      let rawTemplateObj = templates[request.template];
 
-        let contentEditableDiv = document.querySelector('div.ContentEditable2.Small[contenteditable="true"]') ||
-          document.querySelector('div.ContentEditable2.Large[contenteditable="true"]');
-        if (contentEditableDiv) {
-          contentEditableDiv.innerHTML = emailText.replace(/\n/g, '<br>');
+      if (!rawTemplateObj) {
+        sendResponse({ success: false, message: 'Template not found' });
+        return;
+      }
+
+      let templateContent = '';
+      let desiredStatus = 'Select ticket status';
+
+      if (typeof rawTemplateObj === 'string') {
+        templateContent = rawTemplateObj;
+      } else if (typeof rawTemplateObj === 'object') {
+        templateContent = rawTemplateObj.content || '';
+        desiredStatus = rawTemplateObj.status || 'Select ticket status';
+      }
+
+      const emailText = processTemplate(templateContent, ticketDetails);
+
+      let inserted = false;
+      let contentEditableDiv = document.querySelector('div.ContentEditable2.Small[contenteditable="true"]')
+        || document.querySelector('div.ContentEditable2.Large[contenteditable="true"]');
+
+      if (contentEditableDiv) {
+        contentEditableDiv.innerHTML = emailText.replace(/\n/g, '<br>');
+        inserted = true;
+      }
+
+      if (!inserted) {
+        const textArea = document.querySelector('div.TextArea2 textarea.Normal');
+        if (textArea) {
+          textArea.value = emailText;
           inserted = true;
         }
+      }
 
-        if (!inserted) {
-          const textArea = document.querySelector('div.TextArea2 textarea.Normal');
-          if (textArea) {
-            textArea.value = emailText;
-            inserted = true;
-          }
+      if (inserted) {
+        if (desiredStatus !== 'Select ticket status') {
+          setTicketStatus(desiredStatus);
         }
-
-        if (inserted) {
-          sendResponse({ success: true });
-        } else {
-          sendResponse({ success: false, message: 'No suitable content area found to insert text' });
-        }
+        sendResponse({ success: true });
       } else {
-        sendResponse({ success: false, message: 'Template not found' });
+        sendResponse({ success: false, message: 'No suitable content area found to insert text' });
       }
     });
 
     return true;
   }
 
-  if (request.action === 'getTicketDetails') {
+  else if (request.action === 'getTicketDetails') {
     const ticketDetails = getTicketDetails();
     sendResponse(ticketDetails);
   }
 
-  if (request.action === 'processTemplate') {
+  else if (request.action === 'processTemplate') {
     const ticketDetails = request.ticketDetails;
     const selectedTemplate = request.template;
     const processedText = processTemplate(selectedTemplate, ticketDetails);
     sendResponse({ processedText });
+  }
+
+  else if (request.action === 'getAllStatuses') {
+    getAllStatuses().then((statuses) => {
+      sendResponse({ statuses });
+    });
+    return true;
   }
 });
