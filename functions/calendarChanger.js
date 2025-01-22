@@ -1,74 +1,64 @@
-console.log('Autotask Calendar Enhancer: Script loaded in frame:', window.location.href);
+if (!window.location.href.includes('autotask.net/Mvc/ServiceDesk/')) {
 
-function findTicketId(element) {
-    console.log('Searching for ticket ID in element');
+    console.log('calendarChanger.js: Script loaded in frame:', window.location.href);
 
-    const dragGroup = element.querySelector('dragdropgroup');
-    if (dragGroup) {
-        const ticketDiv = dragGroup.querySelector('div[id^="Ticket_"]');
-        if (ticketDiv) {
-            const match = ticketDiv.id.match(/Ticket_(\d+)/);
-            if (match) {
-                console.log('Found ticket ID from draggroup:', match[1]);
-                return match[1];
-            }
-        }
-    }
+    function findTicketId(element) {
 
-    if (element.id && element.id.startsWith('Event_')) {
-        const serviceCallId = element.getAttribute('service_call_id');
-        if (serviceCallId) {
-            console.log('Found service call ID:', serviceCallId);
-            const ticketDiv = element.querySelector('div[id^="Ticket_"]');
+        const dragGroup = element.querySelector('dragdropgroup');
+        if (dragGroup) {
+            const ticketDiv = dragGroup.querySelector('div[id^="Ticket_"]');
             if (ticketDiv) {
                 const match = ticketDiv.id.match(/Ticket_(\d+)/);
                 if (match) {
-                    console.log('Found ticket ID from service call:', match[1]);
                     return match[1];
                 }
             }
         }
+
+        if (element.id && element.id.startsWith('Event_')) {
+            const serviceCallId = element.getAttribute('service_call_id');
+            if (serviceCallId) {
+                const ticketDiv = element.querySelector('div[id^="Ticket_"]');
+                if (ticketDiv) {
+                    const match = ticketDiv.id.match(/Ticket_(\d+)/);
+                    if (match) {
+                        return match[1];
+                    }
+                }
+            }
+        }
+
+        const tooltip = element.getAttribute('onmouseover');
+        if (tooltip) {
+            const ticketMatch = tooltip.match(/Ticket Number:\s*T\d+\.(\d+)/);
+            if (ticketMatch) {
+                return ticketMatch[1];
+            }
+        }
+
+        return null;
     }
 
-    const tooltip = element.getAttribute('onmouseover');
-    if (tooltip) {
-        const ticketMatch = tooltip.match(/Ticket Number:\s*T\d+\.(\d+)/);
-        if (ticketMatch) {
-            console.log('Found ticket ID from tooltip:', ticketMatch[1]);
-            return ticketMatch[1];
-        }
-    }
+    function addTicketButtons() {
 
-    return null;
-}
+        const calendarItems = document.querySelectorAll('div[id^="Event_"][class*="SERVICECALL"]');
 
-function addTicketButtons() {
-    console.log('Attempting to add ticket buttons');
+        calendarItems.forEach((item, index) => {
 
-    const calendarItems = document.querySelectorAll('div[id^="Event_"][class*="SERVICECALL"]');
-    console.log(`Found ${calendarItems.length} calendar items`);
+            if (item.querySelector('.quick-ticket-btn')) {
+                return;
+            }
 
-    calendarItems.forEach((item, index) => {
-        console.log(`Processing calendar item ${index + 1}`);
+            const ticketId = findTicketId(item);
+            if (!ticketId) {
+                return;
+            }
 
-        if (item.querySelector('.quick-ticket-btn')) {
-            console.log('Button already exists on this item');
-            return;
-        }
+            const button = document.createElement('div');
+            button.className = 'quick-ticket-btn';
+            button.textContent = 'Tkt';
 
-        const ticketId = findTicketId(item);
-        if (!ticketId) {
-            console.log('No ticket ID found for this item');
-            return;
-        }
-
-        console.log(`Creating button for ticket ${ticketId}`);
-
-        const button = document.createElement('div');
-        button.className = 'quick-ticket-btn';
-        button.textContent = 'Tkt';
-
-        button.style.cssText = `
+            button.style.cssText = `
             padding-left: 3px;
             font-size: 10px;
             color: #376597;
@@ -83,93 +73,83 @@ function addTicketButtons() {
             text-align: left;
         `;
 
-        const protocol = window.location.protocol;
-        const host = window.location.host;
+            const protocol = window.location.protocol;
+            const host = window.location.host;
 
-        button.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            const ticketUrl = `${protocol}//${host}/Mvc/ServiceDesk/TicketDetail.mvc?workspace=False&mode=0&ticketId=${ticketId}`;
-            console.log(`Opening ticket URL: ${ticketUrl}`);
-            window.open(ticketUrl, '_blank');
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const ticketUrl = `${protocol}//${host}/Mvc/ServiceDesk/TicketDetail.mvc?workspace=False&mode=0&ticketId=${ticketId}`;
+                window.open(ticketUrl, '_blank');
+            });
+
+            item.appendChild(button);
         });
+    }
 
-        item.appendChild(button);
-        console.log('Button added successfully');
-    });
-}
+    function removeTicketButtons() {
+        const buttons = document.querySelectorAll('.quick-ticket-btn');
+        buttons.forEach((button) => button.remove());
+    }
 
-function removeTicketButtons() {
-    console.log('Removing ticket buttons');
-    const buttons = document.querySelectorAll('.quick-ticket-btn');
-    buttons.forEach((button) => button.remove());
-}
-
-function initializeForWorkshopView() {
-    console.log('Initializing for Workshop View');
-
-    addTicketButtons();
-
-    const observer = new MutationObserver((mutations) => {
-        console.log('Calendar mutation detected');
+    function initializeForWorkshopView() {
         addTicketButtons();
-    });
 
-    const calendarContainer = document.querySelector('#Calendar, #CalendarSection');
-    if (calendarContainer) {
-        console.log('Found calendar container, setting up observer');
-        observer.observe(calendarContainer, {
-            childList: true,
-            subtree: true
+        const observer = new MutationObserver((mutations) => {
+            addTicketButtons();
         });
-    } else {
-        console.log('Calendar container not found, observing body');
-        observer.observe(document.body, {
-            childList: true,
-            subtree: true
-        });
-    }
-}
 
-chrome.storage.sync.get(['openTicketButtonEnabled'], (result) => {
-    if (result.openTicketButtonEnabled) {
-        console.log('Open Ticket Button feature is enabled');
-        initializeForWorkshopView();
-    } else {
-        console.log('Open Ticket Button feature is disabled');
-    }
-});
-
-chrome.runtime.onMessage.addListener((message) => {
-    if (message.action === 'toggleOpenTicketButton') {
-        if (message.enabled) {
-            console.log('Enabling Open Ticket Button feature');
-            initializeForWorkshopView();
+        const calendarContainer = document.querySelector('#Calendar, #CalendarSection');
+        if (calendarContainer) {
+            observer.observe(calendarContainer, {
+                childList: true,
+                subtree: true
+            });
         } else {
-            console.log('Disabling Open Ticket Button feature');
-            removeTicketButtons();
-        }
-    }
-});
-
-if (window.location.href.includes('DispatcherWorkshop')) {
-    console.log('Found DispatcherWorkshop frame');
-
-    const calendarCheck = setInterval(() => {
-        const calendarItems = document.querySelectorAll('div[id^="Event_"][class*="SERVICECALL"]');
-        if (calendarItems.length > 0) {
-            console.log('Calendar items found, initializing');
-            clearInterval(calendarCheck);
-            chrome.storage.sync.get(['openTicketButtonEnabled'], (result) => {
-                if (result.openTicketButtonEnabled) {
-                    initializeForWorkshopView();
-                }
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
             });
         }
-    }, 1000);
+    }
 
-    setTimeout(() => {
-        clearInterval(calendarCheck);
-        console.log('Timeout reached for calendar check');
-    }, 30000);
+    chrome.storage.sync.get(['openTicketButtonEnabled'], (result) => {
+        if (result.openTicketButtonEnabled) {
+            initializeForWorkshopView();
+        } else {
+        }
+    });
+
+    chrome.runtime.onMessage.addListener((message) => {
+        if (message.action === 'toggleOpenTicketButton') {
+            if (message.enabled) {
+                initializeForWorkshopView();
+            } else {
+                removeTicketButtons();
+            }
+        }
+    });
+
+    // If the URL includes "DispatcherWorkshop", run the "calendar check"
+    if (window.location.href.includes('DispatcherWorkshop')) {
+        console.log('Found DispatcherWorkshop frame');
+
+        const calendarCheck = setInterval(() => {
+            const calendarItems = document.querySelectorAll('div[id^="Event_"][class*="SERVICECALL"]');
+            if (calendarItems.length > 0) {
+                console.log('Calendar items found, initializing');
+                clearInterval(calendarCheck);
+                chrome.storage.sync.get(['openTicketButtonEnabled'], (result) => {
+                    if (result.openTicketButtonEnabled) {
+                        initializeForWorkshopView();
+                    }
+                });
+            }
+        }, 1000);
+
+        setTimeout(() => {
+            clearInterval(calendarCheck);
+            console.log('Timeout reached for calendar check');
+        }, 30000);
+    }
 }
