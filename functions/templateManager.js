@@ -144,7 +144,7 @@ function processTemplate(template, ticketDetails) {
 function setTicketStatus(desiredStatus) {
   const selectionDisplay = document.querySelector('.SingleItemSelector2 .SelectionDisplay');
   if (!selectionDisplay) {
-    console.warn("Cannot find the status dropdown button (SelectionDisplay).");
+    console.log("Cannot find the status dropdown button (SelectionDisplay).");
     return;
   }
 
@@ -167,7 +167,7 @@ function setTicketStatus(desiredStatus) {
     }
 
     if (!foundStatus) {
-      console.warn(`Could not find a dropdown item matching "${desiredStatus}".`);
+      console.log(`Could not find a dropdown item matching "${desiredStatus}".`);
     }
   }, 300);
 }
@@ -178,7 +178,7 @@ function getAllStatuses() {
   const statusLabel = Array.from(document.querySelectorAll('.LabelContainer1 .Text .PrimaryText'))
     .find(el => el.textContent.trim().toLowerCase() === 'status');
   if (!statusLabel) {
-    console.warn("Could not find a label with text 'Status'.");
+    console.log("Could not find a label with text 'Status'.");
     return Promise.resolve([]);
   }
   console.log("Found label:", statusLabel);
@@ -194,14 +194,15 @@ function getAllStatuses() {
   }
 
   if (!statusSelector) {
-    console.warn("Could not find any .SingleItemSelector2 containing a .TicketStatusIcon.");
+    console.log("Could not find any .SingleItemSelector2 containing a .TicketStatusIcon.");
+    alert("Make sure to open a time entry or note so the status options can be populated!")
     return Promise.resolve([]);
   }
   console.log("Found statusSelector:", statusSelector);
 
   const selectionDisplay = statusSelector.querySelector('.SelectionDisplay');
   if (!selectionDisplay) {
-    console.warn("No .SelectionDisplay inside statusSelector");
+    console.log("No .SelectionDisplay inside statusSelector");
     return Promise.resolve([]);
   }
   selectionDisplay.click();
