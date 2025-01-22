@@ -251,6 +251,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
       if (contentEditableDiv) {
         contentEditableDiv.innerHTML = emailText.replace(/\n/g, '<br>');
+
+        const inputEvent = new Event('input', { bubbles: true });
+        contentEditableDiv.dispatchEvent(inputEvent);
+
         inserted = true;
       }
 
@@ -258,6 +262,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         const textArea = document.querySelector('div.TextArea2 textarea.Normal');
         if (textArea) {
           textArea.value = emailText;
+
+          const inputEvent = new Event('input', { bubbles: true });
+          textArea.dispatchEvent(inputEvent);
+
           inserted = true;
         }
       }
