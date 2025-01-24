@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const versionText = document.getElementById('versionText');
 
   versionText.textContent = `Version ${manifestData.version}`;
+
   variableList.style.display = 'none';
   toggleVariablesButton.textContent = 'Show usable variables';
 
@@ -19,7 +20,6 @@ document.addEventListener('DOMContentLoaded', () => {
       variableList.style.display = 'none';
       toggleVariablesButton.textContent = 'Show usable variables';
     }
-    adjustTemplateContainerHeight();
   });
 
   let availableStatuses = [];
@@ -43,7 +43,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     renumberTemplates();
-    adjustTemplateContainerHeight();
   });
 
   getAllStatusesBtn.addEventListener('click', () => {
@@ -106,15 +105,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const templateGroup = document.createElement('div');
     templateGroup.className = 'template-group';
 
-    templateGroup.innerHTML = `
-      <div class="textarea-container">
-        <input type="text" value="${templateName}" class="template-name" placeholder="Enter template name...">
-        <textarea placeholder="Enter template content...">${templateContent}</textarea>
-      </div>
-      <button class="remove-template-btn">-</button>
-    `;
+    const templateBox = document.createElement('div');
+    templateBox.className = 'template-box';
 
-    const container = templateGroup.querySelector('.textarea-container');
+    const nameInput = document.createElement('input');
+    nameInput.type = 'text';
+    nameInput.value = templateName;
+    nameInput.className = 'template-name';
+    nameInput.placeholder = 'Enter template name...';
+
     const statusSelect = document.createElement('select');
     availableStatuses.forEach((st) => {
       const option = document.createElement('option');
@@ -123,50 +122,56 @@ document.addEventListener('DOMContentLoaded', () => {
       statusSelect.appendChild(option);
     });
     statusSelect.value = templateStatus;
-    container.appendChild(statusSelect);
 
-    templatesContainer.appendChild(templateGroup);
+    const textArea = document.createElement('textarea');
+    textArea.placeholder = 'Enter template content...';
+    textArea.value = templateContent;
 
-    const removeButton = templateGroup.querySelector('.remove-template-btn');
+    templateBox.appendChild(nameInput);
+    templateBox.appendChild(statusSelect);
+    templateBox.appendChild(textArea);
+
+    const templateActions = document.createElement('div');
+    templateActions.className = 'template-actions';
+
+    const removeButton = document.createElement('button');
+    removeButton.className = 'remove-template-btn';
+    removeButton.textContent = '-';
     removeButton.addEventListener('click', () => {
       templateGroup.remove();
       renumberTemplates();
-      adjustTemplateContainerHeight();
     });
+    templateActions.appendChild(removeButton);
+
+    templateGroup.appendChild(templateBox);
+    templateGroup.appendChild(templateActions);
+
+    templatesContainer.appendChild(templateGroup);
   }
 
   function renumberTemplates() {
-    const templateGroups = templatesContainer.querySelectorAll('.template-group');
-    templateGroups.forEach((group, index) => {
-      const existingAddBtn = group.querySelector('.add-template-btn');
-      if (existingAddBtn) existingAddBtn.remove();
+    const groups = templatesContainer.querySelectorAll('.template-group');
+    groups.forEach((group, index) => {
+      const templateActions = group.querySelector('.template-actions');
+      const addBtn = templateActions.querySelector('.add-template-btn');
+      if (addBtn) {
+        addBtn.remove();
+      }
 
-      if (index === templateGroups.length - 1) {
-        const addBtn = document.createElement('button');
-        addBtn.className = 'add-template-btn';
-        addBtn.textContent = '+';
-        addBtn.addEventListener('click', () => {
-          const newName = `Template ${templatesContainer.children.length + 1}`;
-          addTemplateGroup(newName, '', 'None');
+      if (index === groups.length - 1) {
+        const newAddBtn = document.createElement('button');
+        newAddBtn.className = 'add-template-btn';
+        newAddBtn.textContent = '+';
+        newAddBtn.addEventListener('click', () => {
+          const newName = `Template ${groups.length + 1}`;
+          addTemplateGroup(newName, '', 'Select ticket status');
           renumberTemplates();
-          adjustTemplateContainerHeight();
         });
-        group.appendChild(addBtn);
+        templateActions.appendChild(newAddBtn);
       }
     });
   }
 
-  function adjustTemplateContainerHeight() {
-    const windowHeight = window.innerHeight;
-    const variableListHeight = variableList.style.display !== 'none' ? variableList.scrollHeight : 0;
-    const footerHeight = document.querySelector('.footer').offsetHeight;
-    const remainingHeight = windowHeight - variableListHeight - footerHeight - 100;
-    templatesContainer.style.height = `${remainingHeight}px`;
-  }
-
-  window.addEventListener('resize', adjustTemplateContainerHeight);
-
-  // Save Templates
   saveTemplatesButton.addEventListener('click', () => {
     const templateGroups = templatesContainer.querySelectorAll('.template-group');
     const newTemplates = {};
