@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
               alert('Error: Could not retrieve statuses. Are you on an Autotask ticket page?');
               return;
             }
-            if (response && response.statuses) {
+            if (response && response.statuses && response.statuses.length > 0) {
               const unique = Array.from(new Set(response.statuses));
               const statuses = ['Select ticket status', ...unique];
               availableStatuses = statuses;
@@ -73,7 +73,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 refreshAllStatusDropdowns(statuses);
               });
             } else {
-              alert('No statuses found or unable to retrieve them.');
+              alert('No ticket statuses found. Make sure to open a time entry or note before clicking this button');
+              return;
             }
           });
         }

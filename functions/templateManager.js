@@ -195,7 +195,6 @@ function getAllStatuses() {
 
   if (!statusSelector) {
     console.log("Could not find any .SingleItemSelector2 containing a .TicketStatusIcon.");
-    alert("Make sure to open a time entry or note so the status options can be populated!")
     return Promise.resolve([]);
   }
   console.log("Found statusSelector:", statusSelector);
