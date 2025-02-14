@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const urlMappingsButton = document.getElementById('urlMappingsButton');
   const summarizeButton = document.getElementById('summarizeTicket');
-  const grammarCheckButton = document.getElementById('grammarCheck');
+  const makeTextNeaterButton = document.getElementById('makeTextNeater');
   const setApiKeyButton = document.getElementById('setApiKey');
   const versionText = document.getElementById('versionText');
   const openTicketButtonToggle = document.getElementById('openTicketButtonToggle');
@@ -190,7 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
     handleAiAction('summarizeTicket', '../popups/autotask/ticketSummary.html', '.Normal.Section .ContentContainer .Content')
   );
 
-  grammarCheckButton.addEventListener('click', () => {
+  makeTextNeaterButton.addEventListener('click', () => {
     loadingOverlay.style.display = 'flex';
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       const activeTab = tabs[0];
@@ -200,12 +200,12 @@ document.addEventListener('DOMContentLoaded', () => {
           files: ['functions/aiTaskHandler.js']
         },
         () => {
-          chrome.tabs.sendMessage(activeTab.id, { action: 'grammarCheck' }, (response) => {
+          chrome.tabs.sendMessage(activeTab.id, { action: 'makeTextNeater' }, (response) => {
             loadingOverlay.style.display = 'none';
             if (response && response.success) {
-              console.log('Grammar check completed successfully');
+              console.log('makeTextNeater completed successfully');
             } else {
-              alert('Failed to perform grammar check' + (response && response.error ? ': ' + response.error : ''));
+              alert('Failed to perform makeTextNeater' + (response && response.error ? ': ' + response.error : ''));
             }
           });
         }
