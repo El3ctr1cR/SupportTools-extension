@@ -69,6 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const setApiKeyButton = document.getElementById('setApiKey');
   const versionText = document.getElementById('versionText');
   const openTicketButtonToggle = document.getElementById('openTicketButtonToggle');
+  const showTimeIndicatorToggle = document.getElementById('showTimeIndicatorToggle');
   const incognitoToggle = document.getElementById('incognitoToggle');
   const inputMailButton = document.getElementById('inputMail');
   const copyMailButton = document.getElementById('copyMail');
@@ -224,6 +225,10 @@ document.addEventListener('DOMContentLoaded', () => {
     openTicketButtonToggle.checked = result.openTicketButtonEnabled || false;
   });
 
+  chrome.storage.sync.get(['showTimeIndicatorEnabled'], (result) => {
+    showTimeIndicatorToggle.checked = result.showTimeIndicatorEnabled || false;
+  });
+
   chrome.storage.sync.get(['selectedLanguage'], (result) => {
     const language = result.selectedLanguage || 'nl';
     updateDropdownSelection(language);
@@ -275,6 +280,18 @@ document.addEventListener('DOMContentLoaded', () => {
       chrome.tabs.sendMessage(tabs[0].id, {
         action: 'toggleOpenTicketButton',
         enabled: openTicketButtonToggle.checked,
+      });
+    });
+  });
+
+  showTimeIndicatorToggle.addEventListener('change', () => {
+    chrome.storage.sync.set({ showTimeIndicatorEnabled: showTimeIndicatorToggle.checked }, () => {
+      console.log('Open Ticket Button setting updated:', showTimeIndicatorToggle.checked);
+    });
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      chrome.tabs.sendMessage(tabs[0].id, {
+        action: 'toggleTimeIndicator',
+        enabled: showTimeIndicatorToggle.checked,
       });
     });
   });

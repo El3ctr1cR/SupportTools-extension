@@ -75,7 +75,7 @@ if (!window.location.href.includes('autotask.net/Mvc/ServiceDesk/')) {
         document.querySelectorAll('.quick-ticket-btn').forEach((button) => button.remove());
     }
 
-    function initializeForWorkshopView() {
+    function initializeTicketButtons() {
         addTicketButtons();
         const observer = new MutationObserver(() => {
             addTicketButtons();
@@ -88,40 +88,52 @@ if (!window.location.href.includes('autotask.net/Mvc/ServiceDesk/')) {
         }
     }
 
-    chrome.storage.sync.get(['openTicketButtonEnabled'], (result) => {
+    chrome.storage.sync.get(['openTicketButtonEnabled', 'showTimeIndicatorEnabled'], (result) => {
         if (result.openTicketButtonEnabled) {
-            initializeForWorkshopView();
+            initializeTicketButtons();
+        }
+        if (result.showTimeIndicatorEnabled) {
+            initializeTimeIndicator();
         }
     });
 
     chrome.runtime.onMessage.addListener((message) => {
         if (message.action === 'toggleOpenTicketButton') {
             if (message.enabled) {
-                initializeForWorkshopView();
+                initializeTicketButtons();
             } else {
                 removeTicketButtons();
             }
         }
+        if (message.action === 'toggleTimeIndicator') {
+            if (message.enabled) {
+                initializeTimeIndicator();
+            } else {
+                removeTimeIndicator();
+            }
+        }
     });
 
-    if (window.location.href.includes('DispatcherWorkshop')) {
-        const calendarCheck = setInterval(() => {
-            const calendarItems = document.querySelectorAll('div[id^="Event_"][class*="SERVICECALL"]');
-            if (calendarItems.length > 0) {
-                clearInterval(calendarCheck);
-                chrome.storage.sync.get(['openTicketButtonEnabled'], (result) => {
-                    if (result.openTicketButtonEnabled) {
-                        initializeForWorkshopView();
-                    }
-                });
-            }
-        }, 1000);
-        setTimeout(() => {
-            clearInterval(calendarCheck);
-        }, 30000);
+    function addTimeIndicatorStyles() {
+        if (!document.getElementById('time-indicator-styles')) {
+            const style = document.createElement('style');
+            style.id = 'time-indicator-styles';
+            style.innerHTML = `
+                [data-custom-time-indicator="true"] {
+                    background-color: red !important;
+                    outline: 1px solid red !important;
+                    height: 0 !important;
+                    min-height: 0 !important;
+                    max-height: 0 !important;
+                }
+            `;
+            document.head.appendChild(style);
+        }
     }
 
     function addTimeIndicator() {
+        addTimeIndicatorStyles();
+        
         const containers = [
             document.querySelector('#Grid1_Container_Body_LockedColumns_Div'),
             document.querySelector('#Grid1_Container_Body_FloatColumns_Div')
@@ -138,14 +150,19 @@ if (!window.location.href.includes('autotask.net/Mvc/ServiceDesk/')) {
             let indicator = container.querySelector('#time-indicator');
             if (!indicator) {
                 indicator = document.createElement('div');
-                indicator.style.backgroundColor = 'red';
-                indicator.style.setProperty('background-color', 'red', 'important');
                 indicator.id = 'time-indicator';
-                indicator.style.position = 'absolute';
-                indicator.style.height = '2px';
-                indicator.style.zIndex = '10000';
-                indicator.style.left = '0';
-                indicator.style.width = '100%';
+                indicator.setAttribute('data-custom-time-indicator', 'true');
+                
+                indicator.style.cssText = `
+                    position: absolute;
+                    z-index: 10000;
+                    left: 0;
+                    width: 100%;
+                    background-color: red !important;
+                    outline: 1px solid red !important;
+                    height: 0 !important;
+                `;
+                
                 container.appendChild(indicator);
             }
             
@@ -174,20 +191,25 @@ if (!window.location.href.includes('autotask.net/Mvc/ServiceDesk/')) {
         });
     }
 
-    let timeIndicatorInterval = setInterval(() => {
-        const containers = [
-            document.querySelector('#Grid1_Container_Body_LockedColumns_Div'),
-            document.querySelector('#Grid1_Container_Body_FloatColumns_Div')
-        ];
+    function removeTimeIndicator() {
+        document.querySelectorAll('#time-indicator').forEach(el => el.remove());
+        document.querySelectorAll('#time-indicator-styles').forEach(el => el.remove());
+    }
+
+    function initializeTimeIndicator() {
         
-        if (containers.every(container => container)) {
+        let timeIndicatorInterval = setInterval(() => {
+            const containers = [
+                document.querySelector('#Grid1_Container_Body_LockedColumns_Div'),
+                document.querySelector('#Grid1_Container_Body_FloatColumns_Div')
+            ];
+            if (containers.every(container => container)) {
+                clearInterval(timeIndicatorInterval);
+                addTimeIndicator();
+            }
+        }, 1000);
+        setTimeout(() => {
             clearInterval(timeIndicatorInterval);
-            addTimeIndicator();
-        }
-    }, 1000);
-    
-    setTimeout(() => {
-        clearInterval(timeIndicatorInterval);
-    }, 30000);
-    
+        }, 30000);
+    }
 }
