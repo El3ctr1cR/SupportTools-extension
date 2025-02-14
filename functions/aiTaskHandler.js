@@ -175,14 +175,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             return true;
         }
 
-        if (request.action === 'grammarCheck') {
+        if (request.action === 'makeTextNeater') {
             const contentData = getNotes();
             if (!contentData || !contentData.text) {
-                sendResponse({ success: false, error: 'No text found to grammar check.' });
+                sendResponse({ success: false, error: 'No text found to makeTextNeater.' });
                 return;
             }
             const originalText = contentData.text;
-            const prompt = `Make the following text better and maintain the same language. Do not include any explanations or additional text. Only output the fully corrected version of the text.\n\n${originalText}`;
+            const prompt = `Make the following text neater and more professional in the same language. Only output the fully new version of the text.\n\n${originalText}`;
 
             callOpenAiApi(prompt, { temperature: 0 }).then(correctedText => {
                 setNotes(contentData.element, correctedText);
