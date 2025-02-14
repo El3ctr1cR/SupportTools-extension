@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hex/Base32 generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            padding: 20px;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .key-container {
+            position: relative;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .key-label {
+            margin-bottom: 5px;
+            font-weight: bold;
+            text-align: left;
+            display: block;
+            color: #e0e0e0;
+        }
+
+        .key-container input {
+            font-size: 16px;
+            padding: 5px 35px 5px 10px;
+            border: 1px solid #444;
+            border-radius: 5px;
+            width: 100%;
+            background-color: #2a2a2a;
+            color: #e0e0e0;
+            box-sizing: border-box;
+        }
+
+        .copy-icon {
+            position: absolute;
+            right: 10px;
+            top: 72%;
+            transform: translateY(-50%);
+            cursor: pointer;
+        }
+
+        .copy-icon img {
+            width: 18px;
+            height: 18px;
+        }
+
+        .refresh-btn {
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .refresh-btn img {
+            width: 24px;
+            height: 24px;
+        }
+
+        .refresh-btn:hover {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Hex/Base32 generator</h2>
+    <div class="key-container">
+        <label class="key-label">Hex Key:</label>
+        <input type="text" id="hexKey" readonly>
+        <span class="copy-icon" id="copyHexKey"><img src="/icons/copy.png" alt="Copy"></span>
+    </div>
+    <div class="key-container">
+        <label class="key-label">Base32 Key:</label>
+        <input type="text" id="base32Key" readonly>
+        <span class="copy-icon" id="copyBase32Key"><img src="/icons/copy.png" alt="Copy"></span>
+    </div>
+    <button class="refresh-btn" id="refreshKeys">
+        <img src="/icons/refresh.png" alt="Refresh">
+    </button>
+
+    <script src="hexBase32Gen.js"></script>
+</body>
+
+</html>

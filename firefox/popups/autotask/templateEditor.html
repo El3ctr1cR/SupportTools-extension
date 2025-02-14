@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Edit Templates</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #121212;
+      color: #e0e0e0;
+      width: 600px;
+      height: 960px;
+      padding: 20px;
+      margin: 0;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+    }
+
+    h2 {
+      margin-top: 0;
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      outline: none !important;
+      box-shadow: none !important;
+    }
+
+    textarea::-webkit-resizer {
+      background-color: #444;
+      border: 1px solid #444;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      margin-bottom: 10px;
+      font-size: 14px;
+      padding: 10px;
+      box-sizing: border-box;
+      border-radius: 5px;
+      border: 1px solid #444;
+      background-color: #2a2a2a;
+      color: #e0e0e0;
+    }
+
+    textarea {
+      width: 100%;
+      height: 120px;
+      font-size: 14px;
+      padding: 10px;
+      box-sizing: border-box;
+      resize: vertical;
+      border-radius: 5px;
+      border: 1px solid #444;
+      background-color: #2a2a2a;
+      color: #e0e0e0;
+      overflow-y: auto;
+    }
+
+    select {
+      width: 100%;
+      margin-bottom: 10px;
+      background-color: #2a2a2a;
+      color: #e0e0e0;
+      border: 1px solid #444;
+      border-radius: 5px;
+      padding: 6px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 14px;
+      cursor: pointer;
+      border-radius: 5px;
+      border: none;
+      background-color: #2a2a2a;
+      color: #e0e0e0;
+      margin-top: 10px;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    button:hover {
+      background-color: #3a3a3a;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .note {
+      font-size: 14px;
+      color: #a0a0a0;
+      margin-top: 0;
+      margin-bottom: 20px;
+    }
+
+    .footer {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 20px;
+      background-color: #1f1f1f;
+      border-top: 1px solid #333;
+      font-size: 12px;
+      box-sizing: border-box;
+      color: #a0a0a0;
+    }
+
+    .footer a {
+      color: #5bc0de;
+      text-decoration: none;
+    }
+    .footer a:hover {
+      text-decoration: underline;
+    }
+
+    #templatesContainer {
+      padding: 15px;
+      max-height: 800px;
+      overflow-y: auto;
+      scrollbar-width: thin;   
+      scrollbar-color: #444 #2a2a2a; 
+      margin-bottom: 20px;
+    }
+    #templatesContainer::-webkit-scrollbar {
+      width: 8px;
+      background-color: #2a2a2a; 
+    }
+    #templatesContainer::-webkit-scrollbar-thumb {
+      background-color: #444; 
+      border-radius: 4px;
+    }
+    #templatesContainer::-webkit-scrollbar-thumb:hover {
+      background-color: #555;
+    }
+
+    .template-group {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 10px;
+      gap: 10px;
+      margin-left: -15px;
+    }
+
+    .template-box {
+      border: 1px solid #444;
+      border-radius: 4px;
+      padding: 10px;
+      flex-grow: 1;
+    }
+
+    .template-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .remove-template-btn,
+    .add-template-btn {
+      width: 21px;
+      height: 21px;
+      font-size: 18px;
+      line-height: 1;
+      padding: 0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #444;
+      background-color: #2a2a2a;
+      color: #e0e0e0;
+      border-radius: 5px;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+    .remove-template-btn:hover,
+    .add-template-btn:hover {
+      background-color: #3a3a3a;
+      border-color: #444;
+    }
+
+    #saveTemplates {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 20px;
+      margin-top: 10px;
+    }
+    #saveTemplates:hover {
+      background-color: #218838;
+    }
+
+    #variableList {
+      margin-top: 10px;
+      list-style-type: none;
+      padding: 0;
+      display: block;
+    }
+
+    #toggleVariables {
+      background-color: #17a2b8;
+      margin-bottom: 10px;
+    }
+    #toggleVariables:hover {
+      background-color: #138496;
+    }
+  </style>
+</head>
+<body>
+  <h2>Edit Templates</h2>
+
+  <div>
+    <button id="toggleVariables">Show usable variables</button>
+    <button id="getAllStatusesBtn">Get ticket statuses</button>
+  </div>
+
+  <ul id="variableList" class="note">
+    <li><code>${loggedinUser}</code> - The name of the logged-in user.</li>
+    <li><code>${ticketContactFirstname}</code> - The first name of the ticket contact</li>
+    <li><code>${ticketContactLastname}</code> - The last name of the ticket contact</li>
+    <li><code>${ticketPrimaryResource}</code> - The primary resource assigned to the ticket.</li>
+    <li><code>${ticketLastActivityTime}</code> - The date/time of the last ticket activity.</li>
+    <li><code>${ticketPriority}</code> - The priority level of the ticket.</li>
+    <li><code>${ticketCurrentStatus}</code> - The current status of the ticket.</li>
+    <li><code>${ticketNewStatus}</code> - The new status that has been set for the ticket.</li>
+    <li><code>${currentTime}</code> - The current time.</li>
+    <li><code>${currentDate}</code> - The current date.</li>
+  </ul>
+
+  <div id="templatesContainer"></div>
+
+  <button id="saveTemplates">Save Templates</button>
+
+  <div class="footer">
+    <a href="https://github.com/El3ctr1cR" target="_blank">https://github.com/El3ctr1cR</a>
+    <span id="versionText">Version </span>
+  </div>
+
+  <script src="templateEditor.js"></script>
+</body>
+</html>
