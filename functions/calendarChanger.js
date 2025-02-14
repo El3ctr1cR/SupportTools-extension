@@ -114,58 +114,37 @@ if (!window.location.href.includes('autotask.net/Mvc/ServiceDesk/')) {
         }
     });
 
-    function addTimeIndicatorStyles() {
-        if (!document.getElementById('time-indicator-styles')) {
-            const style = document.createElement('style');
-            style.id = 'time-indicator-styles';
-            style.innerHTML = `
-                [data-custom-time-indicator="true"] {
-                    background-color: red !important;
-                    outline: 1px solid red !important;
-                    height: 0 !important;
-                    min-height: 0 !important;
-                    max-height: 0 !important;
-                }
-            `;
-            document.head.appendChild(style);
-        }
-    }
-
     function addTimeIndicator() {
-        addTimeIndicatorStyles();
-        
         const containers = [
             document.querySelector('#Grid1_Container_Body_LockedColumns_Div'),
             document.querySelector('#Grid1_Container_Body_FloatColumns_Div')
         ];
-        
+
         containers.forEach(container => {
             if (!container) return;
-            
+
             const computedStyle = window.getComputedStyle(container);
             if (computedStyle.position === 'static') {
                 container.style.position = 'relative';
             }
-            
+
             let indicator = container.querySelector('#time-indicator');
             if (!indicator) {
                 indicator = document.createElement('div');
                 indicator.id = 'time-indicator';
                 indicator.setAttribute('data-custom-time-indicator', 'true');
-                
                 indicator.style.cssText = `
                     position: absolute;
                     z-index: 10000;
                     left: 0;
                     width: 100%;
                     background-color: red !important;
-                    outline: 1px solid red !important;
+                    outline: 1px dotted red !important;
                     height: 0 !important;
                 `;
-                
                 container.appendChild(indicator);
             }
-            
+
             function updateIndicator() {
                 const now = new Date();
                 const currentHour = now.getHours();
@@ -184,7 +163,7 @@ if (!window.location.href.includes('autotask.net/Mvc/ServiceDesk/')) {
                     indicator.style.top = `${fractionOfDay * totalHeight}px`;
                 }
             }
-            
+
             updateIndicator();
             setInterval(updateIndicator, 60000);
             container.addEventListener('scroll', updateIndicator);
@@ -197,7 +176,7 @@ if (!window.location.href.includes('autotask.net/Mvc/ServiceDesk/')) {
     }
 
     function initializeTimeIndicator() {
-        
+
         let timeIndicatorInterval = setInterval(() => {
             const containers = [
                 document.querySelector('#Grid1_Container_Body_LockedColumns_Div'),
