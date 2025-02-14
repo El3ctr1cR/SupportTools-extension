@@ -1,20 +1,14 @@
-console.log('[TicketHistoryWatcher] Script loaded:', window.location.href);
-
 if (
   window.location.href.includes('TicketDetail.mvc') &&
   window.location.href.includes('ticketId=')
 ) {
   setTimeout(() => {
-    console.log('[TicketHistoryWatcher] Checking ticket info after delay...');
-
     const urlParams = new URLSearchParams(window.location.search);
     const ticketId = urlParams.get('ticketId');
-    if (!ticketId) {
-      console.warn('[TicketHistoryWatcher] Could not find ticketId param.');
-      return;
-    }
+    if (!ticketId) return;
 
-    console.log('[TicketHistoryWatcher] Found ticketId:', ticketId);
+    if (sessionStorage.getItem('lastTicketId') === ticketId) return;
+    sessionStorage.setItem('lastTicketId', ticketId);
 
     const identificationText = document.querySelector(
       '.IdentificationContainer .IdentificationText'
@@ -22,6 +16,7 @@ if (
     const ticketNumber = identificationText
       ? identificationText.textContent.trim()
       : null;
+
     let ticketTitle = '';
     const mainTitleContainer = document.querySelector(
       '.EntityHeadingContainer .Title'
@@ -40,7 +35,6 @@ if (
     }
 
     if (!ticketTitle) {
-      console.warn('[TicketHistoryWatcher] Could not auto-detect a distinct title, trying direct child...');
       const directTextChild = mainTitleContainer
         ? Array.from(mainTitleContainer.children).find((child) =>
             child.classList.contains('Text')
@@ -63,23 +57,12 @@ if (
       displayText: combinedDisplay,
       timestamp: Date.now(),
     };
-    console.log('[TicketHistoryWatcher] New ticket data:', newEntry);
 
     chrome.storage.sync.get(['ticketHistory'], (res) => {
       const oldHistory = res.ticketHistory || [];
       oldHistory.unshift(newEntry);
       const trimmed = oldHistory.slice(0, 30);
-
-      chrome.storage.sync.set({ ticketHistory: trimmed }, () => {
-        console.log(
-          '[TicketHistoryWatcher] Updated ticketHistory with new entry:',
-          newEntry
-        );
-      });
+      chrome.storage.sync.set({ ticketHistory: trimmed });
     });
   }, 500);
-} else {
-  console.log(
-    '[TicketHistoryWatcher] Not a TicketDetail page with ticketId, skipping.'
-  );
 }
