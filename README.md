@@ -6,9 +6,7 @@
 ### AI Functions
 - The extension integrates with OpenAI's GPT-4o mini.
 - Summarize Ticket: This feature helps to generate concise summaries of ticket details, including action points and pending tasks, directly within the Autotask system.
-- Grammar Check: This feature corrects spelling errors and basic grammatical mistakes in Autotask notes, ensuring clear and professional communication.
-- Elaborate Ticket: This feature helps generate more detailed and clear descriptions of tickets.
-- Find Solution: This feature uses AI to suggest potential solutions for ticket issues based on the provided information.
+- Make text neater: This feature corrects spelling errors and basic grammatical mistakes in Autotask notes, ensuring clear and professional communication.
 > [!WARNING]
 > You will need your own OpenAI API key to use this feature. You can set this key in the extension menu.
 
@@ -57,9 +55,6 @@ The password generator is a tool designed to help you create secure and customiz
 - Your own URLs can be setup
 - A bypass filter can be enabled to prevent this automatic behavior, allowing the URLs to open in the normal browsing mode.
 
-### Configuration Export and Import
-- The extension allows you to export and import configuration settings, making it easy to transfer settings between different environments or users.
-
 ## Installation
 
 1. [Download](https://github.com/El3ctr1cR/SupportTools-extension/archive/refs/heads/main.zip) the latest release.
@@ -75,7 +70,3 @@ This project is licensed under the GPL-3.0 license. See the [LICENSE](LICENSE) f
 ## Contributing
 
 Contributions are welcome! Feel free to open issues or submit pull requests with improvements or new features.
-
-## Contact
-
-For any questions or support, please open an issue on this repository.
