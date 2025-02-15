@@ -10,7 +10,9 @@
     "webNavigation"
   ],
   "background": {
-    "scripts": ["functions/incognitoRedirection.js"]
+    "scripts": [
+      "functions/incognitoRedirection.js"
+    ]
   },
   "incognito": "spanning",
   "host_permissions": [
@@ -32,7 +34,7 @@
   "content_scripts": [
     {
       "matches": [
-        "*://*.autotask.net/*"
+        "*://*.autotask.net/Autotask/Views/DispatcherWorkshop/DispatcherWorkshopView.aspx?MyCalendar=*"
       ],
       "js": [
         "functions/calendarChanger.js"
@@ -54,8 +56,20 @@
       "matches": [
         "*://*.autotask.net/Mvc/ServiceDesk/TicketDetail.mvc*"
       ],
-      "js": ["functions/ticketHistoryWatcher.js"],
+      "js": [
+        "functions/ticketHistoryWatcher.js"
+      ],
       "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://*.autotask.net/*"
+      ],
+      "js": [
+        "functions/openTicketsInIframe.js"
+      ],
+      "run_at": "document_end",
+      "all_frames": true
     }
   ],
   "web_accessible_resources": [
