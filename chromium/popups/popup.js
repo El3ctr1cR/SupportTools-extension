@@ -92,11 +92,8 @@ document.addEventListener('DOMContentLoaded', () => {
   function loadTicketHistory() {
     chrome.storage.sync.get(['ticketHistory'], (res) => {
       const history = res.ticketHistory || [];
-
       history.sort((a, b) => b.timestamp - a.timestamp);
-
       ticketHistoryList.innerHTML = '';
-
       history.slice(0, 30).forEach((entry) => {
         const li = document.createElement('li');
         li.style.marginBottom = '10px';
@@ -106,31 +103,24 @@ document.addEventListener('DOMContentLoaded', () => {
         li.style.flexDirection = 'column';
         const historyItemContainer = document.createElement('div');
         historyItemContainer.className = 'history-password-container';
-
         const link = document.createElement('a');
         link.textContent = entry.displayText || '(Unknown)';
         link.href = '#';
         link.style.color = '#5bc0de';
         link.style.textDecoration = 'none';
-
         link.addEventListener('click', (evt) => {
           evt.preventDefault();
-          const protocol = window.location.protocol;
-          const host = 'ww19.autotask.net';
+          const host = entry.host || window.location.host;
           const ticketUrl = `https://${host}/Mvc/ServiceDesk/TicketDetail.mvc?workspace=False&mode=0&ticketId=${entry.ticketId}`;
           window.open(ticketUrl, '_blank');
         });
-
         historyItemContainer.appendChild(link);
         li.appendChild(historyItemContainer);
-
         const dateSpan = document.createElement('div');
         dateSpan.className = 'timestamp';
-
         const date = new Date(entry.timestamp);
         dateSpan.textContent = date.toLocaleString();
         li.appendChild(dateSpan);
-
         ticketHistoryList.appendChild(li);
       });
     });
