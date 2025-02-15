@@ -48,7 +48,8 @@
       "js": [
         "functions/templateManager.js",
         "functions/aiTaskHandler.js"
-      ]
+      ],
+      "all_frames": true
     },
     {
       "matches": [
