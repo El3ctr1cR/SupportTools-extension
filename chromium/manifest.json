@@ -62,7 +62,8 @@
         "https://*.autotask.net/*"
       ],
       "js": ["functions/openTicketsInIframe.js"],
-      "run_at": "document_end"
+      "run_at": "document_end",
+      "all_frames": true
     }
   ],
   "web_accessible_resources": [
