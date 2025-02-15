@@ -70,6 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const versionText = document.getElementById('versionText');
   const openTicketButtonToggle = document.getElementById('openTicketButtonToggle');
   const showTimeIndicatorToggle = document.getElementById('showTimeIndicatorToggle');
+  const openTicketsInIframeToggle = document.getElementById('openTicketsInIframeToggle');
   const incognitoToggle = document.getElementById('incognitoToggle');
   const inputMailButton = document.getElementById('inputMail');
   const copyMailButton = document.getElementById('copyMail');
@@ -125,7 +126,6 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
   }
-
   loadTicketHistory();
 
   tabs.forEach((tab) => {
@@ -219,6 +219,10 @@ document.addEventListener('DOMContentLoaded', () => {
     showTimeIndicatorToggle.checked = result.showTimeIndicatorEnabled || false;
   });
 
+  chrome.storage.sync.get(['openTicketsInIframeEnabled'], (result) => {
+    openTicketsInIframeToggle.checked = result.openTicketsInIframeEnabled || false;
+  });
+
   chrome.storage.sync.get(['selectedLanguage'], (result) => {
     const language = result.selectedLanguage || 'nl';
     updateDropdownSelection(language);
@@ -282,6 +286,18 @@ document.addEventListener('DOMContentLoaded', () => {
       chrome.tabs.sendMessage(tabs[0].id, {
         action: 'toggleTimeIndicator',
         enabled: showTimeIndicatorToggle.checked,
+      });
+    });
+  });
+
+  openTicketsInIframeToggle.addEventListener('change', () => {
+    chrome.storage.sync.set({ openTicketsInIframeEnabled: openTicketsInIframeToggle.checked }, () => {
+      console.log('Open Tickets in Iframe setting updated:', openTicketsInIframeToggle.checked);
+    });
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      chrome.tabs.sendMessage(tabs[0].id, {
+        action: 'toggleOpenTicketsInIframe',
+        enabled: openTicketsInIframeToggle.checked,
       });
     });
   });

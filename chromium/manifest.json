@@ -56,6 +56,13 @@
       ],
       "js": ["functions/ticketHistoryWatcher.js"],
       "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://*.autotask.net/*"
+      ],
+      "js": ["functions/openTicketsInIframe.js"],
+      "run_at": "document_end"
     }
   ],
   "web_accessible_resources": [
