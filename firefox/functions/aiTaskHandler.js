@@ -41,7 +41,7 @@ async function callOpenAiApi(prompt, options = {}) {
     }
 }
 
-function getTicketDetails() {
+function getTicketDetailsAI() {
     const descriptionElement = document.querySelector('.Normal.Section .ContentContainer .Content');
     let description = '';
     if (descriptionElement) {
@@ -166,16 +166,17 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         });
     };
 
-    const ticketDetails = getTicketDetails();
-
-    getLanguage((language) => {
-        if (request.action === 'summarizeTicket') {
+    if (request.action === 'summarizeTicket') {
+        const ticketDetails = getTicketDetailsAI();
+        getLanguage((language) => {
             const prompt = `Summarize the following ticket in a clear and detailed manner in ${language}. Use the following format for the summary:\n\n1. Brief overview of the ticket (problem or request)\n2. Tasks that have been completed (if any)\n3. Tasks that still need to be completed (if any)\n\nEnsure that the summary is concise, well-structured, and captures the essential information. Avoid adding unnecessary details.\n\nFull ticket:\n${ticketDetails}`;
             callOpenAiApi(prompt).then(summary => sendResponse({ summary }));
-            return true;
-        }
+        });
+        return true;
+    }
 
-        if (request.action === 'makeTextNeater') {
+    if (request.action === 'makeTextNeater') {
+        getLanguage((language) => {
             const contentData = getNotes();
             if (!contentData || !contentData.text) {
                 sendResponse({ success: false, error: 'No text found to makeTextNeater.' });
@@ -190,9 +191,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             }).catch(error => {
                 sendResponse({ success: false, error: error.message });
             });
-            return true;
-        }
-    });
-
+        });
+        return true;
+    }
     return true;
 });

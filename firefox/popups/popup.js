@@ -413,18 +413,13 @@ document.addEventListener('DOMContentLoaded', () => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       const activeTab = tabs[0];
 
-      chrome.scripting.executeScript(
-        { target: { tabId: activeTab.id }, files: ['functions/templateManager.js'] },
-        () => {
-          chrome.tabs.sendMessage(activeTab.id, { action: 'getEmailText', template: selectedTemplate }, (response) => {
-            if (response && response.success) {
-              console.log('Email text inserted successfully');
-            } else {
-              alert(response && response.message ? response.message : 'Failed to insert email text');
-            }
-          });
+      chrome.tabs.sendMessage(activeTab.id, { action: 'getEmailText', template: selectedTemplate }, (response) => {
+        if (response && response.success) {
+          console.log('Email text inserted successfully');
+        } else {
+          alert(response && response.message ? response.message : 'Failed to insert email text');
         }
-      );
+      });
     });
   });
 
