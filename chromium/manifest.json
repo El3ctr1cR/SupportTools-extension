@@ -32,7 +32,7 @@
   "content_scripts": [
     {
       "matches": [
-        "*://*.autotask.net/*"
+        "*://*.autotask.net/Autotask/Views/DispatcherWorkshop/DispatcherWorkshopView.aspx?MyCalendar=*"
       ],
       "js": [
         "functions/calendarChanger.js"
