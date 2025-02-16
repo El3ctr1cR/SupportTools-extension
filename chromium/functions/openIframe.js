@@ -41,6 +41,43 @@ function removeTicketIframe() {
   const loadingOverlay = document.getElementById("ticketLoadingOverlay");
   if (loadingOverlay) loadingOverlay.remove();
   removeNavBarHighZIndexStyle();
+  removeCloseTicketButton();
+}
+
+function addCloseTicketButton() {
+  if (document.getElementById('CloseTicketButton')) return;
+  const bookmarksButton = document.getElementById('BookmarksNavigationButton');
+  if (!bookmarksButton) return;
+  const closeButton = bookmarksButton.cloneNode(true);
+  closeButton.id = 'CloseTicketButton';
+  const textEl = closeButton.querySelector('.Text');
+  if (textEl) {
+    textEl.textContent = "Close Ticket";
+  }
+  closeButton.onclick = null;
+  closeButton.addEventListener('click', function (e) {
+    e.preventDefault();
+    removeTicketIframe();
+  });
+  closeButton.addEventListener('mouseenter', () => {
+    closeButton.classList.add('HoverState');
+  });
+  closeButton.addEventListener('mouseleave', () => {
+    closeButton.classList.remove('HoverState');
+    closeButton.classList.remove('PressedState');
+  });
+  closeButton.addEventListener('mousedown', () => {
+    closeButton.classList.add('PressedState');
+  });
+  closeButton.addEventListener('mouseup', () => {
+    closeButton.classList.remove('PressedState');
+  });
+  bookmarksButton.parentNode.insertBefore(closeButton, bookmarksButton.nextSibling);
+}
+
+function removeCloseTicketButton() {
+  const btn = document.getElementById('CloseTicketButton');
+  if (btn) btn.remove();
 }
 
 document.addEventListener("click", (e) => {
@@ -142,6 +179,11 @@ document.addEventListener("click", (e) => {
       background: workspaceBg
     });
     document.body.appendChild(iframe);
+
+    console.log("test");
+
+    addCloseTicketButton();
+
     iframe.addEventListener("load", () => {
       loadingOverlay.remove();
       const detailDoc = iframe.contentDocument || iframe.contentWindow.document;
@@ -204,7 +246,7 @@ function attachToolbarButtonHandlers(container, iframe) {
         }, true);
       }
     });
-  } catch (err) {}
+  } catch (err) { }
 }
 
 function attachForwardToolbarHandlers(container, iframe) {
@@ -232,7 +274,7 @@ function attachForwardToolbarHandlers(container, iframe) {
         }, true);
       }
     });
-  } catch (err) {}
+  } catch (err) { }
 }
 
 function attachTicketHistoryToolbarHandler(container, iframe) {
@@ -248,7 +290,7 @@ function attachTicketHistoryToolbarHandler(container, iframe) {
         container.remove();
       }, true);
     }
-  } catch (err) {}
+  } catch (err) { }
 }
 
 function extractTicketId() {
@@ -267,7 +309,7 @@ function extractTicketId() {
 
 (function () {
   function addInterceptListeners(element, handler) {
-    ['mousedown', 'mouseup', 'click'].forEach(function(eventType) {
+    ['mousedown', 'mouseup', 'click'].forEach(function (eventType) {
       element.addEventListener(eventType, handler, true);
     });
   }
@@ -333,7 +375,7 @@ function extractTicketId() {
           }
         });
         attachToolbarButtonHandlers(container, iframe);
-      } catch (err) {}
+      } catch (err) { }
     });
     iframe.src = url;
   }
