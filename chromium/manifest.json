@@ -63,7 +63,7 @@
       "matches": [
         "https://*.autotask.net/*"
       ],
-      "js": ["functions/openTicketsInIframe.js"],
+      "js": ["functions/openIframe.js"],
       "run_at": "document_end",
       "all_frames": true
     }

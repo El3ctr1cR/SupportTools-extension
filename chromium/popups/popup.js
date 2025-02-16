@@ -71,6 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const openTicketButtonToggle = document.getElementById('openTicketButtonToggle');
   const showTimeIndicatorToggle = document.getElementById('showTimeIndicatorToggle');
   const openTicketsInIframeToggle = document.getElementById('openTicketsInIframeToggle');
+  const openServiceCallIframeToggle = document.getElementById('openServiceCallIframeToggle');
   const incognitoToggle = document.getElementById('incognitoToggle');
   const inputMailButton = document.getElementById('inputMail');
   const copyMailButton = document.getElementById('copyMail');
@@ -223,6 +224,10 @@ document.addEventListener('DOMContentLoaded', () => {
     openTicketsInIframeToggle.checked = result.openTicketsInIframeEnabled || false;
   });
 
+  chrome.storage.sync.get(['openServiceCallIframeEnabled'], (result) => {
+    openServiceCallIframeToggle.checked = result.openServiceCallIframeEnabled || false;
+  });
+
   chrome.storage.sync.get(['selectedLanguage'], (result) => {
     const language = result.selectedLanguage || 'nl';
     updateDropdownSelection(language);
@@ -298,6 +303,18 @@ document.addEventListener('DOMContentLoaded', () => {
       chrome.tabs.sendMessage(tabs[0].id, {
         action: 'toggleOpenTicketsInIframe',
         enabled: openTicketsInIframeToggle.checked,
+      });
+    });
+  });
+
+  openServiceCallIframeToggle.addEventListener('change', () => {
+    chrome.storage.sync.set({ openServiceCallIframeEnabled: openServiceCallIframeToggle.checked }, () => {
+      console.log('Open Tickets in Iframe setting updated:', openServiceCallIframeToggle.checked);
+    });
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      chrome.tabs.sendMessage(tabs[0].id, {
+        action: 'toggleOpenServiceCallIframe',
+        enabled: openServiceCallIframeToggle.checked,
       });
     });
   });
