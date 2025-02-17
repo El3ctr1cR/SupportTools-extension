@@ -57,9 +57,7 @@
       "matches": [
         "*://*.autotask.net/Mvc/ServiceDesk/TicketDetail.mvc*"
       ],
-      "js": [
-        "functions/ticketHistoryWatcher.js"
-      ],
+      "js": ["functions/ticketHistoryWatcher.js"],
       "run_at": "document_idle",
       "all_frames": true
     },
@@ -67,9 +65,7 @@
       "matches": [
         "https://*.autotask.net/*"
       ],
-      "js": [
-        "functions/openTicketsInIframe.js"
-      ],
+      "js": ["functions/openIframe.js"],
       "run_at": "document_end",
       "all_frames": true
     }
