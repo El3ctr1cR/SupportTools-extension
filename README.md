@@ -1,4 +1,5 @@
-[![Mozilla Add-on](https://img.shields.io/badge/Firefox-Add--on-orange?logo=firefox&style=for-the-badge)](https://github.com/El3ctr1cR/SupportTools-extension/releases/download/2.5.3/support_tools-2.5.3.xpi)
+[![Mozilla Add-on](https://img.shields.io/badge/Firefox-Add--on-orange?logo=firefox&style=for-the-badge)](https://github.com/El3ctr1cR/SupportTools-extension/releases/download/2.5.3/support_tools-2.5.3.xpi) [![Chrome Web Store](https://img.shields.io/badge/Chrome-Add--on-blue?logo=googlechrome&style=for-the-badge)](https://chromewebstore.google.com/detail/support-tools/beaaaghhhpknfliodniegnpkdcmogbfa)
+
 
 > [!IMPORTANT]
 > This extension is specifically designed for IT teams utilizing the Autotask platform.
