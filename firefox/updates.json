@@ -1,0 +1,12 @@
+{
+    "addons": {
+        "support@tools.com": {
+            "updates": [
+                {
+                    "version": "2.5.0",
+                    "update_link": ""
+                }
+            ]
+        }
+    }
+}
