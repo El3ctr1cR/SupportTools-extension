@@ -1,3 +1,5 @@
+[![Mozilla Add-on](https://img.shields.io/badge/Firefox-Add--on-orange?logo=firefox&style=for-the-badge)](https://raw.githubusercontent.com/El3ctr1cR/SupportTools-extension/main/firefox/support_tools-2.5.1.xpi)
+
 > [!IMPORTANT]
 > This extension is specifically designed for IT teams utilizing the Autotask platform.
 
