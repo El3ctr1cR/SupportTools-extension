@@ -3,8 +3,8 @@
         "support@tools.com": {
             "updates": [
                 {
-                    "version": "2.5.0",
-                    "update_link": ""
+                    "version": "2.5.1",
+                    "update_link": "https://raw.githubusercontent.com/El3ctr1cR/SupportTools-extension/main/firefox/support_tools-2.5.1.xpi"
                 }
             ]
         }
