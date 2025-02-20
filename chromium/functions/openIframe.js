@@ -18,29 +18,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 
-function injectNavBarHighZIndexStyle() {
-  let styleEl = document.getElementById("highZIndexNavBarStyle");
-  if (!styleEl) {
-    styleEl = document.createElement("style");
-    styleEl.id = "highZIndexNavBarStyle";
-    styleEl.textContent = "\n      #SiteNavigationBar, #SiteNavigationBar * {\n        z-index: 100000 !important;\n        overflow: visible !important;\n      }\n    ";
-    document.head.appendChild(styleEl);
-  }
-}
-
-function removeNavBarHighZIndexStyle() {
-  const styleEl = document.getElementById("highZIndexNavBarStyle");
-  if (styleEl) {
-    styleEl.remove();
-  }
-}
-
 function removeTicketIframe() {
   const iframe = document.getElementById("ticketDetailIframe");
   if (iframe) iframe.remove();
   const loadingOverlay = document.getElementById("ticketLoadingOverlay");
   if (loadingOverlay) loadingOverlay.remove();
-  removeNavBarHighZIndexStyle();
   removeCloseTicketButton();
 }
 
@@ -81,35 +63,10 @@ function removeCloseTicketButton() {
 }
 
 document.addEventListener("click", (e) => {
-  const navBar = document.getElementById("SiteNavigationBar");
-  if (navBar && navBar.contains(e.target)) {
-    if (e.target.closest(".AutotaskLogoImage")) {
-      removeTicketIframe();
-      return;
-    }
-    let inException = false;
-    if (e.target.closest("#NewSiteNavigationButton")) {
-      inException = true;
-    } else if (e.target.closest(".SearchBoxContainer") && !e.target.closest(".SearchButton")) {
-      inException = true;
-    } else {
-      const anchor = e.target.closest("a");
-      if (anchor && anchor.textContent.trim().toLowerCase().includes("dispatch calendar")) {
-        inException = true;
-      }
-    }
-    const interactive = e.target.closest("a, button, .SiteNavigationButton, .Button, .SearchButton");
-    if (inException || !interactive) return;
-    removeTicketIframe();
-    return;
-  }
   if (!openTicketsInIframeEnabled) return;
-  let ticketRow = e.target.closest('tr.Display[data-interactive="true"]');
-  if (!ticketRow) {
-    const inlineElem = e.target.closest("[onclick*='TicketDetail']");
-    if (inlineElem) {
-      ticketRow = inlineElem.closest("tr.Display[data-row-key]");
-    }
+  const inlineElem = e.target.closest("[onclick*='TicketDetail']");
+  if (inlineElem) {
+    ticketRow = inlineElem.closest("tr.Display[data-row-key]");
   }
   if (ticketRow) {
     e.preventDefault();
@@ -138,18 +95,15 @@ document.addEventListener("click", (e) => {
       chrome.storage.sync.set({ ticketHistory: oldHistory.slice(0, 30) });
     });
     removeTicketIframe();
-    const navHeight = navBar ? navBar.offsetHeight : 0;
     const workspaceContainer = document.querySelector("#WorkspaceContainer");
     const workspaceBg = workspaceContainer ? window.getComputedStyle(workspaceContainer).backgroundColor : "#111b22";
-    injectNavBarHighZIndexStyle();
     const loadingOverlay = document.createElement("div");
     loadingOverlay.id = "ticketLoadingOverlay";
     Object.assign(loadingOverlay.style, {
       position: "fixed",
-      top: navHeight + "px",
       left: "0",
       width: "100%",
-      height: `calc(100% - ${navHeight}px)`,
+      height: "100%",
       background: workspaceBg,
       zIndex: "50",
       display: "flex",
@@ -170,10 +124,9 @@ document.addEventListener("click", (e) => {
     iframe.src = ticketUrl;
     Object.assign(iframe.style, {
       position: "fixed",
-      top: navHeight + "px",
       left: "0",
       width: "100%",
-      height: `calc(100% - ${navHeight}px)`,
+      height: "100%",
       border: "none",
       zIndex: "10",
       background: workspaceBg
@@ -211,13 +164,6 @@ document.addEventListener("click", (e) => {
     });
   }
 }, true);
-
-document.addEventListener("keydown", (e) => {
-  const searchInput = document.querySelector(".SearchInput");
-  if (searchInput && document.activeElement === searchInput && e.key === "Enter") {
-    removeTicketIframe();
-  }
-});
 
 function attachToolbarButtonHandlers(container, iframe) {
   try {
