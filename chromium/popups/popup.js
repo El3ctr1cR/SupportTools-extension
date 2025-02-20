@@ -271,6 +271,26 @@ document.addEventListener('DOMContentLoaded', () => {
     selectedLanguageText.textContent = languageTextMap[language] || languageTextMap.nl;
   }
 
+  const headers = document.querySelectorAll('.category-header');
+
+  headers.forEach(header => {
+    if (header.textContent.trim().toLowerCase().includes("improvements")) {
+      const icon = document.createElement('img');
+
+      icon.src = chrome.runtime.getURL('icons/warning.png');
+      icon.alt = 'Warning';
+      icon.title = 'These are experimental features so if something breaks within Autotask please turn them off.';
+
+      icon.style.width = '16px';
+      icon.style.height = '16px';
+      icon.style.marginLeft = '5px';
+      icon.style.cursor = 'pointer';
+      icon.style.filter = "invert(68%) sepia(100%) saturate(5000%) hue-rotate(2deg) brightness(105%) contrast(101%)";
+
+      header.appendChild(icon);
+    }
+  });
+
   openTicketButtonToggle.addEventListener('change', () => {
     chrome.storage.sync.set({ openTicketButtonEnabled: openTicketButtonToggle.checked }, () => {
       console.log('Open Ticket Button setting updated:', openTicketButtonToggle.checked);
