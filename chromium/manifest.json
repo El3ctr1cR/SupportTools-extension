@@ -55,7 +55,9 @@
       "matches": [
         "*://*.autotask.net/Mvc/ServiceDesk/TicketDetail.mvc*"
       ],
-      "js": ["functions/ticketHistoryWatcher.js"],
+      "js": [
+        "functions/ticketHistoryWatcher.js"
+      ],
       "run_at": "document_idle",
       "all_frames": true
     },
@@ -63,9 +65,21 @@
       "matches": [
         "https://*.autotask.net/*"
       ],
-      "js": ["functions/openIframe.js"],
+      "js": [
+        "functions/openIframe.js"
+      ],
       "run_at": "document_end",
       "all_frames": true
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "functions/gridInterceptor.js"
+      ],
+      "matches": [
+        "https://*.autotask.net/*"
+      ]
     }
   ]
 }

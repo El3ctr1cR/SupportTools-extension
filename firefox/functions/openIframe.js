@@ -1,20 +1,41 @@
 let currentTicketId = null;
-let openTicketsInIframeEnabled = false;
-let openServiceCallIframeEnabled = false;
+let currentAccountId = null;
+let inAppIframesOutsideTicket = false;
+let inAppIframesInsideTicket = false;
+let gridPayloads = [];
 
-chrome.storage.sync.get(['openTicketsInIframeEnabled'], (result) => {
-  openTicketsInIframeEnabled = result.openTicketsInIframeEnabled || false;
+chrome.storage.sync.get(['inAppIframesOutsideTicket'], (result) => {
+  inAppIframesOutsideTicket = result.inAppIframesOutsideTicket || false;
 });
-chrome.storage.sync.get(['openServiceCallIframeEnabled'], (result) => {
-  openServiceCallIframeEnabled = result.openServiceCallIframeEnabled || false;
+chrome.storage.sync.get(['inAppIframesInsideTicket'], (result) => {
+  inAppIframesInsideTicket = result.inAppIframesInsideTicket || false;
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.action === 'toggleOpenTicketsInIframe') {
-    openTicketsInIframeEnabled = message.enabled;
+  if (message.action === 'toggleInAppIframesOutsideTicket') {
+    inAppIframesOutsideTicket = message.enabled;
   }
-  if (message.action === 'toggleOpenServiceCallIframe') {
-    openServiceCallIframeEnabled = message.enabled;
+  if (message.action === 'toggleInAppIframesInsideTicket') {
+    inAppIframesInsideTicket = message.enabled;
+  }
+});
+
+(function () {
+  const s = document.createElement("script");
+  s.src = chrome.runtime.getURL("functions/gridInterceptor.js");
+  s.onload = function () { this.remove(); };
+  (document.head || document.documentElement).appendChild(s);
+})();
+
+window.addEventListener("message", function (event) {
+  if (event.source !== window) return;
+  if (event.data && event.data.type === "GRID_PAYLOAD") {
+    const data = event.data.payload;
+    if (data && data.data && Array.isArray(data.data)) {
+      gridPayloads.push({ data: data.data });
+    } else if (data && data.primaryData) {
+      gridPayloads.push({ data: [data] });
+    }
   }
 });
 
@@ -27,14 +48,21 @@ function removeTicketIframe() {
 }
 
 function addCloseTicketButton() {
-  if (document.getElementById('CloseTicketButton')) return;
-  const bookmarksButton = document.getElementById('BookmarksNavigationButton');
-  if (!bookmarksButton) return;
-  const closeButton = bookmarksButton.cloneNode(true);
+  const doc = window.top !== window.self ? window.top.document : document;
+  if (doc.getElementById('CloseTicketButton')) return;
+  const refContainer = doc.querySelector('div.o-header-navigation-menu-button[data-onyx-external-id="0C07O8TE"]');
+  if (!refContainer) return;
+  const refButton = refContainer.querySelector('button[title="Calendar"]');
+  if (!refButton) return;
+  const closeButton = refButton.cloneNode(true);
   closeButton.id = 'CloseTicketButton';
-  const textEl = closeButton.querySelector('.Text');
+  const textEl = closeButton.querySelector('.o-header-navigation-menu-button__button__name');
   if (textEl) {
     textEl.textContent = "Close Ticket";
+  }
+  const arrowIcon = closeButton.querySelector('.o-header-navigation-menu-button__button__arrow');
+  if (arrowIcon) {
+    arrowIcon.remove();
   }
   closeButton.onclick = null;
   closeButton.addEventListener('click', function (e) {
@@ -45,8 +73,7 @@ function addCloseTicketButton() {
     closeButton.classList.add('HoverState');
   });
   closeButton.addEventListener('mouseleave', () => {
-    closeButton.classList.remove('HoverState');
-    closeButton.classList.remove('PressedState');
+    closeButton.classList.remove('HoverState', 'PressedState');
   });
   closeButton.addEventListener('mousedown', () => {
     closeButton.classList.add('PressedState');
@@ -54,16 +81,159 @@ function addCloseTicketButton() {
   closeButton.addEventListener('mouseup', () => {
     closeButton.classList.remove('PressedState');
   });
-  bookmarksButton.parentNode.insertBefore(closeButton, bookmarksButton.nextSibling);
+  const parent = refContainer.parentNode;
+  const siblings = Array.from(parent.children);
+  const refIndex = siblings.indexOf(refContainer);
+  const targetIndex = refIndex + 2;
+  if (siblings[targetIndex]) {
+    parent.insertBefore(closeButton, siblings[targetIndex].nextSibling);
+  } else {
+    parent.appendChild(closeButton);
+  }
 }
 
 function removeCloseTicketButton() {
-  const btn = document.getElementById('CloseTicketButton');
+  const doc = window.top !== window.self ? window.top.document : document;
+  const btn = doc.getElementById('CloseTicketButton');
+  if (btn) btn.remove();
+}
+
+function addCloseCustomerButton() {
+  const doc = window.top !== window.self ? window.top.document : document;
+  if (doc.getElementById('CloseCustomerButton')) return;
+  const refContainer = doc.querySelector('div.o-header-navigation-menu-button[data-onyx-external-id="0C07O8TE"]');
+  if (!refContainer) return;
+  const refButton = refContainer.querySelector('button[title="Calendar"]');
+  if (!refButton) return;
+  const closeButton = refButton.cloneNode(true);
+  closeButton.id = 'CloseCustomerButton';
+  const textEl = closeButton.querySelector('.o-header-navigation-menu-button__button__name');
+  if (textEl) {
+    textEl.textContent = "Close Customer";
+  }
+  const arrowIcon = closeButton.querySelector('.o-header-navigation-menu-button__button__arrow');
+  if (arrowIcon) {
+    arrowIcon.remove();
+  }
+  closeButton.onclick = null;
+  closeButton.addEventListener('click', function (e) {
+    e.preventDefault();
+    removeAccountIframe();
+  });
+  closeButton.addEventListener('mouseenter', () => {
+    closeButton.classList.add('HoverState');
+  });
+  closeButton.addEventListener('mouseleave', () => {
+    closeButton.classList.remove('HoverState', 'PressedState');
+  });
+  closeButton.addEventListener('mousedown', () => {
+    closeButton.classList.add('PressedState');
+  });
+  closeButton.addEventListener('mouseup', () => {
+    closeButton.classList.remove('PressedState');
+  });
+  const parent = refContainer.parentNode;
+  const siblings = Array.from(parent.children);
+  const refIndex = siblings.indexOf(refContainer);
+  const targetIndex = refIndex + 2;
+  if (siblings[targetIndex]) {
+    parent.insertBefore(closeButton, siblings[targetIndex].nextSibling);
+  } else {
+    parent.appendChild(closeButton);
+  }
+}
+
+function removeCloseCustomerButton() {
+  const doc = window.top !== window.self ? window.top.document : document;
+  const btn = doc.getElementById('CloseCustomerButton');
   if (btn) btn.remove();
 }
 
 document.addEventListener("click", (e) => {
-  if (!openTicketsInIframeEnabled) return;
+  if (!inAppIframesOutsideTicket) return;
+  const customerRow = e.target.closest("tr.Display[data-row-key]");
+  if (customerRow) {
+    const textCells = customerRow.querySelectorAll("td.TextCell");
+    if (!textCells || textCells.length === 0) return;
+    const lastCell = textCells[textCells.length - 1];
+    if (lastCell.textContent.trim().toLowerCase() !== "customer") return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    const accountId = customerRow.getAttribute("data-row-key");
+    if (!accountId) return;
+    currentAccountId = accountId;
+    const host = window.location.host;
+    const accountUrl = `https://${host}/Mvc/CRM/AccountDetail.mvc?accountId=${accountId}`;
+    removeAccountIframe();
+    const loadingOverlay = document.createElement("div");
+    loadingOverlay.id = "accountLoadingOverlay";
+    Object.assign(loadingOverlay.style, {
+      position: "fixed",
+      top: "0",
+      left: "0",
+      width: "100%",
+      height: "100%",
+      background: "transparent",
+      zIndex: "50",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      pointerEvents: "none"
+    });
+    loadingOverlay.innerHTML = `<div class="spinner"></div>`;
+    document.body.appendChild(loadingOverlay);
+    if (!document.getElementById("spinnerStyle")) {
+      const spinnerStyle = document.createElement("style");
+      spinnerStyle.id = "spinnerStyle";
+      spinnerStyle.textContent = `
+        .spinner {
+          border: 8px solid rgba(0, 0, 0, 0.1);
+          border-top: 8px solid #3498db;
+          border-radius: 50%;
+          width: 60px;
+          height: 60px;
+          animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `;
+      document.head.appendChild(spinnerStyle);
+    }
+    const iframe = document.createElement("iframe");
+    iframe.id = "accountDetailIframe";
+    iframe.src = accountUrl;
+    Object.assign(iframe.style, {
+      position: "fixed",
+      top: "0",
+      left: "0",
+      width: "100%",
+      height: "100%",
+      border: "none",
+      zIndex: "10",
+      background: "transparent"
+    });
+    document.body.appendChild(iframe);
+    addCloseCustomerButton();
+    iframe.addEventListener("load", () => {
+      loadingOverlay.remove();
+    });
+  }
+}, true);
+
+function removeAccountIframe() {
+  const iframe = document.getElementById("accountDetailIframe");
+  if (iframe) iframe.remove();
+  const overlay = document.getElementById("accountLoadingOverlay");
+  if (overlay) overlay.remove();
+  removeCloseCustomerButton();
+  removeTicketIframe();
+}
+
+document.addEventListener("click", (e) => {
+  if (!inAppIframesOutsideTicket) return;
+  let ticketRow;
   const inlineElem = e.target.closest("[onclick*='TicketDetail']");
   if (inlineElem) {
     ticketRow = inlineElem.closest("tr.Display[data-row-key]");
@@ -95,8 +265,7 @@ document.addEventListener("click", (e) => {
       chrome.storage.sync.set({ ticketHistory: oldHistory.slice(0, 30) });
     });
     removeTicketIframe();
-    const workspaceContainer = document.querySelector("#WorkspaceContainer");
-    const workspaceBg = workspaceContainer ? window.getComputedStyle(workspaceContainer).backgroundColor : "#111b22";
+    const workspaceBg = "transparent";
     const loadingOverlay = document.createElement("div");
     loadingOverlay.id = "ticketLoadingOverlay";
     Object.assign(loadingOverlay.style, {
@@ -132,11 +301,7 @@ document.addEventListener("click", (e) => {
       background: workspaceBg
     });
     document.body.appendChild(iframe);
-
-    console.log("test");
-
     addCloseTicketButton();
-
     iframe.addEventListener("load", () => {
       loadingOverlay.remove();
       const detailDoc = iframe.contentDocument || iframe.contentWindow.document;
@@ -162,6 +327,173 @@ document.addEventListener("click", (e) => {
         }
       }
     });
+  }
+}, true);
+
+document.addEventListener("click", (e) => {
+  if (!inAppIframesOutsideTicket) return;
+  const advancedRow = e.target.closest("div.o-data-row.o-data-row--is-clickable.o-data-row--compact");
+  if (advancedRow) {
+    const viewContainer = document.querySelector("div.c-page-layout__body__view");
+    if (!viewContainer || !viewContainer.contains(advancedRow)) {
+      return;
+    }
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    const rowTextFragments = Array.from(advancedRow.querySelectorAll("div.c-text"))
+      .map(el => el.textContent.trim())
+      .filter(text => text.length > 3 && !/[\/:]/.test(text));
+    let ticketId = null;
+    outerLoop:
+    for (const payload of gridPayloads) {
+      if (payload && Array.isArray(payload.data)) {
+        for (const ticket of payload.data) {
+          let combinedText = "";
+          if (ticket.primaryData && Array.isArray(ticket.primaryData)) {
+            ticket.primaryData.forEach(item => {
+              if (item.text && item.text.value && item.text.value.value) {
+                combinedText += item.text.value.value.toLowerCase() + " ";
+              }
+            });
+          }
+          if (ticket.additionalData && Array.isArray(ticket.additionalData)) {
+            ticket.additionalData.forEach(item => {
+              if (item.text && item.text.value && item.text.value.value) {
+                combinedText += item.text.value.value.toLowerCase() + " ";
+              }
+            });
+          }
+          combinedText = combinedText.trim();
+          const allMatch = rowTextFragments.every(fragment => combinedText.includes(fragment.toLowerCase()));
+          if (allMatch && ticket.contextMenuKey && ticket.contextMenuKey.value) {
+            ticketId = ticket.contextMenuKey.value;
+            break outerLoop;
+          }
+        }
+      }
+    }
+    if (!ticketId) {
+      return;
+    }
+    currentTicketId = ticketId;
+    const host = window.location.host;
+    const ticketUrl = `https://${host}/Mvc/ServiceDesk/TicketDetail.mvc?workspace=False&mode=0&ticketId=${currentTicketId}`;
+    removeTicketIframe();
+    const bodyViewContainer = document.querySelector("div.c-page-layout__body__view");
+    if (!bodyViewContainer) {
+      return;
+    }
+    if (window.getComputedStyle(bodyViewContainer).position === "static") {
+      bodyViewContainer.style.position = "relative";
+    }
+    const containerBg = window.getComputedStyle(bodyViewContainer).backgroundColor || "#fff";
+    const loadingOverlay = document.createElement("div");
+    loadingOverlay.id = "ticketLoadingOverlay";
+    Object.assign(loadingOverlay.style, {
+      position: "absolute",
+      top: "0",
+      left: "0",
+      width: "100%",
+      height: "100%",
+      background: containerBg,
+      zIndex: "50",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      pointerEvents: "none"
+    });
+    loadingOverlay.innerHTML = `<div class="spinner"></div>`;
+    bodyViewContainer.appendChild(loadingOverlay);
+    if (!document.getElementById("spinnerStyle")) {
+      const spinnerStyle = document.createElement("style");
+      spinnerStyle.id = "spinnerStyle";
+      spinnerStyle.textContent = `
+        .spinner {
+          border: 8px solid rgba(0, 0, 0, 0.1);
+          border-top: 8px solid #3498db;
+          border-radius: 50%;
+          width: 60px;
+          height: 60px;
+          animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `;
+      document.head.appendChild(spinnerStyle);
+    }
+    const iframe = document.createElement("iframe");
+    iframe.id = "ticketDetailIframe";
+    iframe.src = ticketUrl;
+    Object.assign(iframe.style, {
+      position: "absolute",
+      top: "0",
+      left: "0",
+      width: "100%",
+      height: "100%",
+      border: "none",
+      zIndex: "10",
+      background: containerBg
+    });
+    bodyViewContainer.appendChild(iframe);
+    addCloseTicketButton();
+    iframe.addEventListener("load", () => {
+      loadingOverlay.remove();
+      const detailDoc = iframe.contentDocument || iframe.contentWindow.document;
+      const secTextElem = detailDoc.querySelector(".TitleBarItem.Title .SecondaryText");
+      if (secTextElem) {
+        const m = secTextElem.textContent.match(/T\d{8}\.\d{4}/);
+        if (m && m[0]) {
+          const correctTicketNumber = m[0];
+          const rawTitle = secTextElem.textContent.trim();
+          const cleanedTitle = rawTitle.replace(/^-?\s*T\d{8}\.\d{4}\s*-\s*/, "");
+          chrome.storage.sync.get(["ticketHistory"], (res) => {
+            let history = res.ticketHistory || [];
+            for (let i = 0; i < history.length; i++) {
+              if (history[i].ticketId === currentTicketId) {
+                history[i].ticketNumber = correctTicketNumber;
+                history[i].ticketTitle = cleanedTitle;
+                history[i].displayText = `${correctTicketNumber} - ${cleanedTitle}`;
+                break;
+              }
+            }
+            chrome.storage.sync.set({ ticketHistory: history.slice(0, 30) });
+          });
+        }
+      }
+    });
+    function autoCloseIframe() {
+      removeTicketIframe();
+    }
+    window.addEventListener("popstate", autoCloseIframe);
+    window.addEventListener("hashchange", autoCloseIframe);
+    const origPushState = history.pushState;
+    history.pushState = function (...args) {
+      autoCloseIframe();
+      return origPushState.apply(history, args);
+    };
+    const origReplaceState = history.replaceState;
+    history.replaceState = function (...args) {
+      autoCloseIframe();
+      return origReplaceState.apply(history, args);
+    };
+    const containerObserver = new MutationObserver((mutations, obs) => {
+      for (const mutation of mutations) {
+        if (mutation.type === "childList" && mutation.addedNodes.length > 0) {
+          for (const node of mutation.addedNodes) {
+            if (node.nodeType === Node.ELEMENT_NODE &&
+              !node.matches("#ticketDetailIframe") &&
+              !node.matches("#ticketLoadingOverlay")) {
+              autoCloseIframe();
+              obs.disconnect();
+              return;
+            }
+          }
+        }
+      }
+    });
+    containerObserver.observe(bodyViewContainer, { childList: true, subtree: true });
   }
 }, true);
 
@@ -279,7 +611,7 @@ function extractTicketId() {
   }
 
   function openServiceCallIframe(ticketId) {
-    if (!openServiceCallIframeEnabled) return;
+    if (!inAppIframesInsideTicket) return;
     if (document.getElementById('service-call-iframe-container')) return;
     const host = window.location.host;
     const url = `https://${host}/Autotask/views/ServiceDesk/ServiceDeskTicket/service_ticket_panel_edit.aspx?ticketRenderType=ServiceCall&action=3&ticketID=${ticketId}`;
@@ -327,7 +659,7 @@ function extractTicketId() {
   }
 
   function openNewAttachmentIframe(ticketId) {
-    if (!openServiceCallIframeEnabled) return;
+    if (!inAppIframesInsideTicket) return;
     if (document.getElementById('new-attachment-iframe-container')) return;
     const host = window.location.host;
     const url = `https://${host}/Mvc/File/Attachment.mvc/TicketAttachment?enablePublishing=True&ticketId=${ticketId}`;
@@ -347,7 +679,7 @@ function extractTicketId() {
   }
 
   function openForwardIframe(ticketId) {
-    if (!openServiceCallIframeEnabled) return;
+    if (!inAppIframesInsideTicket) return;
     if (document.getElementById('forward-iframe-container')) return;
     const host = window.location.host;
     const url = `https://${host}/ServiceDesk/Popups/Forward/svcForward.asp?forward=1&taskIDs=${ticketId}`;
@@ -367,7 +699,7 @@ function extractTicketId() {
   }
 
   function openTicketHistoryIframe(ticketId) {
-    if (!openServiceCallIframeEnabled) return;
+    if (!inAppIframesInsideTicket) return;
     if (document.getElementById('ticket-history-iframe-container')) return;
     const host = window.location.host;
     const url = `https://${host}/Mvc/ServiceDesk/TicketHistory.mvc/ServiceTicketHistory?ticketId=${ticketId}`;
@@ -387,7 +719,7 @@ function extractTicketId() {
   }
 
   function replaceServiceCallButtons() {
-    if (!openServiceCallIframeEnabled) return;
+    if (!inAppIframesInsideTicket) return;
     const buttons = document.querySelectorAll('.QuickLaunchButton.ServiceCall');
     buttons.forEach((btn) => {
       if (btn.dataset.replacedByExtension) return;
@@ -414,7 +746,7 @@ function extractTicketId() {
   }
 
   function replaceNewAttachmentButtons() {
-    if (!openServiceCallIframeEnabled) return;
+    if (!inAppIframesInsideTicket) return;
     const buttons = document.querySelectorAll('div.Button2.ButtonIcon2.NormalBackground');
     buttons.forEach((btn) => {
       if (btn.dataset.attachmentReplacedByExtension) return;
@@ -440,7 +772,7 @@ function extractTicketId() {
   }
 
   function replaceForwardButton() {
-    if (!openServiceCallIframeEnabled) return;
+    if (!inAppIframesInsideTicket) return;
     const items = document.querySelectorAll('.ToolBarItem.Left');
     items.forEach(item => {
       const btn = item.querySelector('div.Button2.ButtonIcon2.NormalBackground');
@@ -468,7 +800,7 @@ function extractTicketId() {
   }
 
   function replaceTicketHistoryButton() {
-    if (!openServiceCallIframeEnabled) return;
+    if (!inAppIframesInsideTicket) return;
     const btn = Array.from(document.querySelectorAll('a.Button.ButtonIcon.ViewHistory.Navigation.NormalState'))
       .find(el => el.textContent.trim().toLowerCase().includes('ticket history'));
     if (btn && !btn.dataset.historyReplacedByExtension) {
@@ -497,7 +829,7 @@ function extractTicketId() {
   }
 
   function replaceQuickLaunchAttachmentButtons() {
-    if (!openServiceCallIframeEnabled) return;
+    if (!inAppIframesInsideTicket) return;
     const buttons = document.querySelectorAll('div.QuickLaunchButton.Attachment.NormalState');
     buttons.forEach((btn) => {
       if (btn.dataset.attachmentQuickLaunchReplacedByExtension) return;
@@ -534,7 +866,7 @@ function extractTicketId() {
   replaceQuickLaunchAttachmentButtons();
 
   document.addEventListener('click', function (e) {
-    if (!openServiceCallIframeEnabled) return;
+    if (!inAppIframesInsideTicket) return;
     const forwardEl = e.target.closest('div.Button2.ButtonIcon2.NormalBackground');
     if (forwardEl && forwardEl.querySelector('.StandardButtonIcon.Forward')) {
       const txt = forwardEl.querySelector('.Text2');
@@ -553,7 +885,7 @@ function extractTicketId() {
   }, true);
 
   document.addEventListener('click', function (e) {
-    if (!openServiceCallIframeEnabled) return;
+    if (!inAppIframesInsideTicket) return;
     const historyEl = e.target.closest('a.Button.ButtonIcon.ViewHistory.Navigation.NormalState');
     if (historyEl && historyEl.textContent.trim().toLowerCase().includes('ticket history')) {
       e.preventDefault();

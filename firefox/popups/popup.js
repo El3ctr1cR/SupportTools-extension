@@ -70,8 +70,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const versionText = document.getElementById('versionText');
   const openTicketButtonToggle = document.getElementById('openTicketButtonToggle');
   const showTimeIndicatorToggle = document.getElementById('showTimeIndicatorToggle');
-  const openTicketsInIframeToggle = document.getElementById('openTicketsInIframeToggle');
-  const openServiceCallIframeToggle = document.getElementById('openServiceCallIframeToggle');
+  const inAppIframesOutsideTicketToggle = document.getElementById('inAppIframesOutsideTicketToggle');
+  const inAppIframesInsideTicketToggle = document.getElementById('inAppIframesInsideTicketToggle');
   const incognitoToggle = document.getElementById('incognitoToggle');
   const inputMailButton = document.getElementById('inputMail');
   const copyMailButton = document.getElementById('copyMail');
@@ -220,12 +220,12 @@ document.addEventListener('DOMContentLoaded', () => {
     showTimeIndicatorToggle.checked = result.showTimeIndicatorEnabled || false;
   });
 
-  chrome.storage.sync.get(['openTicketsInIframeEnabled'], (result) => {
-    openTicketsInIframeToggle.checked = result.openTicketsInIframeEnabled || false;
+  chrome.storage.sync.get(['inAppIframesOutsideTicket'], (result) => {
+    inAppIframesOutsideTicketToggle.checked = result.inAppIframesOutsideTicket || false;
   });
 
-  chrome.storage.sync.get(['openServiceCallIframeEnabled'], (result) => {
-    openServiceCallIframeToggle.checked = result.openServiceCallIframeEnabled || false;
+  chrome.storage.sync.get(['inAppIframesInsideTicket'], (result) => {
+    inAppIframesInsideTicketToggle.checked = result.inAppIframesInsideTicket || false;
   });
 
   chrome.storage.sync.get(['selectedLanguage'], (result) => {
@@ -295,26 +295,26 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  openTicketsInIframeToggle.addEventListener('change', () => {
-    chrome.storage.sync.set({ openTicketsInIframeEnabled: openTicketsInIframeToggle.checked }, () => {
-      console.log('Open Tickets in Iframe setting updated:', openTicketsInIframeToggle.checked);
+  inAppIframesOutsideTicketToggle.addEventListener('change', () => {
+    chrome.storage.sync.set({ inAppIframesOutsideTicket: inAppIframesOutsideTicketToggle.checked }, () => {
+      console.log('Open Tickets in Iframe setting updated:', inAppIframesOutsideTicketToggle.checked);
     });
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       chrome.tabs.sendMessage(tabs[0].id, {
-        action: 'toggleOpenTicketsInIframe',
-        enabled: openTicketsInIframeToggle.checked,
+        action: 'toggleInAppIframesOutsideTicket',
+        enabled: inAppIframesOutsideTicketToggle.checked,
       });
     });
   });
 
-  openServiceCallIframeToggle.addEventListener('change', () => {
-    chrome.storage.sync.set({ openServiceCallIframeEnabled: openServiceCallIframeToggle.checked }, () => {
-      console.log('Open Tickets in Iframe setting updated:', openServiceCallIframeToggle.checked);
+  inAppIframesInsideTicketToggle.addEventListener('change', () => {
+    chrome.storage.sync.set({ inAppIframesInsideTicket: inAppIframesInsideTicketToggle.checked }, () => {
+      console.log('Open Tickets in Iframe setting updated:', inAppIframesInsideTicketToggle.checked);
     });
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       chrome.tabs.sendMessage(tabs[0].id, {
-        action: 'toggleOpenServiceCallIframe',
-        enabled: openServiceCallIframeToggle.checked,
+        action: 'toggleInAppIframesInsideTicket',
+        enabled: inAppIframesInsideTicketToggle.checked,
       });
     });
   });

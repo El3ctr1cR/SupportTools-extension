@@ -70,6 +70,16 @@
       "all_frames": true
     }
   ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "functions/gridInterceptor.js"
+      ],
+      "matches": [
+        "https://*.autotask.net/*"
+      ]
+    }
+  ],
   "browser_specific_settings": {
     "gecko": {
       "id": "support@tools.com",
