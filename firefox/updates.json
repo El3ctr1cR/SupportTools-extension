@@ -9,6 +9,10 @@
                 {
                     "version": "2.5.4",
                     "update_link": "https://github.com/El3ctr1cR/SupportTools-extension/releases/download/2.5.4/support_tools-2.5.4.xpi"
+                },
+                {
+                    "version": "2.5.5",
+                    "update_link": "https://github.com/El3ctr1cR/SupportTools-extension/releases/download/2.5.5/support_tools-2.5.5.xpi"
                 }
             ]
         }
