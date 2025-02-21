@@ -561,7 +561,16 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   importConfigButton.addEventListener('click', () => {
-    importFileInput.click();
+    if (navigator.userAgent.toLowerCase().includes('firefox')) {
+      chrome.windows.create({
+        url: chrome.runtime.getURL('../popups/importConfig.html'),
+        type: 'popup',
+        width: 500,
+        height: 300
+      });
+    } else {
+      importFileInput.click();
+    }
   });
 
   importFileInput.addEventListener('change', (event) => {

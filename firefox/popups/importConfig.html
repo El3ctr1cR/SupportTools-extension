@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Import Configuration</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+    
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #121212;
+      color: #e0e0e0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    
+    .container {
+      flex: 1;
+      max-width: 500px;
+      width: 100%;
+      margin: 0 auto;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      text-align: center;
+    }
+    
+    button {
+      border: none;
+      border-radius: 5px;
+      background-color: #2a2a2a;
+      color: #e0e0e0;
+      cursor: pointer;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    button:hover {
+      background-color: #3a3a3a;
+    }
+    
+    #firefoxImportConfigButton {
+      padding: 5px 10px;
+      font-size: 12px;
+      margin-top: 10px;
+    }
+    
+    .footer {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+      background-color: #1f1f1f;
+      border-top: 1px solid #333;
+      font-size: 12px;
+      box-sizing: border-box;
+      color: #a0a0a0;
+    }
+    .footer a {
+      color: #5bc0de;
+      text-decoration: none;
+    }
+    .footer a:hover {
+      text-decoration: underline;
+    }
+    
+    .infoText {
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <p class="infoText">It looks like you're using Firefox. Please import your configuration using the button below.</p>
+    <button id="firefoxImportConfigButton">Import Configuration</button>
+    <input type="file" id="firefoxImportFileInput" style="display: none;">
+  </div>
+  
+  <div class="footer">
+    <a href="https://github.com/El3ctr1cR" target="_blank">https://github.com/El3ctr1cR</a>
+    <span id="versionText">Version </span>
+  </div>
+  
+  <script src="importConfig.js"></script>
+</body>
+</html>
