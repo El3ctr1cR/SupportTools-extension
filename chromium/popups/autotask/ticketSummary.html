@@ -6,18 +6,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ticket Summary</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #121212;
-            color: #e0e0e0;
-            padding: 20px;
+        * {
             margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            color: #e4e4e7;
+            padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
             min-height: 100vh;
-            box-sizing: border-box;
             padding-bottom: 60px;
         }
 
@@ -27,22 +31,32 @@
         }
 
         .summary {
-            font-size: 16px;
+            font-size: 15px;
             text-align: left;
             margin-top: 20px;
-            color: #e0e0e0;
-            line-height: 1.5;
+            color: #e4e4e7;
+            line-height: 1.6;
             display: none;
+            max-width: 800px;
+            width: 100%;
         }
 
         .loading-icon {
-            border: 16px solid #2a2a2a;
+            border: 12px solid rgba(39, 39, 42, 0.6);
             border-radius: 50%;
-            border-top: 16px solid #5bc0de;
-            width: 150px;
-            height: 150px;
-            animation: spin 2s linear infinite;
-            margin-bottom: 20px;
+            border-top: 12px solid #6366f1;
+            width: 120px;
+            height: 120px;
+            animation: spin 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(99, 102, 241, 0.3);
+        }
+
+        #loading p {
+            font-size: 16px;
+            color: #d4d4d8;
+            font-weight: 500;
+            letter-spacing: -0.01em;
         }
 
         .footer {
@@ -52,21 +66,23 @@
             width: 100%;
             display: flex;
             justify-content: space-between;
-            padding: 10px 20px;
-            background-color: #1f1f1f;
-            border-top: 1px solid #333;
-            font-size: 12px;
-            box-sizing: border-box;
-            color: #a0a0a0;
+            padding: 12px 20px;
+            background: rgba(17, 17, 27, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 11px;
+            color: #71717a;
         }
 
         .footer a {
-            color: #5bc0de;
+            color: #818cf8;
             text-decoration: none;
+            transition: color 0.3s ease;
         }
 
         .footer a:hover {
-            text-decoration: underline;
+            color: #a5b4fc;
         }
 
         @keyframes spin {
