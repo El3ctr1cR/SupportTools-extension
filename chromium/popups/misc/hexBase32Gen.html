@@ -6,72 +6,134 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hex/Base32 generator</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #121212;
-            color: #e0e0e0;
-            padding: 20px;
+        * {
             margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            color: #e4e4e7;
+            padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
             min-height: 100vh;
-            box-sizing: border-box;
+        }
+
+        h2 {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 30px;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .key-container {
             position: relative;
             margin-bottom: 20px;
             width: 100%;
+            max-width: 500px;
         }
 
         .key-label {
-            margin-bottom: 5px;
-            font-weight: bold;
+            margin-bottom: 8px;
+            font-weight: 600;
             text-align: left;
             display: block;
-            color: #e0e0e0;
+            color: #ffffff;
+            font-size: 13px;
+            letter-spacing: -0.01em;
         }
 
         .key-container input {
-            font-size: 16px;
-            padding: 5px 35px 5px 10px;
-            border: 1px solid #444;
-            border-radius: 5px;
+            font-size: 14px;
+            padding: 10px 45px 10px 14px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
             width: 100%;
-            background-color: #2a2a2a;
-            color: #e0e0e0;
-            box-sizing: border-box;
+            background: rgba(39, 39, 42, 0.6);
+            color: #e4e4e7;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            font-family: 'Courier New', monospace;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .key-container input:focus {
+            outline: none;
+            background: rgba(55, 55, 60, 0.8);
+            border-color: rgba(99, 102, 241, 0.4);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
         }
 
         .copy-icon {
             position: absolute;
-            right: 10px;
+            right: 12px;
             top: 72%;
             transform: translateY(-50%);
             cursor: pointer;
+            opacity: 0.6;
+            transition: all 0.3s ease;
+        }
+
+        .copy-icon:hover {
+            opacity: 1;
+            transform: translateY(-50%) scale(1.1);
         }
 
         .copy-icon img {
-            width: 18px;
-            height: 18px;
+            width: 20px;
+            height: 20px;
+            filter: brightness(0.8);
+        }
+
+        .copy-icon:hover img {
+            filter: brightness(1.2) drop-shadow(0 2px 8px rgba(99, 102, 241, 0.5));
         }
 
         .refresh-btn {
-            background-color: transparent;
-            border: none;
+            background: rgba(39, 39, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
             cursor: pointer;
-            margin-top: 10px;
+            margin-top: 20px;
+            padding: 10px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .refresh-btn:hover {
+            background: rgba(55, 55, 60, 0.8);
+            border-color: rgba(99, 102, 241, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+        }
+
+        .refresh-btn:active {
+            transform: scale(0.95);
         }
 
         .refresh-btn img {
             width: 24px;
             height: 24px;
+            display: block;
+            filter: brightness(0.8);
+            transition: all 0.3s ease;
         }
 
-        .refresh-btn:hover {
-            opacity: 0.8;
+        .refresh-btn:hover img {
+            filter: brightness(1.2) drop-shadow(0 2px 8px rgba(99, 102, 241, 0.5));
+            transform: rotate(180deg);
         }
     </style>
 </head>
