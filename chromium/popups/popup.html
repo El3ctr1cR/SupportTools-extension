@@ -335,7 +335,7 @@
     }
 
     .dropdown-btn {
-      background: rgba(39, 39, 42, 0.6);
+      background: rgba(39, 39, 42, 0.95);
       color: #e4e4e7;
       padding: 10px 14px;
       font-size: 13px;
@@ -347,8 +347,6 @@
       justify-content: space-between;
       height: auto;
       border-radius: 8px;
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
       transition: all 0.3s ease;
     }
 
@@ -800,6 +798,52 @@
       opacity: 0;
       animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
     }
+
+    .ai-provider-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .ai-provider-group .radio-option {
+      flex: 1;
+      min-width: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 6px;
+      background: rgba(39, 39, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+      color: #a1a1aa;
+      transition: all 0.25s ease;
+      margin-bottom: 0;
+    }
+
+    .ai-provider-group .radio-option:hover {
+      border-color: rgba(99, 102, 241, 0.4);
+      color: #e4e4e7;
+    }
+
+    .ai-provider-group .radio-option:has(input:checked) {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(168, 85, 247, 0.2) 100%);
+      border-color: rgba(99, 102, 241, 0.6);
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
+    }
+
+    .ai-provider-group input[type="radio"] {
+      width: 14px;
+      height: 14px;
+      opacity: 1;
+      position: static;
+      accent-color: #6366f1;
+      flex-shrink: 0;
+    }
   </style>
 </head>
 
@@ -996,10 +1040,44 @@
 
   <!-- ======== CONTENT: Settings ======== -->
   <div class="content" id="contentSettings" style="display: none;">
-    <div class="category-header">OpenAI settings</div>
+    <div class="category-header">AI Provider</div>
     <div class="category-content">
+      <div class="form-group">
+        <label>Select Provider</label>
+        <div class="ai-provider-group">
+          <label class="radio-option">
+            <input type="radio" name="aiProvider" id="providerOpenAI" value="openai">
+            <span>ChatGPT</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="aiProvider" id="providerGoogle" value="google">
+            <span>Gemini</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="aiProvider" id="providerAnthropic" value="anthropic">
+            <span>Claude</span>
+          </label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Model</label>
+        <div class="custom-dropdown">
+          <button id="aiModelDropdownButton" class="dropdown-btn">
+            <span id="selectedModelText">Select a model</span>
+            <i class="arrow-down"></i>
+          </button>
+          <div id="aiModelDropdownContent" class="dropdown-content"></div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label id="aiApiKeyLabel">API Key</label>
+        <input type="text" id="aiApiKeyInput" placeholder="Enter API key..." autocomplete="off">
+      </div>
       <div class="form-group config-buttons">
-        <button id="setApiKey">Set OpenAI API Key</button>
+        <button id="saveAiSettings">Save AI Settings</button>
+      </div>
+      <div id="aiSettingsSavedMsg" style="display:none; font-size:11px; color:#86efac; margin-top:4px; text-align:center;">
+        ✓ Settings saved
       </div>
     </div>
 
