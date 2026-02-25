@@ -7,14 +7,17 @@
     "storage",
     "activeTab",
     "scripting",
-    "webNavigation"
+    "webNavigation",
+    "clipboardWrite"
   ],
   "background": {
     "service_worker": "functions/incognitoRedirection.js"
   },
   "incognito": "split",
   "host_permissions": [
-    "*://*.autotask.net/*"
+    "*://*.autotask.net/*",
+    "*://*.rmm.datto.com/*",
+    "*://*.itglue.com/*"
   ],
   "action": {
     "default_popup": "popups/popup.html",
@@ -29,7 +32,18 @@
     "48": "icons/icon.png",
     "128": "icons/icon.png"
   },
-  "content_scripts": [
+    "content_scripts": [
+      {
+      "matches": ["*://*.rmm.datto.com/*"],
+      "js":      ["functions/dattoItglueOtpInterceptor.js"],
+      "run_at":  "document_start",
+      "world":   "MAIN"
+    },
+    {
+      "matches": ["*://*.rmm.datto.com/*"],
+      "js":      ["functions/dattoItglueOtp.js"],
+      "run_at":  "document_start"
+    },
     {
       "matches": [
         "*://*.autotask.net/Autotask/Views/DispatcherWorkshop/DispatcherWorkshopView.aspx?MyCalendar=*"
