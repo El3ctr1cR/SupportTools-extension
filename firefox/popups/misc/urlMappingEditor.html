@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html>
-
 <head>
   <title>Edit URL Mappings</title>
   <style>
@@ -10,19 +9,29 @@
       box-sizing: border-box;
     }
 
+    html, body {
+      height: 100%;
+      width: 100%;
+    }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', system-ui, sans-serif;
       background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
       color: #e4e4e7;
-      width: 600px;
-      height: 960px;
-      padding: 20px;
       display: flex;
       flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .page-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      min-height: 0;
     }
 
     h2 {
-      margin-top: 0;
       font-size: 22px;
       font-weight: 600;
       margin-bottom: 10px;
@@ -31,13 +40,15 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
+      flex-shrink: 0;
     }
 
     p {
       font-size: 13px;
       color: #a1a1aa;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
       line-height: 1.6;
+      flex-shrink: 0;
     }
 
     input[type="text"] {
@@ -67,10 +78,8 @@
       font-size: 12px;
       cursor: pointer;
       border-radius: 8px;
-      border: none;
       background: rgba(39, 39, 42, 0.6);
       color: #e4e4e7;
-      margin-top: 10px;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       border: 1px solid rgba(255, 255, 255, 0.08);
       backdrop-filter: blur(10px);
@@ -78,6 +87,7 @@
       font-weight: 500;
       position: relative;
       overflow: hidden;
+      white-space: nowrap;
     }
 
     button::before {
@@ -106,57 +116,16 @@
       transform: scale(0.98);
     }
 
-    .mapping-group {
-      margin-bottom: 10px;
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      padding: 12px;
-      background: rgba(39, 39, 42, 0.4);
-      border-radius: 8px;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    .mapping-group .inputs-container {
-      flex-grow: 1;
-      overflow: hidden;
-    }
-
-    .remove-mapping-btn,
-    .add-mapping-btn {
-      width: 20px;
-      height: 20px;
-      font-size: 20px;
-      padding: 0;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      background: rgba(39, 39, 42, 0.6);
-      color: #e4e4e7;
-      border-radius: 6px;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      margin-top: 0;
-    }
-
-    .remove-mapping-btn:hover,
-    .add-mapping-btn:hover {
-      background: rgba(55, 55, 60, 0.8);
-      border-color: rgba(99, 102, 241, 0.4);
-      transform: scale(1.05);
-    }
-
-    .remove-mapping-btn::before,
-    .add-mapping-btn::before {
-      display: none;
-    }
-
+    /* Scrollable inner "window" for mapping entries */
     #mappingsContainer {
+      flex: 1;
+      min-height: 0;
       overflow-y: auto;
-      margin-bottom: 20px;
+      overflow-x: hidden;
+      padding: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 10px;
+      background: rgba(15, 15, 25, 0.4);
       scrollbar-width: thin;
       scrollbar-color: rgba(99, 102, 241, 0.5) transparent;
     }
@@ -178,14 +147,65 @@
       background: rgba(99, 102, 241, 0.6);
     }
 
+    .mapping-group {
+      margin-bottom: 10px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px;
+      background: rgba(39, 39, 42, 0.4);
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .mapping-group .inputs-container {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .remove-mapping-btn,
+    .add-mapping-btn {
+      width: 24px;
+      height: 24px;
+      font-size: 18px;
+      padding: 0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(39, 39, 42, 0.6);
+      color: #e4e4e7;
+      border-radius: 6px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      flex-shrink: 0;
+    }
+
+    .remove-mapping-btn:hover,
+    .add-mapping-btn:hover {
+      background: rgba(55, 55, 60, 0.8);
+      border-color: rgba(99, 102, 241, 0.4);
+      transform: scale(1.05);
+    }
+
+    .remove-mapping-btn::before,
+    .add-mapping-btn::before {
+      display: none;
+    }
+
+    .save-row {
+      flex-shrink: 0;
+      padding-top: 14px;
+    }
+
     #saveMappings {
-      align-self: flex-start;
       background: linear-gradient(135deg, rgba(34, 197, 94, 0.8) 0%, rgba(22, 163, 74, 0.8) 100%);
       color: white;
       border: 1px solid rgba(34, 197, 94, 0.5);
       border-radius: 8px;
       padding: 10px 20px;
-      margin-bottom: 20px;
       box-shadow: 0 4px 12px rgba(34, 197, 94, 0.2);
     }
 
@@ -195,12 +215,11 @@
     }
 
     .footer {
-      position: absolute;
-      bottom: 0;
-      left: 0;
+      flex-shrink: 0;
       width: 100%;
       display: flex;
       justify-content: space-between;
+      align-items: center;
       padding: 12px 20px;
       background: rgba(17, 17, 27, 0.8);
       backdrop-filter: blur(20px);
@@ -208,38 +227,48 @@
       border-top: 1px solid rgba(255, 255, 255, 0.05);
       font-size: 11px;
       color: #71717a;
+      margin-top: 14px;
+      gap: 12px;
     }
 
     .footer a {
       color: #818cf8;
       text-decoration: none;
       transition: color 0.3s ease;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-width: 0;
     }
 
     .footer a:hover {
       color: #a5b4fc;
     }
 
-    #versionText {
-      margin-left: auto;
+    .footer #versionText {
+      white-space: nowrap;
+      flex-shrink: 0;
     }
   </style>
 </head>
 
 <body>
-  <h2>Edit URL Mappings</h2>
-  <p>
-    Define which URL should open in incognito and optionally redirect elsewhere.
-  </p>
+  <div class="page-content">
+    <h2>Edit URL Mappings</h2>
+    <p>Define which URL should open in incognito and optionally redirect elsewhere.</p>
 
-  <div id="mappingsContainer"></div>
+    <div id="mappingsContainer"></div>
 
-  <button id="saveMappings">Save Mappings</button>
+    <div class="save-row">
+      <button id="saveMappings">Save Mappings</button>
+    </div>
+  </div>
+
   <div class="footer">
     <a href="https://github.com/El3ctr1cR" target="_blank">https://github.com/El3ctr1cR</a>
     <span id="versionText">Version </span>
   </div>
+
   <script src="urlMappingEditor.js"></script>
 </body>
-
 </html>

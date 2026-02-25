@@ -194,7 +194,7 @@
       font-size: 12px;
       font-weight: 500;
       cursor: pointer;
-      margin-bottom: 8px;
+      margin-bottom: 1px;
       border-radius: 8px;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       background: rgba(39, 39, 42, 0.6);
@@ -257,7 +257,7 @@
       font-weight: 600;
       font-size: 14px;
       margin-top: 12px;
-      margin-bottom: 12px;
+      margin-bottom: 1px;
       padding-bottom: 10px;
       border-bottom: 1px solid rgba(99, 102, 241, 0.2);
       color: #ffffff;
@@ -368,7 +368,6 @@
       margin-left: auto;
     }
     
-    /* Centered dropdown for language selector */
     .dropdown-btn.centered {
       justify-content: center;
       gap: 10px;
@@ -515,6 +514,34 @@
       margin-bottom: 0;
     }
 
+    .radio-group {
+      display: flex;
+      gap: 20px;
+      margin-top: 4px;
+    }
+
+    .radio-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      color: #d4d4d8;
+      margin-bottom: 0;
+    }
+
+    .radio-option input[type="radio"] {
+      margin: 0;
+      width: 16px;
+      height: 16px;
+      accent-color: #6366f1;
+      cursor: pointer;
+      flex-shrink: 0;
+      opacity: 1;
+      position: static;
+    }
+
     input[type="range"] {
       width: 100%;
       height: 6px;
@@ -523,6 +550,26 @@
       outline: none;
       border: 1px solid rgba(255, 255, 255, 0.08);
       cursor: pointer;
+      -webkit-appearance: none;
+      appearance: none;
+      accent-color: #6366f1;
+    }
+
+    #passwordHistory,
+    #ticketHistoryList {
+      list-style-type: none;
+      padding: 0;
+      max-height: 200px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(99, 102, 241, 0.5) transparent;
+    }
+
+    input[type="range"]::-webkit-slider-runnable-track {
+      height: 6px;
+      border-radius: 5px;
+      background: rgba(63, 63, 70, 0.8);
     }
 
     input[type="range"]::-webkit-slider-thumb {
@@ -535,6 +582,7 @@
       cursor: pointer;
       box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
       transition: all 0.2s ease;
+      margin-top: -6px;
     }
 
     input[type="range"]::-webkit-slider-thumb:hover {
@@ -621,15 +669,7 @@
       filter: brightness(1.2) drop-shadow(0 2px 8px rgba(99, 102, 241, 0.5));
     }
 
-    #passwordHistory,
-    #ticketHistoryList {
-      list-style-type: none;
-      padding: 0;
-      max-height: 200px;
-      overflow-y: auto;
-      scrollbar-width: thin;
-      scrollbar-color: rgba(99, 102, 241, 0.5) transparent;
-    }
+
 
     #passwordHistory::-webkit-scrollbar,
     #ticketHistoryList::-webkit-scrollbar {
@@ -668,6 +708,12 @@
       background: rgba(55, 55, 60, 0.6);
       border-color: rgba(99, 102, 241, 0.3);
       transform: translateX(4px);
+    }
+
+    #passwordHistory,
+    #ticketHistoryList {
+      overflow-x: hidden;
+      padding-right: 4px;
     }
 
     .history-password-container {
@@ -739,7 +785,6 @@
       }
     }
 
-    /* Subtle animations */
     @keyframes fadeIn {
       from {
         opacity: 0;
@@ -751,35 +796,9 @@
       }
     }
 
-    .content:not(.loaded) .category-header {
-      animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) backwards;
-    }
-
-    .content:not(.loaded) .category-header:nth-of-type(1) { animation-delay: 0.05s; }
-    .content:not(.loaded) .category-header:nth-of-type(2) { animation-delay: 0.15s; }
-    .content:not(.loaded) .category-header:nth-of-type(3) { animation-delay: 0.25s; }
-    .content:not(.loaded) .category-header:nth-of-type(4) { animation-delay: 0.35s; }
-    .content:not(.loaded) .category-header:nth-of-type(5) { animation-delay: 0.45s; }
-
-    .content:not(.loaded) .category-content {
-      animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) backwards;
-    }
-
-    .content:not(.loaded) .category-header:nth-of-type(1) + .category-content { animation-delay: 0.1s; }
-    .content:not(.loaded) .category-header:nth-of-type(2) + .category-content { animation-delay: 0.2s; }
-    .content:not(.loaded) .category-header:nth-of-type(3) + .category-content { animation-delay: 0.3s; }
-    .content:not(.loaded) .category-header:nth-of-type(4) + .category-content { animation-delay: 0.4s; }
-    .content:not(.loaded) .category-header:nth-of-type(5) + .category-content { animation-delay: 0.5s; }
-    
-    /* Mark as loaded after animations */
-    .content {
-      animation: markLoaded 0s 0.6s forwards;
-    }
-    
-    @keyframes markLoaded {
-      to {
-        /* This just provides a delay before we'd add the class via JS */
-      }
+    .tab-animate {
+      opacity: 0;
+      animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
     }
   </style>
 </head>
@@ -898,13 +917,22 @@
           </div>
         </div>
       </div>
+    </div>
 
+    <div class="category-header">Options</div>
+    <div class="category-content">
       <div class="form-group">
-        <label>Select Type:</label><br>
-        <input type="radio" id="typePassword" name="passwordType">
-        <label for="typePassword">Password</label>
-        <input type="radio" id="typePassphrase" name="passwordType">
-        <label for="typePassphrase">Passphrase</label>
+        <label>Select Type:</label>
+        <div class="radio-group">
+          <label class="radio-option">
+            <input type="radio" id="typePassword" name="passwordType">
+            <span>Password</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" id="typePassphrase" name="passwordType">
+            <span>Passphrase</span>
+          </label>
+        </div>
       </div>
 
       <div class="form-group" id="passwordLengthContainer">
@@ -940,11 +968,11 @@
         </label>
         <label for="includeSymbols">Include Symbols</label>
       </div>
+    </div>
 
-      <div class="category-header">Password History</div>
-      <div class="category-content">
-        <ul id="passwordHistory"></ul>
-      </div>
+    <div class="category-header">Password History</div>
+    <div class="category-content">
+      <ul id="passwordHistory"></ul>
     </div>
   </div>
 
@@ -1023,16 +1051,7 @@
     <div class="spinner"></div>
   </div>
 
-  <script>
-    // Mark content as loaded after initial animation
-    document.addEventListener('DOMContentLoaded', function() {
-      setTimeout(function() {
-        document.querySelectorAll('.content').forEach(function(content) {
-          content.classList.add('loaded');
-        });
-      }, 700);
-    });
-  </script>
+  <script src="tabAnimations.js"></script>
 
   <script src="popup.js"></script>
   <script src="../functions/passwordGenerator.js"></script>
