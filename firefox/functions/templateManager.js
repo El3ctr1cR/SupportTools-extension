@@ -228,66 +228,84 @@
     });
   }
 
-  chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.action === 'getEmailText') {
-      chrome.storage.sync.get(['templates'], async (result) => {
-        const ticketDetails = getTicketDetails();
-        const templates = result.templates || {};
-        let rawTemplateObj = templates[request.template];
-        if (!rawTemplateObj) {
-          sendResponse({ success: false, message: 'Template not found' });
-          return;
-        }
-        let templateContent = '';
-        let desiredStatus = 'Select ticket status';
-        if (typeof rawTemplateObj === 'string') {
-          templateContent = rawTemplateObj;
-        } else if (typeof rawTemplateObj === 'object') {
-          templateContent = rawTemplateObj.content || '';
-          desiredStatus = rawTemplateObj.status || 'Select ticket status';
-        }
-        const emailText = processTemplate(templateContent, ticketDetails);
-        let inserted = false;
-        let contentEditableDiv = document.querySelector('div.ContentEditable2.Small[contenteditable="true"]')
-          || document.querySelector('div.ContentEditable2.Large[contenteditable="true"]');
-        if (contentEditableDiv) {
-          contentEditableDiv.innerHTML = emailText.replace(/\n/g, '<br>');
-          const inputEvent = new Event('input', { bubbles: true });
-          contentEditableDiv.dispatchEvent(inputEvent);
-          inserted = true;
-        }
-        if (!inserted) {
-          const textArea = document.querySelector('div.TextArea2 textarea.Normal');
-          if (textArea) {
-            textArea.value = emailText;
-            const inputEvent = new Event('input', { bubbles: true });
-            textArea.dispatchEvent(inputEvent);
-            inserted = true;
-          }
-        }
-        if (inserted) {
-          if (desiredStatus !== 'Select ticket status') {
-            setTicketStatus(desiredStatus);
-          }
-          sendResponse({ success: true });
-        } else {
-          sendResponse({ success: false, message: 'No suitable content area found to insert text' });
-        }
-      });
-      return true;
-    } else if (request.action === 'getTicketDetails') {
-      const ticketDetails = getTicketDetails();
-      sendResponse(ticketDetails);
-    } else if (request.action === 'processTemplate') {
-      const ticketDetails = request.ticketDetails;
-      const selectedTemplate = request.template;
-      const processedText = processTemplate(selectedTemplate, ticketDetails);
-      sendResponse({ processedText });
-    } else if (request.action === 'getAllStatuses') {
-      getAllStatuses().then((statuses) => {
-        sendResponse({ statuses });
-      });
-      return true;
+  function handleGetEmailText(templateName, sendResponse) {
+  chrome.storage.sync.get(['templates'], (result) => {
+    const ticketDetails = getTicketDetails();
+    const templates = result.templates || {};
+
+    const rawTemplateObj = templates[templateName];
+
+    if (!rawTemplateObj) {
+      if (sendResponse) sendResponse({ success: false, message: 'Template not found' });
+      return;
+    }
+
+    let templateContent = '';
+    let desiredStatus = 'Select ticket status';
+
+    if (typeof rawTemplateObj === 'string') {
+      templateContent = rawTemplateObj;
+    } else if (typeof rawTemplateObj === 'object') {
+      templateContent = rawTemplateObj.content || '';
+      desiredStatus = rawTemplateObj.status || 'Select ticket status';
+    }
+
+    const emailText = processTemplate(templateContent, ticketDetails);
+
+    let inserted = false;
+    let contentEditableDiv = document.querySelector('div.ContentEditable2.Small[contenteditable="true"]')
+      || document.querySelector('div.ContentEditable2.Large[contenteditable="true"]');
+
+    if (contentEditableDiv) {
+      contentEditableDiv.innerHTML = emailText.replace(/\n/g, '<br>');
+      contentEditableDiv.dispatchEvent(new Event('input', { bubbles: true }));
+      inserted = true;
+    }
+
+    if (!inserted) {
+      const textArea = document.querySelector('div.TextArea2 textarea.Normal');
+      if (textArea) {
+        textArea.value = emailText;
+        textArea.dispatchEvent(new Event('input', { bubbles: true }));
+        inserted = true;
+      }
+    }
+
+    if (inserted) {
+      if (desiredStatus !== 'Select ticket status') {
+        setTicketStatus(desiredStatus);
+      }
+      if (sendResponse) sendResponse({ success: true });
+    } else {
+      if (sendResponse) sendResponse({ success: false, message: 'No suitable content area found to insert text' });
     }
   });
+}
+
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === 'getEmailText') {
+    handleGetEmailText(request.template, sendResponse);
+    return true;
+  } else if (request.action === 'getTicketDetails') {
+    const ticketDetails = getTicketDetails();
+    sendResponse(ticketDetails);
+  } else if (request.action === 'processTemplate') {
+    const ticketDetails = request.ticketDetails;
+    const selectedTemplate = request.template;
+    const processedText = processTemplate(selectedTemplate, ticketDetails);
+    sendResponse({ processedText });
+  } else if (request.action === 'getAllStatuses') {
+    getAllStatuses().then((statuses) => {
+      sendResponse({ statuses });
+    });
+    return true;
+  }
+});
+
+document.addEventListener('__supportTools_hotkeyInsert', (e) => {
+  const templateName = e.detail && e.detail.template;
+  if (templateName) {
+    handleGetEmailText(templateName, null);
+  }
+});
 })();
