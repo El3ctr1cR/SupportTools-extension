@@ -7,7 +7,7 @@ function animateTabContent(contentEl) {
     el.classList.remove('tab-animate');
     void el.offsetWidth;
     el.classList.add('tab-animate');
-    el.style.animationDelay = (i * 0.08 + 0.03) + 's';
+    el.style.animationDelay = (i * 0.04 + 0.03) + 's';
   });
 }
 

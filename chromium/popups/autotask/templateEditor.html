@@ -9,19 +9,29 @@
       box-sizing: border-box;
     }
 
+    html, body {
+      height: 100%;
+      width: 100%;
+    }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', system-ui, sans-serif;
       background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
       color: #e4e4e7;
-      width: 600px;
-      height: 960px;
-      padding: 20px;
       display: flex;
       flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .page-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      min-height: 0;
     }
 
     h2 {
-      margin-top: 0;
       font-size: 22px;
       font-weight: 600;
       margin-bottom: 20px;
@@ -30,11 +40,19 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
+      flex-shrink: 0;
+    }
+
+    .top-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      flex-shrink: 0;
+      margin-bottom: 4px;
     }
 
     input:focus, textarea:focus, select:focus {
       outline: none !important;
-      box-shadow: none !important;
     }
 
     textarea::-webkit-resizer {
@@ -114,10 +132,8 @@
       font-size: 12px;
       cursor: pointer;
       border-radius: 8px;
-      border: none;
       background: rgba(39, 39, 42, 0.6);
       color: #e4e4e7;
-      margin-top: 10px;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       border: 1px solid rgba(255, 255, 255, 0.08);
       backdrop-filter: blur(10px);
@@ -125,6 +141,7 @@
       font-weight: 500;
       position: relative;
       overflow: hidden;
+      white-space: nowrap;
     }
 
     button::before {
@@ -153,47 +170,46 @@
       transform: scale(0.98);
     }
 
-    .note {
+    /* Variable list */
+    #variableList {
+      margin-top: 10px;
+      margin-bottom: 16px;
+      list-style-type: none;
+      padding: 0;
+      flex-shrink: 0;
+    }
+
+    #variableList li {
+      margin-bottom: 6px;
+      padding: 6px 10px;
+      background: rgba(39, 39, 42, 0.4);
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
       font-size: 13px;
       color: #a1a1aa;
-      margin-top: 0;
-      margin-bottom: 20px;
       line-height: 1.6;
     }
 
-    .footer {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      padding: 12px 20px;
-      background: rgba(17, 17, 27, 0.8);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
-      font-size: 11px;
-      color: #71717a;
-    }
-
-    .footer a {
-      color: #818cf8;
-      text-decoration: none;
-      transition: color 0.3s ease;
-    }
-
-    .footer a:hover {
+    #variableList code {
+      background: rgba(99, 102, 241, 0.15);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
       color: #a5b4fc;
+      font-size: 12px;
     }
 
     #templatesContainer {
-      padding: 15px;
-      max-height: 800px;
+      flex: 1;
+      min-height: 0;
       overflow-y: auto;
+      overflow-x: hidden;
+      padding: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 10px;
+      background: rgba(15, 15, 25, 0.4);
       scrollbar-width: thin;
       scrollbar-color: rgba(99, 102, 241, 0.5) transparent;
-      margin-bottom: 20px;
     }
 
     #templatesContainer::-webkit-scrollbar {
@@ -218,14 +234,14 @@
       align-items: flex-start;
       margin-bottom: 10px;
       gap: 10px;
-      margin-left: -15px;
     }
 
     .template-box {
       border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 8px;
       padding: 12px;
-      flex-grow: 1;
+      flex: 1;
+      min-width: 0;
       background: rgba(39, 39, 42, 0.4);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
@@ -235,13 +251,13 @@
       display: flex;
       flex-direction: column;
       gap: 8px;
-      margin-top: 10px;
+      flex-shrink: 0;
     }
 
     .remove-template-btn,
     .add-template-btn {
-      width: 21px;
-      height: 21px;
+      width: 24px;
+      height: 24px;
       font-size: 18px;
       line-height: 1;
       padding: 0;
@@ -256,7 +272,7 @@
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
-      margin-top: 0;
+      flex-shrink: 0;
     }
 
     .remove-template-btn:hover,
@@ -271,13 +287,17 @@
       display: none;
     }
 
+    .save-row {
+      flex-shrink: 0;
+      padding-top: 14px;
+    }
+
     #saveTemplates {
       background: linear-gradient(135deg, rgba(34, 197, 94, 0.8) 0%, rgba(22, 163, 74, 0.8) 100%);
       color: white;
       border: 1px solid rgba(34, 197, 94, 0.5);
       border-radius: 8px;
       padding: 10px 20px;
-      margin-top: 10px;
       box-shadow: 0 4px 12px rgba(34, 197, 94, 0.2);
     }
 
@@ -286,35 +306,46 @@
       box-shadow: 0 6px 16px rgba(34, 197, 94, 0.3);
     }
 
-    #variableList {
-      margin-top: 10px;
-      list-style-type: none;
-      padding: 0;
-      display: block;
+    .footer {
+      flex-shrink: 0;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 20px;
+      background: rgba(17, 17, 27, 0.8);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 11px;
+      color: #71717a;
+      margin-top: 14px;
+      gap: 12px;
     }
 
-    #variableList li {
-      margin-bottom: 8px;
-      padding: 6px 10px;
-      background: rgba(39, 39, 42, 0.4);
-      border-radius: 6px;
-      border: 1px solid rgba(255, 255, 255, 0.05);
+    .footer a {
+      color: #818cf8;
+      text-decoration: none;
+      transition: color 0.3s ease;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-width: 0;
     }
 
-    #variableList code {
-      background: rgba(99, 102, 241, 0.15);
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-family: 'Courier New', monospace;
+    .footer a:hover {
       color: #a5b4fc;
-      font-size: 12px;
+    }
+
+    .footer #versionText {
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
     #toggleVariables {
       background: linear-gradient(135deg, rgba(20, 184, 166, 0.8) 0%, rgba(13, 148, 136, 0.8) 100%);
       color: white;
       border: 1px solid rgba(20, 184, 166, 0.5);
-      margin-bottom: 10px;
       box-shadow: 0 4px 12px rgba(20, 184, 166, 0.2);
     }
 
@@ -325,34 +356,37 @@
 
     #getAllStatusesBtn {
       background: rgba(39, 39, 42, 0.6);
-      margin-left: 10px;
     }
   </style>
 </head>
 <body>
-  <h2>Edit Templates</h2>
+  <div class="page-content">
+    <h2>Edit Templates</h2>
 
-  <div>
-    <button id="toggleVariables">Show usable variables</button>
-    <button id="getAllStatusesBtn">Get ticket statuses</button>
+    <div class="top-buttons">
+      <button id="toggleVariables">Show usable variables</button>
+      <button id="getAllStatusesBtn">Get ticket statuses</button>
+    </div>
+
+    <ul id="variableList" class="note">
+      <li><code>${loggedinUser}</code> - The name of the logged-in user.</li>
+      <li><code>${ticketContactFirstname}</code> - The first name of the ticket contact</li>
+      <li><code>${ticketContactLastname}</code> - The last name of the ticket contact</li>
+      <li><code>${ticketPrimaryResource}</code> - The primary resource assigned to the ticket.</li>
+      <li><code>${ticketLastActivityTime}</code> - The date/time of the last ticket activity.</li>
+      <li><code>${ticketPriority}</code> - The priority level of the ticket.</li>
+      <li><code>${ticketCurrentStatus}</code> - The current status of the ticket.</li>
+      <li><code>${ticketNewStatus}</code> - The new status that has been set for the ticket.</li>
+      <li><code>${currentTime}</code> - The current time.</li>
+      <li><code>${currentDate}</code> - The current date.</li>
+    </ul>
+
+    <div id="templatesContainer"></div>
+
+    <div class="save-row">
+      <button id="saveTemplates">Save Templates</button>
+    </div>
   </div>
-
-  <ul id="variableList" class="note">
-    <li><code>${loggedinUser}</code> - The name of the logged-in user.</li>
-    <li><code>${ticketContactFirstname}</code> - The first name of the ticket contact</li>
-    <li><code>${ticketContactLastname}</code> - The last name of the ticket contact</li>
-    <li><code>${ticketPrimaryResource}</code> - The primary resource assigned to the ticket.</li>
-    <li><code>${ticketLastActivityTime}</code> - The date/time of the last ticket activity.</li>
-    <li><code>${ticketPriority}</code> - The priority level of the ticket.</li>
-    <li><code>${ticketCurrentStatus}</code> - The current status of the ticket.</li>
-    <li><code>${ticketNewStatus}</code> - The new status that has been set for the ticket.</li>
-    <li><code>${currentTime}</code> - The current time.</li>
-    <li><code>${currentDate}</code> - The current date.</li>
-  </ul>
-
-  <div id="templatesContainer"></div>
-
-  <button id="saveTemplates">Save Templates</button>
 
   <div class="footer">
     <a href="https://github.com/El3ctr1cR" target="_blank">https://github.com/El3ctr1cR</a>
