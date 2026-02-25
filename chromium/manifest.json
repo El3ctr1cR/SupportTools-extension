@@ -47,7 +47,8 @@
       ],
       "js": [
         "functions/templateManager.js",
-        "functions/aiTaskHandler.js"
+        "functions/aiTaskHandler.js",
+        "functions/hotkeyHandler.js"
       ],
       "all_frames": true
     },
