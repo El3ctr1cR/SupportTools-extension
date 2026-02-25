@@ -1,42 +1,118 @@
-async function callOpenAiApi(prompt, options = {}) {
-    try {
-        const { openAiApiKey } = await new Promise((resolve, reject) => {
-            chrome.storage.sync.get(['openAiApiKey'], (result) => {
+async function getAiSettings() {
+    return new Promise((resolve, reject) => {
+        chrome.storage.sync.get(
+            ['aiProvider', 'aiModel', 'openAiApiKey', 'googleApiKey', 'anthropicApiKey'],
+            (result) => {
                 if (chrome.runtime.lastError) {
                     reject(chrome.runtime.lastError);
                 } else {
-                    resolve(result);
+                    resolve({
+                        provider: result.aiProvider || 'openai',
+                        model: result.aiModel || 'gpt-5-mini',
+                        openAiApiKey: result.openAiApiKey || '',
+                        googleApiKey: result.googleApiKey || '',
+                        anthropicApiKey: result.anthropicApiKey || ''
+                    });
                 }
-            });
-        });
+            }
+        );
+    });
+}
 
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${openAiApiKey}`
-            },
-            body: JSON.stringify({
-                model: options.model || 'gpt-4o-mini',
-                messages: [{ role: 'user', content: prompt }],
-                max_tokens: options.max_tokens || 1500,
+async function callOpenAiApi(prompt, settings, options = {}) {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${settings.openAiApiKey}`
+        },
+        body: JSON.stringify({
+            model: settings.model,
+            messages: [{ role: 'user', content: prompt }],
+            max_tokens: options.max_tokens || 1500,
+            temperature: options.temperature !== undefined ? options.temperature : 0.7
+        })
+    });
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`OpenAI API error ${response.status}: ${errorText}`);
+    }
+
+    const data = await response.json();
+    if (data.choices && data.choices.length > 0 && data.choices[0].message?.content) {
+        return data.choices[0].message.content.trim();
+    }
+    throw new Error('No valid response from OpenAI.');
+}
+
+async function callGeminiApi(prompt, settings, options = {}) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${settings.model}:generateContent?key=${settings.googleApiKey}`;
+
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: {
+                maxOutputTokens: options.max_tokens || 1500,
                 temperature: options.temperature !== undefined ? options.temperature : 0.7
-            })
-        });
+            }
+        })
+    });
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`API Request failed with status ${response.status}: ${errorText}`);
-        }
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Gemini API error ${response.status}: ${errorText}`);
+    }
 
-        const data = await response.json();
-        if (data.choices && data.choices.length > 0 && data.choices[0].message.content) {
-            return data.choices[0].message.content.trim();
-        } else {
-            throw new Error('No valid response text found in the AI response.');
+    const data = await response.json();
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (text) return text.trim();
+    throw new Error('No valid response from Gemini.');
+}
+
+async function callAnthropicApi(prompt, settings, options = {}) {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': settings.anthropicApiKey,
+            'anthropic-version': '2023-06-01'
+        },
+        body: JSON.stringify({
+            model: settings.model,
+            max_tokens: options.max_tokens || 1500,
+            messages: [{ role: 'user', content: prompt }]
+        })
+    });
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Anthropic API error ${response.status}: ${errorText}`);
+    }
+
+    const data = await response.json();
+    const text = data.content?.[0]?.text;
+    if (text) return text.trim();
+    throw new Error('No valid response from Anthropic.');
+}
+
+async function callAiApi(prompt, options = {}) {
+    try {
+        const settings = await getAiSettings();
+
+        switch (settings.provider) {
+            case 'google':
+                return await callGeminiApi(prompt, settings, options);
+            case 'anthropic':
+                return await callAnthropicApi(prompt, settings, options);
+            case 'openai':
+            default:
+                return await callOpenAiApi(prompt, settings, options);
         }
     } catch (error) {
-        console.error('Error with OpenAI API:', error);
+        console.error('AI API error:', error);
         return `Failed to generate a response. Error: ${error.message}`;
     }
 }
@@ -61,7 +137,7 @@ function getTicketDetailsAI() {
 
     const commentElements = document.querySelectorAll('.ConversationItem');
     let comments = [];
-    commentElements.forEach((commentElement, index) => {
+    commentElements.forEach((commentElement) => {
         let commentText = '';
         const messageElements = commentElement.querySelectorAll('.Message, .Message.Internal, .Searchable');
         messageElements.forEach(messageElement => {
@@ -72,7 +148,6 @@ function getTicketDetailsAI() {
                 }
             }
         });
-
         if (commentText.trim()) {
             comments.push(commentText.trim());
         }
@@ -89,7 +164,6 @@ function getTicketDetailsAI() {
 
 function getNewTicketDescription() {
     const editableDiv = document.querySelector('div.ContentEditable2.Large[contenteditable="true"]');
-
     if (editableDiv) {
         return editableDiv.textContent.trim();
     } else {
@@ -101,26 +175,17 @@ function getNewTicketDescription() {
 function getNotes() {
     let editableElement = document.querySelector('div.ContentEditable2.Small[contenteditable="true"]');
     if (editableElement) {
-        return {
-            element: editableElement,
-            text: extractText(editableElement)
-        };
+        return { element: editableElement, text: extractText(editableElement) };
     }
 
     editableElement = document.querySelector('div.ContentEditable2.Large[contenteditable="true"]');
     if (editableElement) {
-        return {
-            element: editableElement,
-            text: extractText(editableElement)
-        };
+        return { element: editableElement, text: extractText(editableElement) };
     }
 
     const textareaElement = document.querySelector('div.TextArea2 textarea.Normal');
     if (textareaElement) {
-        return {
-            element: textareaElement,
-            text: textareaElement.value.trim()
-        };
+        return { element: textareaElement, text: textareaElement.value.trim() };
     }
 
     console.error('No editable content element found.');
@@ -139,8 +204,7 @@ function extractText(element) {
 function setNotes(element, text) {
     if (element) {
         if (element.tagName.toLowerCase() === 'div') {
-            const htmlContent = text.replace(/\n/g, '<br>');
-            element.innerHTML = htmlContent;
+            element.innerHTML = text.replace(/\n/g, '<br>');
         } else if (element.tagName.toLowerCase() === 'textarea') {
             element.value = text;
         } else {
@@ -153,16 +217,10 @@ function setNotes(element, text) {
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     const getLanguage = (callback) => {
-        const languageMap = {
-            'nl': 'Dutch',
-            'en': 'English',
-            'de': 'German'
-        };
-
+        const languageMap = { nl: 'Dutch', en: 'English', de: 'German' };
         chrome.storage.sync.get(['selectedLanguage'], (result) => {
-            const selectedLanguage = result.selectedLanguage || 'nl';
-            const language = languageMap[selectedLanguage] || languageMap['nl'];
-            callback(language);
+            const lang = result.selectedLanguage || 'nl';
+            callback(languageMap[lang] || 'Dutch');
         });
     };
 
@@ -170,22 +228,20 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         const ticketDetails = getTicketDetailsAI();
         getLanguage((language) => {
             const prompt = `Summarize the following ticket in a clear and detailed manner in ${language}. Use the following format for the summary:\n\n1. Brief overview of the ticket (problem or request)\n2. Tasks that have been completed (if any)\n3. Tasks that still need to be completed (if any)\n\nEnsure that the summary is concise, well-structured, and captures the essential information. Avoid adding unnecessary details.\n\nFull ticket:\n${ticketDetails}`;
-            callOpenAiApi(prompt).then(summary => sendResponse({ summary }));
+            callAiApi(prompt).then(summary => sendResponse({ summary }));
         });
         return true;
     }
 
     if (request.action === 'makeTextNeater') {
-        getLanguage((language) => {
+        getLanguage((_language) => {
             const contentData = getNotes();
             if (!contentData || !contentData.text) {
-                sendResponse({ success: false, error: 'No text found to makeTextNeater.' });
+                sendResponse({ success: false, error: 'No text found to make neater.' });
                 return;
             }
-            const originalText = contentData.text;
-            const prompt = `Make the following text neater and more professional in the same language. Only output the fully new version of the text.\n\n${originalText}`;
-
-            callOpenAiApi(prompt, { temperature: 0 }).then(correctedText => {
+            const prompt = `Make the following text neater and more professional in the same language. Only output the fully new version of the text.\n\n${contentData.text}`;
+            callAiApi(prompt, { temperature: 0 }).then(correctedText => {
                 setNotes(contentData.element, correctedText);
                 sendResponse({ success: true });
             }).catch(error => {
@@ -194,5 +250,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         });
         return true;
     }
+
     return true;
 });

@@ -66,7 +66,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const urlMappingsButton = document.getElementById('urlMappingsButton');
   const summarizeButton = document.getElementById('summarizeTicket');
   const makeTextNeaterButton = document.getElementById('makeTextNeater');
-  const setApiKeyButton = document.getElementById('setApiKey');
+  const providerRadios = document.querySelectorAll('input[name="aiProvider"]');
+  const aiModelDropdownButton = document.getElementById('aiModelDropdownButton');
+  const aiModelDropdownContent = document.getElementById('aiModelDropdownContent');
+  const selectedModelText = document.getElementById('selectedModelText');
+  const aiApiKeyInput = document.getElementById('aiApiKeyInput');
+  const aiApiKeyLabel = document.getElementById('aiApiKeyLabel');
+  const saveAiSettingsButton = document.getElementById('saveAiSettings');
+  const aiSettingsSavedMsg = document.getElementById('aiSettingsSavedMsg');
   const versionText = document.getElementById('versionText');
   const openTicketButtonToggle = document.getElementById('openTicketButtonToggle');
   const showTimeIndicatorToggle = document.getElementById('showTimeIndicatorToggle');
@@ -357,17 +364,120 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  setApiKeyButton.addEventListener('click', () => {
-    const apiKey = prompt('Enter your OpenAI API key:');
-    if (apiKey) {
-      chrome.storage.sync.set({ openAiApiKey: apiKey }, () => {
-        chrome.tabs.query({}, (tabs) => {
-          tabs.forEach(tab => {
-            chrome.tabs.sendMessage(tab.id, { action: 'apiKeyUpdated' });
-          });
+  const providerKeyMap = {
+    openai: 'openAiApiKey',
+    google: 'googleApiKey',
+    anthropic: 'anthropicApiKey'
+  };
+  const providerLabelMap = {
+    openai: 'OpenAI API Key',
+    google: 'Google API Key',
+    anthropic: 'Anthropic API Key'
+  };
+  const providerModels = {
+    openai: [
+      { value: 'gpt-5.2',        label: 'GPT-5.2' },
+      { value: 'gpt-5.2-pro',    label: 'GPT-5.2 Pro' },
+      { value: 'gpt-5.3-codex',  label: 'GPT-5.3 Codex' },
+      { value: 'gpt-5-mini',     label: 'GPT-5 Mini' },
+      { value: 'gpt-5-nano',     label: 'GPT-5 Nano' }
+    ],
+    google: [
+      { value: 'gemini-3.1-pro-preview', label: 'Gemini 3.1 Pro Preview' },
+      { value: 'gemini-3-pro-preview',   label: 'Gemini 3 Pro Preview' },
+      { value: 'gemini-3-flash-preview', label: 'Gemini 3 Flash Preview' }
+    ],
+    anthropic: [
+      { value: 'claude-opus-4-6',   label: 'Claude Opus 4.6' },
+      { value: 'claude-sonnet-4-6', label: 'Claude Sonnet 4.6' },
+      { value: 'claude-haiku-4-5',  label: 'Claude Haiku 4.5' }
+    ]
+  };
+
+  let currentAiModel = '';
+
+  function populateModelDropdown(provider, savedModel) {
+    aiModelDropdownContent.innerHTML = '';
+    const models = providerModels[provider] || [];
+    let firstModel = '';
+
+    models.forEach((m, i) => {
+      const item = document.createElement('div');
+      item.classList.add('dropdown-item');
+      item.setAttribute('data-value', m.value);
+      item.textContent = m.label;
+      item.addEventListener('click', () => {
+        currentAiModel = m.value;
+        selectedModelText.textContent = m.label;
+        aiModelDropdownContent.classList.remove('show');
+      });
+      aiModelDropdownContent.appendChild(item);
+      if (i === 0) firstModel = m.value;
+    });
+
+    const modelToSelect = (savedModel && models.find(m => m.value === savedModel))
+      ? savedModel
+      : firstModel;
+
+    currentAiModel = modelToSelect;
+    const match = models.find(m => m.value === modelToSelect);
+    selectedModelText.textContent = match ? match.label : 'Select a model';
+  }
+
+  aiModelDropdownButton.addEventListener('click', () => {
+    aiModelDropdownContent.classList.toggle('show');
+  });
+
+  window.addEventListener('click', (event) => {
+    if (!aiModelDropdownButton.contains(event.target) && !aiModelDropdownContent.contains(event.target)) {
+      aiModelDropdownContent.classList.remove('show');
+    }
+  });
+
+  function loadAiSettingsFromStorage() {
+    chrome.storage.sync.get(['aiProvider', 'aiModel', 'openAiApiKey', 'googleApiKey', 'anthropicApiKey'], (result) => {
+      const provider = result.aiProvider || 'openai';
+      const radio = document.querySelector(`input[name="aiProvider"][value="${provider}"]`);
+      if (radio) radio.checked = true;
+      aiApiKeyLabel.textContent = providerLabelMap[provider] || 'API Key';
+      populateModelDropdown(provider, result.aiModel);
+      aiApiKeyInput.value = result[providerKeyMap[provider]] || '';
+    });
+  }
+
+  loadAiSettingsFromStorage();
+
+  providerRadios.forEach(radio => {
+    radio.addEventListener('change', () => {
+      const provider = radio.value;
+      aiApiKeyLabel.textContent = providerLabelMap[provider] || 'API Key';
+      populateModelDropdown(provider, null);
+      chrome.storage.sync.get([providerKeyMap[provider]], (result) => {
+        aiApiKeyInput.value = result[providerKeyMap[provider]] || '';
+      });
+    });
+  });
+
+  saveAiSettingsButton.addEventListener('click', () => {
+    const selectedProvider = document.querySelector('input[name="aiProvider"]:checked')?.value || 'openai';
+    const apiKey = aiApiKeyInput.value.trim();
+    const keyStorageKey = providerKeyMap[selectedProvider];
+
+    const toSave = {
+      aiProvider: selectedProvider,
+      aiModel: currentAiModel,
+      [keyStorageKey]: apiKey
+    };
+
+    chrome.storage.sync.set(toSave, () => {
+      aiSettingsSavedMsg.style.display = 'block';
+      setTimeout(() => { aiSettingsSavedMsg.style.display = 'none'; }, 2000);
+      chrome.tabs.query({}, (tabs) => {
+        tabs.forEach(tab => {
+          chrome.tabs.sendMessage(tab.id, { action: 'aiSettingsUpdated' }).catch(() => {});
         });
       });
-    }
+    });
   });
 
   fetch(chrome.runtime.getURL('manifest.json'))
@@ -388,19 +498,15 @@ document.addEventListener('DOMContentLoaded', () => {
     templateDropdownContent.innerHTML = '';
 
     Object.keys(templates).forEach((key) => {
-      // Handle both old and new template formats
       let templateContent = '';
       const templateValue = templates[key];
 
       if (typeof templateValue === 'string') {
-        // Old-style string template
         templateContent = templateValue.trim();
       } else if (typeof templateValue === 'object' && templateValue !== null) {
-        // New-style object { content, status }
         templateContent = (templateValue.content || '').trim();
       }
 
-      // If the content is NOT empty, display it in the dropdown
       if (templateContent !== '') {
         const dropdownItem = document.createElement('div');
         dropdownItem.classList.add('dropdown-item');
