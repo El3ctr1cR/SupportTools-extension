@@ -11,6 +11,7 @@
   let itglueToken   = null;
   let itglueBaseUrl = null;
   const passwordMap = {};
+  let featureEnabled = false;
 
   window.addEventListener('message', (event) => {
     if (!event.data || !event.data.__itglueOtp || event.source !== window) return;
@@ -30,7 +31,7 @@
           otpEnabled: attrs['otp-enabled'] === true
         };
       });
-      addOtpButtons();
+      if (featureEnabled) addOtpButtons();
     }
   });
 
@@ -215,9 +216,33 @@
   }
 
   const observer = new MutationObserver(() => {
-    if (Object.keys(passwordMap).length > 0) addOtpButtons();
+    if (featureEnabled && Object.keys(passwordMap).length > 0) addOtpButtons();
   });
 
-  observer.observe(document.documentElement, { childList: true, subtree: true });
+  chrome.storage.sync.get(['itglueOtpEnabled'], (result) => {
+    featureEnabled = result.itglueOtpEnabled !== false;
+    if (featureEnabled) {
+      observer.observe(document.documentElement, { childList: true, subtree: true });
+    }
+  });
+
+  function removeAllOtpButtons() {
+    document.querySelectorAll('.itglue-otp-btn').forEach(btn => btn.remove());
+    document.querySelectorAll('td.click-column[data-itglue-otp-id]').forEach(td => {
+      delete td.dataset.itglueOtpId;
+    });
+  }
+
+  chrome.runtime.onMessage.addListener((request) => {
+    if (request.action !== 'toggleItglueOtp') return;
+    featureEnabled = request.enabled;
+    if (featureEnabled) {
+      observer.observe(document.documentElement, { childList: true, subtree: true });
+      if (Object.keys(passwordMap).length > 0) addOtpButtons();
+    } else {
+      observer.disconnect();
+      removeAllOtpButtons();
+    }
+  });
 
 })();

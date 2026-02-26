@@ -89,6 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const inAppIframesOutsideTicketToggle = document.getElementById('inAppIframesOutsideTicketToggle');
   const inAppIframesInsideTicketToggle = document.getElementById('inAppIframesInsideTicketToggle');
   const incognitoToggle = document.getElementById('incognitoToggle');
+  const itglueOtpToggle = document.getElementById('itglueOtpToggle');
   const inputMailButton = document.getElementById('inputMail');
   const copyMailButton = document.getElementById('copyMail');
   const editTemplatesButton = document.getElementById('editTemplates');
@@ -495,8 +496,9 @@ document.addEventListener('DOMContentLoaded', () => {
       versionText.textContent = `Version ${currentVersion}`;
     });
 
-  chrome.storage.sync.get(['incognitoRedirection', 'templates'], (result) => {
+  chrome.storage.sync.get(['incognitoRedirection', 'templates', 'itglueOtpEnabled'], (result) => {
     incognitoToggle.checked = result.incognitoRedirection || false;
+    itglueOtpToggle.checked = result.itglueOtpEnabled !== false;
 
     const templates = result.templates || {};
     populateTemplateDropdown(templates);
@@ -552,6 +554,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
   incognitoToggle.addEventListener('change', () => {
     chrome.storage.sync.set({ incognitoRedirection: incognitoToggle.checked });
+  });
+
+  itglueOtpToggle.addEventListener('change', () => {
+    chrome.storage.sync.set({ itglueOtpEnabled: itglueOtpToggle.checked }, () => {
+      chrome.tabs.query({}, (tabs) => {
+        tabs.forEach(tab => {
+          chrome.tabs.sendMessage(tab.id, {
+            action:  'toggleItglueOtp',
+            enabled: itglueOtpToggle.checked
+          }).catch(() => {});
+        });
+      });
+    });
   });
 
   inputMailButton.addEventListener('click', () => {

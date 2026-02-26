@@ -1080,17 +1080,24 @@
   <div class="content" id="contentMisc" style="display: none;">
     <div class="category-header">Miscellaneous</div>
     <div class="category-content">
-      <div class="form-group-inline">
+      <div class="toggle-row">
         <label class="toggle-switch">
           <input type="checkbox" id="incognitoToggle">
           <span class="slider"></span>
         </label>
-        <label for="incognitoToggle">
-          Incognito Redirection
-        </label>
+        <label for="incognitoToggle">Incognito Redirection</label>
+        <button id="urlMappingsButton" style="margin-left:auto;margin-bottom:0;">URL Mappings</button>
       </div>
-      <button id="urlMappingsButton">URL Mappings</button>
-      <button id="hexBase32Gen">Hex/Base32 Gen</button>
+      <div class="toggle-row">
+        <label class="toggle-switch">
+          <input type="checkbox" id="itglueOtpToggle">
+          <span class="slider"></span>
+        </label>
+        <label for="itglueOtpToggle">ITGlue OTP buttons (Datto RMM)</label>
+      </div>
+      <div class="form-group" style="margin-top:8px;">
+        <button id="hexBase32Gen">Hex/Base32 Gen</button>
+      </div>
     </div>
   </div>
 
