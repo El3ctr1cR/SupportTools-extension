@@ -553,6 +553,60 @@
       accent-color: #6366f1;
     }
 
+    .inline-msg {
+      font-size: 11px;
+      margin-top: 6px;
+      margin-bottom: 2px;
+      text-align: center;
+      padding: 6px 10px;
+      border-radius: 6px;
+      display: none;
+    }
+
+    .inline-msg.success {
+      color: #86efac;
+      background: rgba(134, 239, 172, 0.08);
+      border: 1px solid rgba(134, 239, 172, 0.2);
+    }
+
+    .inline-msg.error {
+      color: #fca5a5;
+      background: rgba(252, 165, 165, 0.08);
+      border: 1px solid rgba(252, 165, 165, 0.2);
+    }
+
+    .inline-confirm {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      margin-top: 6px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: rgba(252, 165, 165, 0.08);
+      border: 1px solid rgba(252, 165, 165, 0.2);
+    }
+
+    .inline-confirm span {
+      flex: 1;
+      font-size: 11px;
+      color: #fca5a5;
+    }
+
+    .inline-confirm button {
+      padding: 4px 10px;
+      font-size: 11px;
+      margin-bottom: 0;
+    }
+
+    .inline-confirm .confirm-yes {
+      border-color: rgba(252, 165, 165, 0.4);
+      color: #fca5a5;
+    }
+
+    .inline-confirm .confirm-no {
+      border-color: rgba(255,255,255,0.08);
+    }
+
     #passwordHistory,
     #ticketHistoryList {
       list-style-type: none;
@@ -883,6 +937,7 @@
         <button id="makeTextNeater">Make text neater</button>
       </div>
     </div>
+    <div id="aiActionMsg" class="inline-msg"></div>
     <div class="category-header">Templates</div>
     <div class="category-content">
       <div class="form-group">
@@ -901,6 +956,7 @@
         <button id="editTemplates">Edit Templates</button>
       </div>
     </div>
+    <div id="templateMsg" class="inline-msg"></div>
     <div class="category-header">
       Improvements
     </div>
@@ -1024,17 +1080,24 @@
   <div class="content" id="contentMisc" style="display: none;">
     <div class="category-header">Miscellaneous</div>
     <div class="category-content">
-      <div class="form-group-inline">
+      <div class="toggle-row">
         <label class="toggle-switch">
           <input type="checkbox" id="incognitoToggle">
           <span class="slider"></span>
         </label>
-        <label for="incognitoToggle">
-          Incognito Redirection
-        </label>
+        <label for="incognitoToggle">Incognito Redirection</label>
+        <button id="urlMappingsButton" style="margin-left:auto;margin-bottom:0;">URL Mappings</button>
       </div>
-      <button id="urlMappingsButton">URL Mappings</button>
-      <button id="hexBase32Gen">Hex/Base32 Gen</button>
+      <div class="toggle-row">
+        <label class="toggle-switch">
+          <input type="checkbox" id="itglueOtpToggle">
+          <span class="slider"></span>
+        </label>
+        <label for="itglueOtpToggle">ITGlue OTP buttons (Datto RMM)</label>
+      </div>
+      <div class="form-group" style="margin-top:8px;">
+        <button id="hexBase32Gen">Hex/Base32 Gen</button>
+      </div>
     </div>
   </div>
 
@@ -1076,9 +1139,7 @@
       <div class="form-group config-buttons">
         <button id="saveAiSettings">Save AI Settings</button>
       </div>
-      <div id="aiSettingsSavedMsg" style="display:none; font-size:11px; color:#86efac; margin-top:4px; text-align:center;">
-        ✓ Settings saved
-      </div>
+      <div id="aiSettingsUpdatedMsg" class="inline-msg"></div>
     </div>
 
     <div class="category-header">Language</div>
@@ -1117,7 +1178,13 @@
         <input type="file" id="importFile" style="display: none;">
         <button id="clearConfig">Reset config</button>
       </div>
+      <div id="clearConfirmUI" class="inline-confirm">
+        <span>Are you sure? This cannot be undone.</span>
+        <button class="confirm-no" id="clearConfirmNo">Cancel</button>
+        <button class="confirm-yes" id="clearConfirmYes">Reset</button>
+      </div>
     </div>
+    <div id="configMsg" class="inline-msg"></div>
   </div>
 
   <div class="footer">

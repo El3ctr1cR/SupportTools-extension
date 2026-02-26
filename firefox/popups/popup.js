@@ -1,4 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
+  function showMsg(elementId, text, isError = true, duration = 3000) {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+    el.textContent = (isError ? '\u2715 ' : '\u2713 ') + text;
+    el.className = 'inline-msg ' + (isError ? 'error' : 'success');
+    el.style.display = 'block';
+    clearTimeout(el._hideTimer);
+    el._hideTimer = setTimeout(() => { el.style.display = 'none'; }, duration);
+  }
+
   const tabs = document.querySelectorAll('.tab');
   const contentSections = document.querySelectorAll('.content');
 
@@ -73,13 +83,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const aiApiKeyInput = document.getElementById('aiApiKeyInput');
   const aiApiKeyLabel = document.getElementById('aiApiKeyLabel');
   const saveAiSettingsButton = document.getElementById('saveAiSettings');
-  const aiSettingsSavedMsg = document.getElementById('aiSettingsSavedMsg');
   const versionText = document.getElementById('versionText');
   const openTicketButtonToggle = document.getElementById('openTicketButtonToggle');
   const showTimeIndicatorToggle = document.getElementById('showTimeIndicatorToggle');
   const inAppIframesOutsideTicketToggle = document.getElementById('inAppIframesOutsideTicketToggle');
   const inAppIframesInsideTicketToggle = document.getElementById('inAppIframesInsideTicketToggle');
   const incognitoToggle = document.getElementById('incognitoToggle');
+  const itglueOtpToggle = document.getElementById('itglueOtpToggle');
   const inputMailButton = document.getElementById('inputMail');
   const copyMailButton = document.getElementById('copyMail');
   const editTemplatesButton = document.getElementById('editTemplates');
@@ -157,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
           },
           (results) => {
             if (chrome.runtime.lastError || !results || !results[0].result) {
-              alert('No ticket content found on the page.');
+              showMsg('aiActionMsg', 'No ticket content found on the page.');
               return;
             }
             const aiPopup = window.open(popupHtml, 'AI Task', 'width=1200,height=1200');
@@ -174,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
                   if (response && response.summary) {
                     aiPopup.postMessage({ loading: false, summary: response.summary }, '*');
                   } else {
-                    alert('Failed to handle AI action.');
+                    showMsg('aiActionMsg', 'Failed to handle AI action.');
                   }
                 });
               }
@@ -204,7 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response && response.success) {
               console.log('makeTextNeater completed successfully');
             } else {
-              alert('Failed to perform makeTextNeater' + (response && response.error ? ': ' + response.error : ''));
+              showMsg('aiActionMsg', 'Failed to perform makeTextNeater' + (response && response.error ? ': ' + response.error : ''));
             }
           });
         }
@@ -470,8 +480,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     chrome.storage.sync.set(toSave, () => {
-      aiSettingsSavedMsg.style.display = 'block';
-      setTimeout(() => { aiSettingsSavedMsg.style.display = 'none'; }, 2000);
+      showMsg('aiSettingsUpdatedMsg', 'Settings saved.', false);
       chrome.tabs.query({}, (tabs) => {
         tabs.forEach(tab => {
           chrome.tabs.sendMessage(tab.id, { action: 'aiSettingsUpdated' }).catch(() => {});
@@ -487,8 +496,9 @@ document.addEventListener('DOMContentLoaded', () => {
       versionText.textContent = `Version ${currentVersion}`;
     });
 
-  chrome.storage.sync.get(['incognitoRedirection', 'templates'], (result) => {
+  chrome.storage.sync.get(['incognitoRedirection', 'templates', 'itglueOtpEnabled'], (result) => {
     incognitoToggle.checked = result.incognitoRedirection || false;
+    itglueOtpToggle.checked = result.itglueOtpEnabled !== false;
 
     const templates = result.templates || {};
     populateTemplateDropdown(templates);
@@ -546,10 +556,23 @@ document.addEventListener('DOMContentLoaded', () => {
     chrome.storage.sync.set({ incognitoRedirection: incognitoToggle.checked });
   });
 
+  itglueOtpToggle.addEventListener('change', () => {
+    chrome.storage.sync.set({ itglueOtpEnabled: itglueOtpToggle.checked }, () => {
+      chrome.tabs.query({}, (tabs) => {
+        tabs.forEach(tab => {
+          chrome.tabs.sendMessage(tab.id, {
+            action:  'toggleItglueOtp',
+            enabled: itglueOtpToggle.checked
+          }).catch(() => {});
+        });
+      });
+    });
+  });
+
   inputMailButton.addEventListener('click', () => {
     const selectedTemplate = document.getElementById('selectedTemplateText').textContent;
     if (!selectedTemplate || selectedTemplate === 'Select a Template') {
-      alert('Please select a template before proceeding.');
+      showMsg('templateMsg', 'Please select a template before proceeding.');
       return;
     }
 
@@ -560,7 +583,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (response && response.success) {
           console.log('Email text inserted successfully');
         } else {
-          alert(response && response.message ? response.message : 'Failed to insert email text');
+          showMsg('templateMsg', response && response.message ? response.message : 'Failed to insert email text');
         }
       });
     });
@@ -569,7 +592,7 @@ document.addEventListener('DOMContentLoaded', () => {
   copyMailButton.addEventListener('click', () => {
     const selectedTemplateName = document.getElementById('selectedTemplateText').textContent;
     if (!selectedTemplateName || selectedTemplateName === 'Select a Template') {
-      alert('Please select a template before proceeding.');
+      showMsg('templateMsg', 'Please select a template before proceeding.');
       return;
     }
 
@@ -577,7 +600,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const templates = result.templates || {};
       const rawTemplateObj = templates[selectedTemplateName];
       if (!rawTemplateObj) {
-        alert('Template not found!');
+        showMsg('templateMsg', 'Template not found!');
         return;
       }
       let finalTemplateString = '';
@@ -593,7 +616,7 @@ document.addEventListener('DOMContentLoaded', () => {
           () => {
             chrome.tabs.sendMessage(activeTab.id, { action: 'getTicketDetails' }, (response) => {
               if (!response) {
-                alert('Failed to retrieve ticket details.');
+                showMsg('templateMsg', 'Failed to retrieve ticket details.');
                 return;
               }
               chrome.tabs.sendMessage(
@@ -613,7 +636,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         console.error('Failed to copy text: ', err);
                       });
                   } else {
-                    alert('Failed to process the template.');
+                    showMsg('templateMsg', 'Failed to process the template.');
                   }
                 }
               );
@@ -627,7 +650,7 @@ document.addEventListener('DOMContentLoaded', () => {
   editTemplatesButton.addEventListener('click', () => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (!tabs || !tabs.length) {
-        alert("No active tab found. Make sure you're on an Autotask ticket page.");
+        showMsg('templateMsg', "No active tab found. Make sure you're on an Autotask ticket page.");
         return;
       }
       const activeTabId = tabs[0].id;
@@ -645,13 +668,20 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   clearConfigButton.addEventListener('click', () => {
-    const confirmed = confirm('Are you sure you want to reset the config? This action cannot be undone.');
-    if (confirmed) {
-      chrome.storage.sync.clear(() => {
-        alert('Configuration cleared!');
-        populateTemplateDropdown({});
-      });
-    }
+    const confirmUI = document.getElementById('clearConfirmUI');
+    confirmUI.style.display = 'flex';
+  });
+
+  document.getElementById('clearConfirmNo').addEventListener('click', () => {
+    document.getElementById('clearConfirmUI').style.display = 'none';
+  });
+
+  document.getElementById('clearConfirmYes').addEventListener('click', () => {
+    document.getElementById('clearConfirmUI').style.display = 'none';
+    chrome.storage.sync.clear(() => {
+      showMsg('configMsg', 'Configuration cleared!', false);
+      populateTemplateDropdown({});
+    });
   });
 
   exportConfigButton.addEventListener('click', () => {
@@ -687,11 +717,11 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
           const importedConfig = JSON.parse(e.target.result);
           chrome.storage.sync.set(importedConfig, () => {
-            alert('Configuration imported successfully!');
+            showMsg('configMsg', 'Configuration imported successfully!', false);
             populateTemplateDropdown(importedConfig.templates || {});
           });
         } catch (error) {
-          alert('Failed to import configuration. Invalid JSON format.');
+          showMsg('configMsg', 'Failed to import configuration. Invalid JSON format.');
         }
       };
       reader.readAsText(file);
