@@ -360,8 +360,8 @@ document.addEventListener('DOMContentLoaded', () => {
     chrome.windows.create({
       url: chrome.runtime.getURL('../popups/misc/hexBase32Gen.html'),
       type: 'popup',
-      width: 600,
-      height: 320
+      width: 470,
+      height: 420
     });
   });
 
@@ -369,8 +369,8 @@ document.addEventListener('DOMContentLoaded', () => {
     chrome.windows.create({
       url: chrome.runtime.getURL('../popups/misc/urlMappingEditor.html'),
       type: 'popup',
-      width: 620,
-      height: 1035
+      width: 580,
+      height: 580
     });
   });
 

@@ -62,6 +62,9 @@ function generateAndDisplayKeys() {
 
 document.addEventListener('DOMContentLoaded', () => {
     generateAndDisplayKeys();
+    const versionText = document.getElementById('versionText');
+    const manifestData = chrome.runtime.getManifest();
+    versionText.textContent = `Version ${manifestData.version}`;
 
     document.getElementById('copyHexKey').addEventListener('click', () => {
         const hexKeyInput = document.getElementById('hexKey');
