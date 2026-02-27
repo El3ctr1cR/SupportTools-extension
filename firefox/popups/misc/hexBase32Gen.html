@@ -12,16 +12,27 @@
             box-sizing: border-box;
         }
 
+        html, body {
+            height: 100%;
+            width: 100%;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', system-ui, sans-serif;
             background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
             color: #e4e4e7;
-            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .page-content {
+            flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
-            min-height: 100vh;
+            padding: 20px;
         }
 
         h2 {
@@ -135,24 +146,67 @@
             filter: brightness(1.2) drop-shadow(0 2px 8px rgba(99, 102, 241, 0.5));
             transform: rotate(180deg);
         }
+
+        .footer {
+            flex-shrink: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            background: rgba(17, 17, 27, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 11px;
+            color: #71717a;
+            margin-top: 14px;
+            gap: 12px;
+        }
+
+        .footer a {
+            color: #818cf8;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-width: 0;
+        }
+
+        .footer a:hover {
+            color: #a5b4fc;
+        }
+
+        .footer #versionText {
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
     </style>
 </head>
 
 <body>
-    <h2>Hex/Base32 generator</h2>
-    <div class="key-container">
-        <label class="key-label">Hex Key:</label>
-        <input type="text" id="hexKey" readonly>
-        <span class="copy-icon" id="copyHexKey"><img src="/icons/copy.png" alt="Copy"></span>
+    <div class="page-content">
+        <h2>Hex/Base32 generator</h2>
+        <div class="key-container">
+            <label class="key-label">Hex Key:</label>
+            <input type="text" id="hexKey" readonly>
+            <span class="copy-icon" id="copyHexKey"><img src="/icons/copy.png" alt="Copy"></span>
+        </div>
+        <div class="key-container">
+            <label class="key-label">Base32 Key:</label>
+            <input type="text" id="base32Key" readonly>
+            <span class="copy-icon" id="copyBase32Key"><img src="/icons/copy.png" alt="Copy"></span>
+        </div>
+        <button class="refresh-btn" id="refreshKeys">
+            <img src="/icons/refresh.png" alt="Refresh">
+        </button>
     </div>
-    <div class="key-container">
-        <label class="key-label">Base32 Key:</label>
-        <input type="text" id="base32Key" readonly>
-        <span class="copy-icon" id="copyBase32Key"><img src="/icons/copy.png" alt="Copy"></span>
+
+    <div class="footer">
+        <a href="https://github.com/El3ctr1cR" target="_blank">https://github.com/El3ctr1cR</a>
+        <span id="versionText">Version </span>
     </div>
-    <button class="refresh-btn" id="refreshKeys">
-        <img src="/icons/refresh.png" alt="Refresh">
-    </button>
 
     <script src="hexBase32Gen.js"></script>
 </body>
