@@ -297,6 +297,7 @@ document.addEventListener('DOMContentLoaded', () => {
       copyIcon.src = '../icons/copy.png';
       copyIcon.classList.add('history-copy-icon');
       copyIcon.title = 'Copy Password';
+      copyIcon.style.filter = "brightness(0) invert(1)";
       copyIcon.addEventListener('click', () => {
         navigator.clipboard.writeText(item.password)
           .catch(err => {
