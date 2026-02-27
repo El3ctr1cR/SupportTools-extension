@@ -35,16 +35,33 @@
     "128": "icons/icon.png"
   },
   "content_scripts": [
-      {
-      "matches": ["*://*.rmm.datto.com/*"],
-      "js":      ["functions/dattoItglueOtpInterceptor.js"],
-      "run_at":  "document_start",
-      "world":   "MAIN"
+    {
+      "matches": [
+        "*://*.rmm.datto.com/*"
+      ],
+      "js": [
+        "functions/dattoItglueOtpInterceptor.js"
+      ],
+      "run_at": "document_start",
+      "world": "MAIN"
     },
     {
-      "matches": ["*://*.rmm.datto.com/*"],
-      "js":      ["functions/dattoItglueOtp.js"],
-      "run_at":  "document_start"
+      "matches": [
+        "*://*.rmm.datto.com/*"
+      ],
+      "js": [
+        "functions/dattoItglueOtp.js"
+      ],
+      "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "*://*.rmm.datto.com/*"
+      ],
+      "js": [
+        "functions/dRmmTrueStretch.js"
+      ],
+      "run_at": "document_idle"
     },
     {
       "matches": [
@@ -96,6 +113,14 @@
       ],
       "matches": [
         "https://*.autotask.net/*"
+      ]
+    },
+    {
+      "resources": [
+        "functions/dRmmTrueStretchScript.js"
+      ],
+      "matches": [
+        "*://*.rmm.datto.com/*"
       ]
     }
   ],
