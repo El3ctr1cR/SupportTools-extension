@@ -512,12 +512,6 @@
       margin-bottom: 0;
     }
 
-    .radio-group {
-      display: flex;
-      gap: 20px;
-      margin-top: 4px;
-    }
-
     .radio-option {
       display: flex;
       align-items: center;
@@ -853,13 +847,13 @@
       animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
     }
 
-    .ai-provider-group {
+    .radio-group {
       display: flex;
       gap: 8px;
       flex-wrap: wrap;
     }
 
-    .ai-provider-group .radio-option {
+    .radio-group .radio-option {
       flex: 1;
       min-width: 80px;
       display: flex;
@@ -878,19 +872,19 @@
       margin-bottom: 0;
     }
 
-    .ai-provider-group .radio-option:hover {
+    .radio-group .radio-option:hover {
       border-color: rgba(99, 102, 241, 0.4);
       color: #e4e4e7;
     }
 
-    .ai-provider-group .radio-option:has(input:checked) {
+    .radio-group .radio-option:has(input:checked) {
       background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(168, 85, 247, 0.2) 100%);
       border-color: rgba(99, 102, 241, 0.6);
       color: #ffffff;
       box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
     }
 
-    .ai-provider-group input[type="radio"] {
+    .radio-group input[type="radio"] {
       width: 14px;
       height: 14px;
       opacity: 1;
@@ -1107,7 +1101,7 @@
     <div class="category-content">
       <div class="form-group">
         <label>Select Provider</label>
-        <div class="ai-provider-group">
+        <div class="radio-group">
           <label class="radio-option">
             <input type="radio" name="aiProvider" id="providerOpenAI" value="openai">
             <span>ChatGPT</span>
