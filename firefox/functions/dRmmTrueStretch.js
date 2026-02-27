@@ -1,12 +1,3 @@
-/**
- * dRmmTrueStretch.js
- * Runs in the ISOLATED content script context.
- *
- * Handles: CSS stretch, storage, popup messages.
- * Injects dRmmTrueStretchScript.js into the PAGE's JS context via
- * <script src="..."> so it can patch mouse events before Datto's own
- * handlers see them. Communicates scale factors via window.postMessage.
- */
 (function () {
   'use strict';
 
@@ -18,8 +9,6 @@
   let currentScaleX      = 1;
   let currentScaleY      = 1;
   let pageScriptInjected = false;
-
-  // ── Page script injection ──────────────────────────────────────────────────
 
   function injectPageScript() {
     if (pageScriptInjected) return;
@@ -38,8 +27,6 @@
     }, '*');
   }
 
-  // ── Helpers ────────────────────────────────────────────────────────────────
-
   function getSidebarWidth() {
     const sider = document.querySelector('.ant-layout-sider');
     return sider ? sider.offsetWidth : 250;
@@ -51,8 +38,6 @@
     const child = displayOuter.querySelector('div');
     return child ? (child.querySelector('div') || child) : null;
   }
-
-  // ── CSS stretch ────────────────────────────────────────────────────────────
 
   function applyStretch() {
     const displayOuter = document.getElementById('display-outer');
@@ -102,8 +87,6 @@
     }
   }
 
-  // ── RAF loop ───────────────────────────────────────────────────────────────
-
   function startLoop() {
     function loop() {
       if (!stretchEnabled) return;
@@ -116,8 +99,6 @@
   function stopLoop() {
     if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; }
   }
-
-  // ── Toggle ─────────────────────────────────────────────────────────────────
 
   function setStretch(enabled) {
     stretchEnabled = enabled;
@@ -138,8 +119,6 @@
   window.addEventListener('resize', () => {
     if (stretchEnabled) applyStretch();
   });
-
-  // ── Init ───────────────────────────────────────────────────────────────────
 
   function init() {
     injectPageScript();

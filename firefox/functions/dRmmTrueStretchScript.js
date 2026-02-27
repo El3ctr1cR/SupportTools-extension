@@ -1,9 +1,3 @@
-/**
- * dattoWebRemotePageScript.js
- * Runs in the PAGE's JS context (injected via <script src=...>).
- * Intercepts mousemove in capture phase and patches movementX/Y + clientX/Y
- * on the live event so the Datto remote's own handlers see scaled values.
- */
 (function () {
   var scaleX = 1, scaleY = 1, active = false;
 

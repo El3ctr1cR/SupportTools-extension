@@ -570,7 +570,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // ── Datto True Stretch toggle ─────────────────────────────────────────────
   chrome.storage.local.get(['dattoTrueStretch_enabled'], (result) => {
     dattoStretchToggle.checked = result.dattoTrueStretch_enabled || false;
   });
