@@ -90,6 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const inAppIframesInsideTicketToggle = document.getElementById('inAppIframesInsideTicketToggle');
   const incognitoToggle = document.getElementById('incognitoToggle');
   const itglueOtpToggle = document.getElementById('itglueOtpToggle');
+  const dattoStretchToggle = document.getElementById('dattoStretchToggle');
   const inputMailButton = document.getElementById('inputMail');
   const copyMailButton = document.getElementById('copyMail');
   const editTemplatesButton = document.getElementById('editTemplates');
@@ -296,7 +297,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       icon.src = chrome.runtime.getURL('icons/warning.png');
       icon.alt = 'Warning';
-      icon.title = 'These are experimental features so if something breaks within Autotask please turn them off.';
+      icon.title = 'These are experimental features so if something breaks please turn them off.';
 
       icon.style.width = '16px';
       icon.style.height = '16px';
@@ -563,6 +564,24 @@ document.addEventListener('DOMContentLoaded', () => {
           chrome.tabs.sendMessage(tab.id, {
             action:  'toggleItglueOtp',
             enabled: itglueOtpToggle.checked
+          }).catch(() => {});
+        });
+      });
+    });
+  });
+
+  // ── Datto True Stretch toggle ─────────────────────────────────────────────
+  chrome.storage.local.get(['dattoTrueStretch_enabled'], (result) => {
+    dattoStretchToggle.checked = result.dattoTrueStretch_enabled || false;
+  });
+
+  dattoStretchToggle.addEventListener('change', () => {
+    chrome.storage.local.set({ dattoTrueStretch_enabled: dattoStretchToggle.checked }, () => {
+      chrome.tabs.query({}, (tabs) => {
+        tabs.forEach(tab => {
+          chrome.tabs.sendMessage(tab.id, {
+            action:  'toggleDattoStretch',
+            enabled: dattoStretchToggle.checked
           }).catch(() => {});
         });
       });

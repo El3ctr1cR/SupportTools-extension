@@ -269,7 +269,7 @@
       font-size: 11px;
       opacity: 0.8;
     }
-    
+
     .category-header:first-child {
       margin-top: 0;
     }
@@ -360,23 +360,23 @@
       height: 18px;
       flex-shrink: 0;
     }
-    
+
     .dropdown-btn .arrow-down {
       flex-shrink: 0;
       margin-left: auto;
     }
-    
+
     .dropdown-btn.centered {
       justify-content: center;
       gap: 10px;
     }
-    
+
     .dropdown-btn.centered span {
       flex: 1;
       text-align: center;
       margin-right: 28px;
     }
-    
+
     .dropdown-btn.centered .arrow-down {
       margin-left: 0;
     }
@@ -465,13 +465,13 @@
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     }
 
-    input[type="checkbox"]:checked + .slider {
+    input[type="checkbox"]:checked+.slider {
       background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
       border-color: rgba(99, 102, 241, 0.5);
       box-shadow: 0 0 12px rgba(99, 102, 241, 0.4);
     }
 
-    input[type="checkbox"]:checked + .slider:before {
+    input[type="checkbox"]:checked+.slider:before {
       transform: translateX(20px);
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
     }
@@ -598,7 +598,7 @@
     }
 
     .inline-confirm .confirm-no {
-      border-color: rgba(255,255,255,0.08);
+      border-color: rgba(255, 255, 255, 0.08);
     }
 
     #passwordHistory,
@@ -808,7 +808,7 @@
       align-items: center;
       z-index: 9999;
     }
-    
+
     #loadingOverlay.active {
       display: flex;
     }
@@ -826,6 +826,7 @@
       0% {
         transform: rotate(0deg);
       }
+
       100% {
         transform: rotate(360deg);
       }
@@ -836,6 +837,7 @@
         opacity: 0;
         transform: translateY(10px);
       }
+
       to {
         opacity: 1;
         transform: translateY(0);
@@ -1072,6 +1074,23 @@
 
   <!-- ======== CONTENT: Misc ======== -->
   <div class="content" id="contentMisc" style="display: none;">
+    <div class="category-header">Datto RMM Improvements</div>
+    <div class="category-content">
+      <div class="toggle-row">
+        <label class="toggle-switch">
+          <input type="checkbox" id="itglueOtpToggle">
+          <span class="slider"></span>
+        </label>
+        <label for="itglueOtpToggle">OTP buttons for IT Glue passwords</label>
+      </div>
+      <div class="toggle-row">
+        <label class="toggle-switch">
+          <input type="checkbox" id="dattoStretchToggle">
+          <span class="slider"></span>
+        </label>
+        <label for="dattoStretchToggle">True Stretch for web remote</label>
+      </div>
+    </div>
     <div class="category-header">Miscellaneous</div>
     <div class="category-content">
       <div class="toggle-row">
@@ -1081,13 +1100,6 @@
         </label>
         <label for="incognitoToggle">Incognito Redirection</label>
         <button id="urlMappingsButton" style="margin-left:auto;margin-bottom:0;">URL Mappings</button>
-      </div>
-      <div class="toggle-row">
-        <label class="toggle-switch">
-          <input type="checkbox" id="itglueOtpToggle">
-          <span class="slider"></span>
-        </label>
-        <label for="itglueOtpToggle">ITGlue OTP buttons (Datto RMM)</label>
       </div>
       <div class="form-group" style="margin-top:8px;">
         <button id="hexBase32Gen">Hex/Base32 Gen</button>
