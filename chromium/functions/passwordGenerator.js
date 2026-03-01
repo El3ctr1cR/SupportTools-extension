@@ -12,6 +12,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const copyPasswordButton = document.getElementById('copyPassword');
   const refreshPasswordButton = document.getElementById('refreshPassword');
   const passwordHistoryList = document.getElementById('passwordHistory');
+  const wordCountInput = document.getElementById('wordCount');
+  const wordSeparatorInput = document.getElementById('wordSeparator');
+  const passphraseCapitalizeCheckbox = document.getElementById('passphraseCapitalize');
+  const passphraseIncludeNumberCheckbox = document.getElementById('passphraseIncludeNumber');
+  const passphraseOptions = document.getElementById('passphraseOptions');
+  const openHistoryBtn = document.getElementById('openHistoryBtn');
+  const closeHistoryBtn = document.getElementById('closeHistoryBtn');
+  const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+  const historyPanel = document.getElementById('historyPanel');
 
   passwordLengthValue.textContent = passwordLengthSlider.value;
 
@@ -20,21 +29,27 @@ document.addEventListener('DOMContentLoaded', () => {
     saveSettings();
   });
 
-  includeLowercaseCheckbox.addEventListener('change', () => {
+  [includeLowercaseCheckbox, includeUppercaseCheckbox, includeNumbersCheckbox, includeSymbolsCheckbox].forEach(cb => {
+    cb.addEventListener('change', () => { saveSettings(); generatePassword(); });
+  });
+
+  wordCountInput.addEventListener('input', () => {
+    let v = parseInt(wordCountInput.value);
+    if (isNaN(v)) return;
+    if (v < 3) v = 3;
+    if (v > 20) v = 20;
+    wordCountInput.value = v;
     saveSettings();
     generatePassword();
   });
-  includeUppercaseCheckbox.addEventListener('change', () => {
+
+  wordSeparatorInput.addEventListener('input', () => {
     saveSettings();
     generatePassword();
   });
-  includeNumbersCheckbox.addEventListener('change', () => {
-    saveSettings();
-    generatePassword();
-  });
-  includeSymbolsCheckbox.addEventListener('change', () => {
-    saveSettings();
-    generatePassword();
+
+  [passphraseCapitalizeCheckbox, passphraseIncludeNumberCheckbox].forEach(cb => {
+    cb.addEventListener('change', () => { saveSettings(); generatePassword(); });
   });
 
   typePasswordRadio.addEventListener('change', () => {
@@ -49,9 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
     generatePassword();
   });
 
-  refreshPasswordButton.addEventListener('click', () => {
-    generatePassword();
-  });
+  refreshPasswordButton.addEventListener('click', () => { generatePassword(); });
 
   copyPasswordButton.addEventListener('click', () => {
     const passwordText = Array.from(generatedPasswordDisplay.childNodes)
@@ -59,16 +72,26 @@ document.addEventListener('DOMContentLoaded', () => {
       .join('');
     if (passwordText) {
       navigator.clipboard.writeText(passwordText)
-        .catch(err => {
-          console.error('Could not copy password: ', err);
-        });
+        .catch(err => console.error('Could not copy password: ', err));
     }
   });
 
-  loadPasswordHistory();
-  loadSettings(() => {
-    generatePassword();
+  openHistoryBtn.addEventListener('click', () => {
+    historyPanel.classList.add('open');
+    loadPasswordHistory();
   });
+
+  closeHistoryBtn.addEventListener('click', () => {
+    historyPanel.classList.remove('open');
+  });
+
+  clearHistoryBtn.addEventListener('click', () => {
+    chrome.storage.sync.set({ passwordHistory: [] }, () => {
+      updatePasswordHistoryUI([]);
+    });
+  });
+
+  loadSettings(() => { generatePassword(); });
 
   function saveSettings() {
     const settings = {
@@ -77,7 +100,11 @@ document.addEventListener('DOMContentLoaded', () => {
       includeUppercase: includeUppercaseCheckbox.checked,
       includeNumbers: includeNumbersCheckbox.checked,
       includeSymbols: includeSymbolsCheckbox.checked,
-      passwordType: typePassphraseRadio.checked ? 'passphrase' : 'password'
+      passwordType: typePassphraseRadio.checked ? 'passphrase' : 'password',
+      passphraseWordCount: parseInt(wordCountInput.value) || 3,
+      passphraseSeperator: wordSeparatorInput.value,
+      passphraseCapitalize: passphraseCapitalizeCheckbox.checked,
+      passphraseIncludeNumber: passphraseIncludeNumberCheckbox.checked
     };
     chrome.storage.sync.set({ passwordGeneratorSettings: settings }, () => {
       console.log('Password generator settings saved.');
@@ -92,7 +119,11 @@ document.addEventListener('DOMContentLoaded', () => {
         includeUppercase: true,
         includeNumbers: true,
         includeSymbols: true,
-        passwordType: 'password'
+        passwordType: 'password',
+        passphraseWordCount: 3,
+        passphraseSeperator: '-',
+        passphraseCapitalize: false,
+        passphraseIncludeNumber: false
       };
 
       passwordLengthSlider.value = settings.passwordLength;
@@ -102,6 +133,11 @@ document.addEventListener('DOMContentLoaded', () => {
       includeNumbersCheckbox.checked = settings.includeNumbers;
       includeSymbolsCheckbox.checked = settings.includeSymbols;
 
+      wordCountInput.value = settings.passphraseWordCount || 3;
+      wordSeparatorInput.value = (settings.passphraseSeperator !== undefined) ? settings.passphraseSeperator : '-';
+      passphraseCapitalizeCheckbox.checked = !!settings.passphraseCapitalize;
+      passphraseIncludeNumberCheckbox.checked = !!settings.passphraseIncludeNumber;
+
       if (settings.passwordType === 'passphrase') {
         typePassphraseRadio.checked = true;
       } else {
@@ -109,28 +145,27 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       updatePasswordTypeVisibility();
-
       if (callback) callback();
     });
   }
 
   function updatePasswordTypeVisibility() {
     const isPassphrase = typePassphraseRadio.checked;
+    const passwordRows = ['lowercaseRow','uppercaseRow','numbersRow','symbolsRow']
+      .map(id => document.getElementById(id));
+
     if (isPassphrase) {
-      includeLowercaseCheckbox.parentElement.style.display = 'none';
-      includeUppercaseCheckbox.parentElement.style.display = 'none';
-      includeNumbersCheckbox.parentElement.style.display = 'none';
-      includeSymbolsCheckbox.parentElement.style.display = 'none';
+      passwordRows.forEach(r => { if (r) r.style.display = 'none'; });
       passwordLengthContainer.style.display = 'none';
+      passphraseOptions.style.display = 'block';
     } else {
-      includeLowercaseCheckbox.parentElement.style.display = 'block';
-      includeUppercaseCheckbox.parentElement.style.display = 'block';
-      includeNumbersCheckbox.parentElement.style.display = 'block';
-      includeSymbolsCheckbox.parentElement.style.display = 'block';
+      passwordRows.forEach(r => { if (r) r.style.display = 'flex'; });
       passwordLengthContainer.style.display = 'block';
+      passphraseOptions.style.display = 'none';
     }
   }
 
+  // ── Generate
   function generatePassword() {
     if (typePassphraseRadio.checked) {
       generatePassphrase();
@@ -146,31 +181,65 @@ document.addEventListener('DOMContentLoaded', () => {
     const includeNumbers = includeNumbersCheckbox.checked;
     const includeSymbols = includeSymbolsCheckbox.checked;
 
+    const sets = {
+      lowercase: 'abcdefghijklmnopqrstuvwxyz',
+      uppercase: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+      numbers: '0123456789',
+      symbols: '!@#$%^&*'
+    };
+
     let charset = '';
-    if (includeLowercase) charset += 'abcdefghijklmnopqrstuvwxyz';
-    if (includeUppercase) charset += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    if (includeNumbers) charset += '0123456789';
-    if (includeSymbols) charset += '!@#$%^&*';
+    if (includeLowercase) charset += sets.lowercase;
+    if (includeUppercase) charset += sets.uppercase;
+    if (includeNumbers) charset += sets.numbers;
+    if (includeSymbols) charset += sets.symbols;
+
     if (charset === '') {
       alert('Please select at least one character type');
       return;
     }
 
-    let password = '';
-    for (let i = 0; i < length; i++) {
-      const randomIndex = Math.floor(Math.random() * charset.length);
-      password += charset[randomIndex];
+    const guaranteed = [];
+    if (includeLowercase) guaranteed.push(sets.lowercase[Math.floor(Math.random() * sets.lowercase.length)]);
+    if (includeUppercase) guaranteed.push(sets.uppercase[Math.floor(Math.random() * sets.uppercase.length)]);
+    if (includeNumbers) guaranteed.push(sets.numbers[Math.floor(Math.random() * sets.numbers.length)]);
+    if (includeSymbols) guaranteed.push(sets.symbols[Math.floor(Math.random() * sets.symbols.length)]);
+
+    const passwordChars = [...guaranteed];
+    for (let i = guaranteed.length; i < length; i++) {
+      passwordChars.push(charset[Math.floor(Math.random() * charset.length)]);
     }
 
+    for (let i = passwordChars.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [passwordChars[i], passwordChars[j]] = [passwordChars[j], passwordChars[i]];
+    }
+
+    const password = passwordChars.join('');
     displayPassword(password);
     addPasswordToHistory(password);
   }
 
   function generatePassphrase() {
     getLanguage(language => {
-      fetchRandomWords(language, 3)
+      const count = Math.max(3, Math.min(20, parseInt(wordCountInput.value) || 3));
+      const separator = wordSeparatorInput.value;
+      const capitalize = passphraseCapitalizeCheckbox.checked;
+      const includeNumber = passphraseIncludeNumberCheckbox.checked;
+
+      fetchRandomWords(language, count)
         .then(words => {
-          const passphrase = words.join('-');
+          let processed = words.map(w =>
+            capitalize ? w : w.charAt(0).toLowerCase() + w.slice(1)
+          );
+
+          if (includeNumber) {
+            // Append a random 1-99 number to one random word
+            const idx = Math.floor(Math.random() * processed.length);
+            processed[idx] = processed[idx] + (Math.floor(Math.random() * 99) + 1);
+          }
+
+          const passphrase = processed.join(separator);
           displayPassword(passphrase);
           addPasswordToHistory(passphrase);
         })
@@ -198,16 +267,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function getLanguage(callback) {
-    const languageMap = {
-      'nl': 'Dutch',
-      'en': 'English',
-      'de': 'German'
-    };
-
+    const languageMap = { 'nl': 'Dutch', 'en': 'English', 'de': 'German' };
     chrome.storage.sync.get(['selectedLanguage'], (result) => {
       const selectedLanguage = result.selectedLanguage || 'nl';
-      const language = languageMap[selectedLanguage] || languageMap['nl'];
-      callback(language);
+      callback(languageMap[selectedLanguage] || languageMap['nl']);
     });
   }
 
@@ -215,33 +278,18 @@ document.addEventListener('DOMContentLoaded', () => {
     return new Promise(async (resolve, reject) => {
       try {
         const response = await fetch('../libs/words.json');
-        if (!response.ok) {
-          reject(new Error('Failed to fetch words.json'));
-          return;
-        }
-
+        if (!response.ok) { reject(new Error('Failed to fetch words.json')); return; }
         const wordLists = await response.json();
-
         const words = wordLists.words[language];
-        if (!words) {
-          reject(new Error(`Language '${language}' not supported`));
-          return;
-        }
-
-        if (words.length < count) {
-          reject(new Error('Not enough words to choose from'));
-          return;
-        }
+        if (!words) { reject(new Error(`Language '${language}' not supported`)); return; }
+        if (words.length < count) { reject(new Error('Not enough words to choose from')); return; }
 
         const wordPool = [...words];
-
         const selectedWords = [];
         for (let i = 0; i < count; i++) {
           const randomIndex = Math.floor(Math.random() * wordPool.length);
-          const word = wordPool.splice(randomIndex, 1)[0];
-          selectedWords.push(word);
+          selectedWords.push(wordPool.splice(randomIndex, 1)[0]);
         }
-
         resolve(selectedWords);
       } catch (error) {
         reject(new Error('Error fetching or processing words: ' + error.message));
@@ -254,25 +302,20 @@ document.addEventListener('DOMContentLoaded', () => {
       let history = result.passwordHistory || [];
       const timestamp = new Date().toLocaleString();
       history.unshift({ password, timestamp });
-      if (history.length > 30) {
-        history = history.slice(0, 30);
-      }
-      chrome.storage.sync.set({ passwordHistory: history }, () => {
-        updatePasswordHistoryUI(history);
-      });
+      if (history.length > 30) history = history.slice(0, 30);
+      chrome.storage.sync.set({ passwordHistory: history });
     });
   }
 
   function loadPasswordHistory() {
     chrome.storage.sync.get(['passwordHistory'], (result) => {
-      const history = result.passwordHistory || [];
-      updatePasswordHistoryUI(history);
+      updatePasswordHistoryUI(result.passwordHistory || []);
     });
   }
 
   function updatePasswordHistoryUI(history) {
     passwordHistoryList.innerHTML = '';
-    history.forEach((item, index) => {
+    history.forEach((item) => {
       const li = document.createElement('li');
 
       const passwordContainer = document.createElement('div');
@@ -282,13 +325,9 @@ document.addEventListener('DOMContentLoaded', () => {
       passwordDiv.classList.add('history-password');
       for (let char of item.password) {
         let span = document.createElement('span');
-        if (/[a-zA-Z]/.test(char)) {
-          span.classList.add('char-letter');
-        } else if (/[0-9]/.test(char)) {
-          span.classList.add('char-number');
-        } else {
-          span.classList.add('char-special');
-        }
+        if (/[a-zA-Z]/.test(char)) span.classList.add('char-letter');
+        else if (/[0-9]/.test(char)) span.classList.add('char-number');
+        else span.classList.add('char-special');
         span.textContent = char;
         passwordDiv.appendChild(span);
       }
@@ -297,12 +336,10 @@ document.addEventListener('DOMContentLoaded', () => {
       copyIcon.src = '../icons/copy.png';
       copyIcon.classList.add('history-copy-icon');
       copyIcon.title = 'Copy Password';
-      copyIcon.style.filter = "brightness(0) invert(1)";
+      copyIcon.style.filter = 'brightness(0) invert(1)';
       copyIcon.addEventListener('click', () => {
         navigator.clipboard.writeText(item.password)
-          .catch(err => {
-            console.error('Could not copy password: ', err);
-          });
+          .catch(err => console.error('Could not copy password: ', err));
       });
 
       passwordContainer.appendChild(passwordDiv);
