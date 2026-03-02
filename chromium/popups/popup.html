@@ -209,21 +209,6 @@
       overflow: hidden;
     }
 
-    button::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.2), transparent);
-      transition: left 0.5s ease;
-    }
-
-    button:hover::before {
-      left: 100%;
-    }
-
     input[type="text"],
     select {
       width: 100%;
@@ -232,10 +217,7 @@
     button:hover,
     input[type="text"]:focus,
     select:focus {
-      background: rgba(55, 55, 60, 0.8);
       border-color: rgba(99, 102, 241, 0.4);
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
       outline: none;
     }
 
@@ -332,10 +314,11 @@
       position: relative;
       display: inline-block;
       width: 100%;
+      height: 30px;
     }
 
     .dropdown-btn {
-      background: rgba(39, 39, 42, 0.95);
+      background: rgba(39, 39, 42, 0.6);
       color: #e4e4e7;
       padding: 10px 14px;
       font-size: 13px;
@@ -348,15 +331,18 @@
       height: auto;
       border-radius: 8px;
       transition: all 0.3s ease;
+      margin-top: 6px;
     }
 
     .dropdown-btn:hover {
-      background: rgba(55, 55, 60, 0.8);
       border-color: rgba(99, 102, 241, 0.4);
+      transform: none !important;
+      box-shadow: none !important;
     }
 
     .dropdown-btn img {
       margin-right: 10px;
+      margin-left: 4px;
       height: 18px;
       flex-shrink: 0;
     }
@@ -364,6 +350,7 @@
     .dropdown-btn .arrow-down {
       flex-shrink: 0;
       margin-left: auto;
+      margin-top: -4px;
     }
 
     .dropdown-btn.centered {
@@ -389,7 +376,7 @@
       -webkit-backdrop-filter: blur(20px);
       min-width: 160px;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-      z-index: 1;
+      z-index: 9999;
       width: 100%;
       border-radius: 8px;
       border: 1px solid rgba(255, 255, 255, 0.08);
@@ -434,9 +421,10 @@
     .toggle-switch {
       position: relative;
       display: inline-block;
-      width: 44px;
-      height: 24px;
+      width: 36px;
+      height: 20px;
       flex-shrink: 0;
+      margin-bottom: 0px;
     }
 
     .slider {
@@ -455,8 +443,8 @@
     .slider:before {
       content: "";
       position: absolute;
-      height: 18px;
-      width: 18px;
+      height: 14px;
+      width: 14px;
       left: 3px;
       bottom: 2px;
       background: linear-gradient(135deg, #ffffff 0%, #e4e4e7 100%);
@@ -472,7 +460,7 @@
     }
 
     input[type="checkbox"]:checked+.slider:before {
-      transform: translateX(20px);
+      transform: translateX(16px);
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
     }
 
@@ -481,9 +469,16 @@
       align-items: center;
       gap: 12px;
       margin-bottom: 6px;
-      padding: 4px 6px;
+      padding: 6px 8px;
       border-radius: 8px;
       transition: background 0.2s ease;
+      min-height: 34px;
+    }
+
+    .toggle-row label:not(.toggle-switch) {
+      margin-bottom: 0;
+      line-height: 1;
+      transform: translateY(-2px);
     }
 
     .toggle-row:hover {
@@ -601,7 +596,6 @@
       border-color: rgba(255, 255, 255, 0.08);
     }
 
-    #passwordHistory,
     #ticketHistoryList {
       list-style-type: none;
       padding: 0;
@@ -610,6 +604,12 @@
       overflow-x: hidden;
       scrollbar-width: thin;
       scrollbar-color: rgba(99, 102, 241, 0.5) transparent;
+    }
+
+    #passwordHistory {
+      list-style-type: none;
+      padding: 0;
+      overflow: visible;
     }
 
     input[type="range"]::-webkit-slider-runnable-track {
@@ -715,13 +715,7 @@
       filter: brightness(1.2) drop-shadow(0 2px 8px rgba(99, 102, 241, 0.5));
     }
 
-    #copyPassword {
-      filter: invert(1);
-    }
 
-    #refreshPassword {
-      filter: invert(1);
-    }
 
     #passwordHistory::-webkit-scrollbar,
     #ticketHistoryList::-webkit-scrollbar {
@@ -901,10 +895,301 @@
       flex-shrink: 0;
     }
 
-    #tabSettings img {
-      filter: invert(1);
+    input[type="number"] {
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      background: rgba(39, 39, 42, 0.6);
+      color: #e4e4e7;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      width: 100%;
     }
 
+    input[type="number"]:focus {
+      background: rgba(55, 55, 60, 0.8);
+      border-color: rgba(99, 102, 241, 0.4);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+      outline: none;
+    }
+
+    .history-nav-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 5px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #e4e4e7;
+      background: rgba(39, 39, 42, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 0;
+    }
+
+    .history-nav-btn:hover {
+      border-color: rgba(99, 102, 241, 0.4);
+    }
+
+    .nav-arrow {
+      font-size: 20px;
+      line-height: 1;
+      color: #818cf8;
+      font-weight: 300;
+      margin-bottom: 3px;
+    }
+
+    .history-panel {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 400px;
+      height: 600px;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+      display: flex;
+      flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 200;
+      overflow: hidden;
+    }
+
+    .history-panel.open {
+      transform: translateX(0);
+    }
+
+    .history-panel-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 20px;
+      background: rgba(17, 17, 27, 0.8);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+      flex-shrink: 0;
+    }
+
+    .back-btn {
+      background: rgba(39, 39, 42, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: #818cf8;
+      font-size: 22px;
+      font-weight: 300;
+      line-height: 1;
+      padding: 4px 14px 6px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-bottom: 0;
+      flex-shrink: 0;
+    }
+
+    .back-btn:hover {
+      background: rgba(99, 102, 241, 0.15);
+      border-color: rgba(99, 102, 241, 0.4);
+      transform: translateX(-2px);
+    }
+
+    .history-panel-title {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .history-panel-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 20px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(99, 102, 241, 0.5) transparent;
+    }
+
+    .history-panel-content::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .history-panel-content::-webkit-scrollbar-thumb {
+      background: rgba(99, 102, 241, 0.4);
+      border-radius: 10px;
+    }
+
+    .history-panel-footer {
+      padding: 12px 20px;
+      background: rgba(17, 17, 27, 0.6);
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      flex-shrink: 0;
+    }
+
+    #clearHistoryBtn {
+      background: rgba(239, 68, 68, 0.1);
+      border-color: rgba(239, 68, 68, 0.3);
+      color: #fca5a5;
+      font-size: 12px;
+      padding: 8px 14px;
+      margin-bottom: 0;
+    }
+
+    #clearHistoryBtn:hover {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: rgba(239, 68, 68, 0.5);
+      transform: translateY(-1px);
+    }
+
+    .passphrase-field {
+      margin-bottom: 10px;
+    }
+
+    .passphrase-field label {
+      margin-bottom: 5px;
+    }
+
+    fieldset.labeled-field {
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 8px;
+      padding: 0 10px 8px 10px;
+      background: rgba(39, 39, 42, 0.6);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transition: border-color 0.3s ease;
+    }
+
+    fieldset.labeled-field:focus-within {
+      border-color: rgba(99, 102, 241, 0.5);
+      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+    }
+
+    fieldset.labeled-field legend {
+      font-size: 11px;
+      font-weight: 500;
+      color: #a1a1aa;
+      padding: 0 4px;
+      margin-left: 4px;
+      letter-spacing: 0.01em;
+    }
+
+    fieldset.labeled-field input,
+    fieldset.labeled-field .dropdown-btn {
+      width: 100%;
+      background: transparent;
+      border: none !important;
+      outline: none;
+      color: #e4e4e7;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 2px 2px 0;
+      box-shadow: none !important;
+      transform: none !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      height: auto;
+    }
+
+    fieldset.labeled-field input:focus,
+    fieldset.labeled-field .dropdown-btn:hover {
+      background: transparent;
+      border: none !important;
+      box-shadow: none !important;
+      transform: none !important;
+    }
+
+    fieldset.labeled-field:hover {
+      border-color: rgba(99, 102, 241, 0.4);
+    }
+
+    fieldset.labeled-field .custom-dropdown {
+      position: relative;
+    }
+
+    .gen-checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+      padding: 6px 8px;
+      border-radius: 8px;
+      transition: background 0.2s ease;
+      cursor: pointer;
+      min-height: 34px;
+    }
+
+    .gen-checkbox-row:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .gen-checkbox-row label {
+      font-size: 13px;
+      font-weight: 500;
+      color: #d4d4d8;
+      cursor: pointer;
+      margin-bottom: 0;
+      line-height: 1;
+      transform: translateY(-1px);
+    }
+
+    .gen-checkbox {
+      position: static !important;
+      opacity: 1 !important;
+      width: 16px !important;
+      height: 16px !important;
+      appearance: none;
+      -webkit-appearance: none;
+      background: rgba(39, 39, 42, 0.8);
+      border: 1.5px solid rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .gen-checkbox:checked {
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      border-color: #6366f1;
+    }
+
+    .gen-checkbox:checked::after {
+      content: '';
+      display: block;
+      width: 4px;
+      height: 8px;
+      border: 2px solid #fff;
+      border-top: none;
+      border-left: none;
+      transform: rotate(45deg) translate(-1px, -1px);
+    }
+
+    .gen-checkbox:hover {
+      border-color: rgba(99, 102, 241, 0.6);
+    }
+
+    fieldset.labeled-field {
+      min-height: var(--ctrl-h);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      overflow: visible;
+    }
+
+    .tab img,
+    .tab:hover img,
+    .tab.active img {
+      filter: brightness(0) invert(1);
+    }
   </style>
 </head>
 
@@ -948,14 +1233,16 @@
     <div class="category-header">Templates</div>
     <div class="category-content">
       <div class="form-group">
-        <div class="custom-dropdown">
-          <label for="templateDropdownButton">Template to use</label>
-          <button id="templateDropdownButton" class="dropdown-btn">
-            <span id="selectedTemplateText">Select a Template</span>
-            <i class="arrow-down"></i>
-          </button>
-          <div id="templateDropdownContent" class="dropdown-content"></div>
-        </div>
+        <fieldset class="labeled-field">
+          <legend>Template to use</legend>
+          <div class="custom-dropdown">
+            <button id="templateDropdownButton" class="dropdown-btn">
+              <span id="selectedTemplateText">Select a Template</span>
+              <i class="arrow-down"></i>
+            </button>
+            <div id="templateDropdownContent" class="dropdown-content"></div>
+          </div>
+        </fieldset>
       </div>
       <div class="form-group button-group-inline">
         <button id="inputMail">Input mail</button>
@@ -1019,8 +1306,10 @@
         <div class="generated-password-container">
           <div id="generatedPassword" class="generated-password"></div>
           <div class="password-icons">
-            <img src="../icons/refresh.png" id="refreshPassword" alt="Refresh Password" title="Generate New Password">
-            <img src="../icons/copy.png" id="copyPassword" alt="Copy Password" title="Copy Password">
+            <img src="../icons/refresh.png" id="refreshPassword" alt="Refresh Password" title="Generate New Password"
+              style="filter: brightness(0) invert(1);">
+            <img src="../icons/copy.png" id="copyPassword" alt="Copy Password" title="Copy Password"
+              style="filter: brightness(0) invert(1);">
           </div>
         </div>
       </div>
@@ -1029,7 +1318,6 @@
     <div class="category-header">Options</div>
     <div class="category-content">
       <div class="form-group">
-        <label>Select Type:</label>
         <div class="radio-group">
           <label class="radio-option">
             <input type="radio" id="typePassword" name="passwordType">
@@ -1043,43 +1331,54 @@
       </div>
 
       <div class="form-group" id="passwordLengthContainer">
-        <label for="passwordLength">Password Length: <span id="passwordLengthValue">12</span></label>
-        <input type="range" id="passwordLength" min="4" max="64" value="12">
+        <fieldset class="labeled-field passphrase-field">
+          <legend>Password Length (3&#8211;64)</legend>
+          <input type="number" id="passwordLength" min="3" max="64" value="12">
+        </fieldset>
       </div>
 
-      <div class="toggle-row" id="lowercaseRow">
-        <label class="toggle-switch">
-          <input type="checkbox" id="includeLowercase">
-          <span class="slider"></span>
-        </label>
+      <div class="gen-checkbox-row" id="lowercaseRow">
+        <input type="checkbox" class="gen-checkbox" id="includeLowercase">
         <label for="includeLowercase">Include Lowercase Letters</label>
       </div>
-      <div class="toggle-row" id="uppercaseRow">
-        <label class="toggle-switch">
-          <input type="checkbox" id="includeUppercase">
-          <span class="slider"></span>
-        </label>
+      <div class="gen-checkbox-row" id="uppercaseRow">
+        <input type="checkbox" class="gen-checkbox" id="includeUppercase">
         <label for="includeUppercase">Include Uppercase Letters</label>
       </div>
-      <div class="toggle-row" id="numbersRow">
-        <label class="toggle-switch">
-          <input type="checkbox" id="includeNumbers">
-          <span class="slider"></span>
-        </label>
+      <div class="gen-checkbox-row" id="numbersRow">
+        <input type="checkbox" class="gen-checkbox" id="includeNumbers">
         <label for="includeNumbers">Include Numbers</label>
       </div>
-      <div class="toggle-row" id="symbolsRow">
-        <label class="toggle-switch">
-          <input type="checkbox" id="includeSymbols">
-          <span class="slider"></span>
-        </label>
+      <div class="gen-checkbox-row" id="symbolsRow">
+        <input type="checkbox" class="gen-checkbox" id="includeSymbols">
         <label for="includeSymbols">Include Symbols</label>
+      </div>
+
+      <div id="passphraseOptions" style="display:none;">
+        <fieldset class="labeled-field passphrase-field">
+          <legend>Number of Words (3&#8211;20)</legend>
+          <input type="number" id="wordCount" min="3" max="20" value="3">
+        </fieldset>
+        <fieldset class="labeled-field passphrase-field">
+          <legend>Word Separator</legend>
+          <input type="text" id="wordSeparator" value="-" maxlength="5" placeholder="-">
+        </fieldset>
+        <div class="gen-checkbox-row">
+          <input type="checkbox" class="gen-checkbox" id="passphraseCapitalize">
+          <label for="passphraseCapitalize">Capitalize Words</label>
+        </div>
+        <div class="gen-checkbox-row">
+          <input type="checkbox" class="gen-checkbox" id="passphraseIncludeNumber">
+          <label for="passphraseIncludeNumber">Include Number</label>
+        </div>
       </div>
     </div>
 
-    <div class="category-header">Password History</div>
-    <div class="category-content">
-      <ul id="passwordHistory"></ul>
+    <div class="category-content" style="margin-top: 12px;">
+      <button class="history-nav-btn" id="openHistoryBtn">
+        Generator history
+        <span class="nav-arrow">&#8250;</span>
+      </button>
     </div>
   </div>
 
@@ -1140,18 +1439,22 @@
         </div>
       </div>
       <div class="form-group">
-        <label>Model</label>
-        <div class="custom-dropdown">
-          <button id="aiModelDropdownButton" class="dropdown-btn">
-            <span id="selectedModelText">Select a model</span>
-            <i class="arrow-down"></i>
-          </button>
-          <div id="aiModelDropdownContent" class="dropdown-content"></div>
-        </div>
+        <fieldset class="labeled-field">
+          <legend>Model</legend>
+          <div class="custom-dropdown">
+            <button id="aiModelDropdownButton" class="dropdown-btn">
+              <span id="selectedModelText">Select a model</span>
+              <i class="arrow-down"></i>
+            </button>
+            <div id="aiModelDropdownContent" class="dropdown-content"></div>
+          </div>
+        </fieldset>
       </div>
       <div class="form-group">
-        <label id="aiApiKeyLabel">API Key</label>
-        <input type="text" id="aiApiKeyInput" placeholder="Enter API key..." autocomplete="off">
+        <fieldset class="labeled-field">
+          <legend id="aiApiKeyLabel">API Key</legend>
+          <input type="text" id="aiApiKeyInput" placeholder="Enter API key..." autocomplete="off">
+        </fieldset>
       </div>
       <div class="form-group config-buttons">
         <button id="saveAiSettings">Save AI Settings</button>
@@ -1162,28 +1465,30 @@
     <div class="category-header">Language</div>
     <div class="category-content">
       <div class="form-group">
-        <label for="dropdownButton">Select AI and password generator language</label>
-        <div class="custom-dropdown">
-          <button id="dropdownButton" class="dropdown-btn" title="Language the extension will use">
-            <img id="selectedFlag" src="../icons/flags/nl.png" alt="Dutch Flag">
-            <span id="selectedLanguageText">Dutch</span>
-            <i class="arrow-down"></i>
-          </button>
-          <div id="dropdownContent" class="dropdown-content">
-            <div class="dropdown-item" data-value="nl">
-              <img src="../icons/flags/nl.png" alt="Dutch Flag">
-              <span>Dutch</span>
-            </div>
-            <div class="dropdown-item" data-value="en">
-              <img src="../icons/flags/us.png" alt="English Flag">
-              <span>English</span>
-            </div>
-            <div class="dropdown-item" data-value="de">
-              <img src="../icons/flags/de.png" alt="German Flag">
-              <span>German</span>
+        <fieldset class="labeled-field">
+          <legend>Language</legend>
+          <div class="custom-dropdown">
+            <button id="dropdownButton" class="dropdown-btn" title="Language the extension will use">
+              <img id="selectedFlag" src="../icons/flags/nl.png" alt="Dutch Flag">
+              <span id="selectedLanguageText">Dutch</span>
+              <i class="arrow-down"></i>
+            </button>
+            <div id="dropdownContent" class="dropdown-content">
+              <div class="dropdown-item" data-value="nl">
+                <img src="../icons/flags/nl.png" alt="Dutch Flag">
+                <span>Dutch</span>
+              </div>
+              <div class="dropdown-item" data-value="en">
+                <img src="../icons/flags/us.png" alt="English Flag">
+                <span>English</span>
+              </div>
+              <div class="dropdown-item" data-value="de">
+                <img src="../icons/flags/de.png" alt="German Flag">
+                <span>German</span>
+              </div>
             </div>
           </div>
-        </div>
+        </fieldset>
       </div>
     </div>
 
@@ -1211,6 +1516,20 @@
 
   <div id="loadingOverlay">
     <div class="spinner"></div>
+  </div>
+
+  <!-- ======== Generator History Panel ======== -->
+  <div id="historyPanel" class="history-panel">
+    <div class="history-panel-header">
+      <button class="back-btn" id="closeHistoryBtn">&#8249;</button>
+      <span class="history-panel-title">Generator history</span>
+    </div>
+    <div class="history-panel-content">
+      <ul id="passwordHistory"></ul>
+    </div>
+    <div class="history-panel-footer">
+      <button id="clearHistoryBtn">Clear history</button>
+    </div>
   </div>
 
   <script src="tabAnimations.js"></script>
