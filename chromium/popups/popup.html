@@ -1331,8 +1331,10 @@
       </div>
 
       <div class="form-group" id="passwordLengthContainer">
-        <label for="passwordLength">Password Length: <span id="passwordLengthValue">12</span></label>
-        <input type="range" id="passwordLength" min="4" max="64" value="12">
+        <fieldset class="labeled-field passphrase-field">
+          <legend>Password Length (3&#8211;64)</legend>
+          <input type="number" id="passwordLength" min="3" max="64" value="12">
+        </fieldset>
       </div>
 
       <div class="gen-checkbox-row" id="lowercaseRow">

@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
   const passwordLengthSlider = document.getElementById('passwordLength');
-  const passwordLengthValue = document.getElementById('passwordLengthValue');
   const passwordLengthContainer = document.getElementById('passwordLengthContainer');
   const includeLowercaseCheckbox = document.getElementById('includeLowercase');
   const includeUppercaseCheckbox = document.getElementById('includeUppercase');
@@ -22,11 +21,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const clearHistoryBtn = document.getElementById('clearHistoryBtn');
   const historyPanel = document.getElementById('historyPanel');
 
-  passwordLengthValue.textContent = passwordLengthSlider.value;
-
   passwordLengthSlider.addEventListener('input', () => {
-    passwordLengthValue.textContent = passwordLengthSlider.value;
+    let v = parseInt(passwordLengthSlider.value);
+    if (isNaN(v)) return;
+    if (v < 3) v = 3;
+    if (v > 64) v = 64;
+    passwordLengthSlider.value = v;
     saveSettings();
+    generatePassword();
   });
 
   [includeLowercaseCheckbox, includeUppercaseCheckbox, includeNumbersCheckbox, includeSymbolsCheckbox].forEach(cb => {
@@ -127,7 +129,6 @@ document.addEventListener('DOMContentLoaded', () => {
       };
 
       passwordLengthSlider.value = settings.passwordLength;
-      passwordLengthValue.textContent = settings.passwordLength;
       includeLowercaseCheckbox.checked = settings.includeLowercase;
       includeUppercaseCheckbox.checked = settings.includeUppercase;
       includeNumbersCheckbox.checked = settings.includeNumbers;
