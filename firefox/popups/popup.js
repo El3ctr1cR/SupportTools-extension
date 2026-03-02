@@ -9,6 +9,42 @@ document.addEventListener('DOMContentLoaded', () => {
     el._hideTimer = setTimeout(() => { el.style.display = 'none'; }, duration);
   }
 
+  let _openDropdown = null;
+
+  function toggleFixedDropdown(btn, content) {
+    if (_openDropdown && _openDropdown !== content) {
+      closeFixedDropdown(_openDropdown);
+    }
+    if (content.classList.contains('show')) {
+      closeFixedDropdown(content);
+    } else {
+      openFixedDropdown(btn, content);
+    }
+  }
+
+  function openFixedDropdown(btn, content) {
+    const rect = btn.getBoundingClientRect();
+    content.style.position = 'fixed';
+    content.style.top = (rect.bottom + 4) + 'px';
+    content.style.left = rect.left + 'px';
+    content.style.width = rect.width + 'px';
+    content.style.zIndex = '99999';
+    document.body.appendChild(content);
+    content.classList.add('show');
+    _openDropdown = content;
+  }
+
+  function closeFixedDropdown(content) {
+    content.classList.remove('show');
+    _openDropdown = null;
+  }
+
+  document.addEventListener('click', (e) => {
+    if (_openDropdown && !_openDropdown.contains(e.target) && !e.target.closest('.dropdown-btn')) {
+      closeFixedDropdown(_openDropdown);
+    }
+  }, true);
+
   const tabs = document.querySelectorAll('.tab');
   const contentSections = document.querySelectorAll('.content');
 
@@ -60,16 +96,21 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function updateToggleVisibility() {
+    const passphraseOptions = document.getElementById('passphraseOptions');
     if (radioPassphrase.checked) {
       lowercaseRow.style.display = 'none';
       uppercaseRow.style.display = 'none';
       numbersRow.style.display = 'none';
       symbolsRow.style.display = 'none';
+      document.getElementById('passwordLengthContainer').style.display = 'none';
+      if (passphraseOptions) passphraseOptions.style.display = 'block';
     } else {
       lowercaseRow.style.display = 'flex';
       uppercaseRow.style.display = 'flex';
       numbersRow.style.display = 'flex';
       symbolsRow.style.display = 'flex';
+      document.getElementById('passwordLengthContainer').style.display = 'block';
+      if (passphraseOptions) passphraseOptions.style.display = 'none';
     }
   }
 
@@ -251,8 +292,9 @@ document.addEventListener('DOMContentLoaded', () => {
     updateDropdownSelection(language);
   });
 
-  dropdownButton.addEventListener('click', () => {
-    dropdownContent.classList.toggle('show');
+  dropdownButton.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleFixedDropdown(dropdownButton, dropdownContent);
   });
 
   dropdownContent.addEventListener('click', (event) => {
@@ -263,13 +305,7 @@ document.addEventListener('DOMContentLoaded', () => {
       chrome.storage.sync.set({ selectedLanguage: selectedValue }, () => {
         console.log(`Language preference saved: ${selectedValue}`);
       });
-      dropdownContent.classList.remove('show');
-    }
-  });
-
-  window.addEventListener('click', (event) => {
-    if (!dropdownButton.contains(event.target) && !dropdownContent.contains(event.target)) {
-      dropdownContent.classList.remove('show');
+      closeFixedDropdown(dropdownContent);
     }
   });
 
@@ -420,7 +456,7 @@ document.addEventListener('DOMContentLoaded', () => {
       item.addEventListener('click', () => {
         currentAiModel = m.value;
         selectedModelText.textContent = m.label;
-        aiModelDropdownContent.classList.remove('show');
+        closeFixedDropdown(aiModelDropdownContent);
       });
       aiModelDropdownContent.appendChild(item);
       if (i === 0) firstModel = m.value;
@@ -435,14 +471,9 @@ document.addEventListener('DOMContentLoaded', () => {
     selectedModelText.textContent = match ? match.label : 'Select a model';
   }
 
-  aiModelDropdownButton.addEventListener('click', () => {
-    aiModelDropdownContent.classList.toggle('show');
-  });
-
-  window.addEventListener('click', (event) => {
-    if (!aiModelDropdownButton.contains(event.target) && !aiModelDropdownContent.contains(event.target)) {
-      aiModelDropdownContent.classList.remove('show');
-    }
+  aiModelDropdownButton.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleFixedDropdown(aiModelDropdownButton, aiModelDropdownContent);
   });
 
   function loadAiSettingsFromStorage() {
@@ -526,7 +557,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         dropdownItem.addEventListener('click', () => {
           selectedTemplateText.textContent = key;
-          templateDropdownContent.classList.remove('show');
+          closeFixedDropdown(templateDropdownContent);
 
           chrome.storage.sync.set({ lastSelectedTemplate: key }, () => {
             console.log(`Last selected template saved: ${key}`);
@@ -538,14 +569,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  templateDropdownButton.addEventListener('click', () => {
-    templateDropdownContent.classList.toggle('show');
-  });
-
-  window.addEventListener('click', (event) => {
-    if (!templateDropdownButton.contains(event.target) && !templateDropdownContent.contains(event.target)) {
-      templateDropdownContent.classList.remove('show');
-    }
+  templateDropdownButton.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleFixedDropdown(templateDropdownButton, templateDropdownContent);
   });
 
   chrome.storage.sync.get(['templates'], (result) => {
