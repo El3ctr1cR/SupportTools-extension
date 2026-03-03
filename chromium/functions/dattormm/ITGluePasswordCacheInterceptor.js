@@ -126,7 +126,7 @@
       }
     }
 
-    if (url.includes('/relationships/passwords')) {
+    if (url.includes('/relationships/passwords') && /\/relationships\/passwords(\?|$)/.test(url)) {
       let parsedUrl;
       try { parsedUrl = new URL(url); } catch (_) { return originalFetch(...args); }
 
