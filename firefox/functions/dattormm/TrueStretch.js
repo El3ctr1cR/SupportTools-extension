@@ -18,12 +18,42 @@
     (document.head || document.documentElement).appendChild(script);
   }
 
+  function getDisplayElement() {
+    return (
+      document.getElementById('display-outer') ||
+      document.getElementById('video-display-container') ||
+      null
+    );
+  }
+
+  function isVideoSession(el) {
+    return el && el.id === 'video-display-container';
+  }
+
+  function getLayoutOffset(el) {
+    let left = 0, top = 0;
+    let curr = el;
+    while (curr && curr !== document.body) {
+      left += curr.offsetLeft;
+      top  += curr.offsetTop;
+      curr  = curr.offsetParent;
+    }
+    return { left, top };
+  }
+
   function sendScale() {
+    const displayEl = getDisplayElement();
+    const { left: elLeft, top: elTop } = displayEl
+      ? getLayoutOffset(displayEl)
+      : { left: 0, top: 0 };
+
     window.postMessage({
       type:    MSG_TYPE,
       scaleX:  currentScaleX,
       scaleY:  currentScaleY,
       enabled: stretchEnabled,
+      elLeft,
+      elTop,
     }, '*');
   }
 
@@ -40,11 +70,11 @@
   }
 
   function applyStretch() {
-    const displayOuter = document.getElementById('display-outer');
-    if (!displayOuter) return;
+    const displayEl = getDisplayElement();
+    if (!displayEl) return;
 
-    const naturalW = displayOuter.offsetWidth;
-    const naturalH = displayOuter.offsetHeight;
+    const naturalW = displayEl.offsetWidth;
+    const naturalH = displayEl.offsetHeight;
     if (!naturalW || !naturalH) return;
 
     const sidebarW = getSidebarWidth();
@@ -60,12 +90,16 @@
       sendScale();
     }
 
-    displayOuter.style.setProperty('transform',        `scale(${currentScaleX}, ${currentScaleY})`, 'important');
-    displayOuter.style.setProperty('transform-origin', 'top left',                                  'important');
+    displayEl.style.setProperty('transform',        `scale(${currentScaleX}, ${currentScaleY})`, 'important');
+    displayEl.style.setProperty('transform-origin', 'top left',                                  'important');
 
-    let parent = displayOuter.parentElement;
+    let parent = displayEl.parentElement;
     while (parent && parent !== document.body) {
       parent.style.setProperty('overflow', 'visible', 'important');
+      if (parent === displayEl.parentElement && isVideoSession(displayEl)) {
+        parent.style.setProperty('width',  `${availW}px`, 'important');
+        parent.style.setProperty('height', `${availH}px`, 'important');
+      }
       parent = parent.parentElement;
     }
   }
@@ -75,14 +109,19 @@
     currentScaleY = 1;
     sendScale();
 
-    const displayOuter = document.getElementById('display-outer');
-    if (!displayOuter) return;
-    displayOuter.style.removeProperty('transform');
-    displayOuter.style.removeProperty('transform-origin');
+    const displayEl = getDisplayElement();
+    if (!displayEl) return;
 
-    let parent = displayOuter.parentElement;
+    displayEl.style.removeProperty('transform');
+    displayEl.style.removeProperty('transform-origin');
+
+    let parent = displayEl.parentElement;
     while (parent && parent !== document.body) {
       parent.style.removeProperty('overflow');
+      if (parent === displayEl.parentElement && isVideoSession(displayEl)) {
+        parent.style.removeProperty('width');
+        parent.style.removeProperty('height');
+      }
       parent = parent.parentElement;
     }
   }
@@ -120,6 +159,13 @@
     if (stretchEnabled) applyStretch();
   });
 
+  function isPageReady() {
+    const el = getDisplayElement();
+    if (!el || !el.offsetWidth || !el.offsetHeight) return false;
+    if (isVideoSession(el)) return !!el.querySelector('video');
+    return !!findScaleDiv(el);
+  }
+
   function init() {
     injectPageScript();
 
@@ -127,10 +173,7 @@
       const saved = result[STORAGE_KEY] ?? false;
 
       const readyCheck = setInterval(() => {
-        const displayOuter = document.getElementById('display-outer');
-        if (!displayOuter || !displayOuter.offsetWidth || !displayOuter.offsetHeight) return;
-        if (!findScaleDiv(displayOuter)) return;
-
+        if (!isPageReady()) return;
         clearInterval(readyCheck);
         if (saved) setStretch(true);
       }, 300);
