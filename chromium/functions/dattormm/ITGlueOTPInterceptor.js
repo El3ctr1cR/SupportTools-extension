@@ -1,13 +1,3 @@
-/**
- * dattoItglueOtpInterceptor.js
- *
- * Runs in the PAGE'S JS context ("world": "MAIN" in manifest).
- * Wraps window.fetch to capture:
- *   - The ITGlue Bearer token from outgoing request headers
- *   - The passwords list from the /relationships/passwords response
- *
- * Communicates results to the isolated content script via window.postMessage.
- */
 (function () {
   'use strict';
 

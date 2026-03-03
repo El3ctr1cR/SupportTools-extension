@@ -1,10 +1,3 @@
-/**
- * dattoItglueOtp.js
- *
- * Runs in the default ISOLATED content-script world on Datto RMM pages.
- * Relies on dattoItglueOtpInterceptor.js (MAIN world) for token + password data.
- */
-
 (function () {
   'use strict';
 
