@@ -65,6 +65,25 @@
     },
     {
       "matches": [
+        "*://*.rmm.datto.com/*"
+      ],
+      "js": [
+        "functions/dattormm/ITGluePasswordCacheInterceptor.js"
+      ],
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": [
+        "*://*.rmm.datto.com/*"
+      ],
+      "js": [
+        "functions/dattormm/ITGluePasswordCache.js"
+      ],
+      "run_at": "document_start"
+    },
+    {
+      "matches": [
         "*://*.autotask.net/Autotask/Views/DispatcherWorkshop/DispatcherWorkshopView.aspx?MyCalendar=*"
       ],
       "js": [

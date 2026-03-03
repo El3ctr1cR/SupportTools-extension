@@ -132,6 +132,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const incognitoToggle = document.getElementById('incognitoToggle');
   const itglueOtpToggle = document.getElementById('itglueOtpToggle');
   const dattoStretchToggle = document.getElementById('dattoStretchToggle');
+  const itgluePasswordCacheToggle = document.getElementById('itgluePasswordCacheToggle');
+  const itgluePasswordCacheClearBtn = document.getElementById('itgluePasswordCacheClearBtn');
   const inputMailButton = document.getElementById('inputMail');
   const copyMailButton = document.getElementById('copyMail');
   const editTemplatesButton = document.getElementById('editTemplates');
@@ -609,6 +611,39 @@ document.addEventListener('DOMContentLoaded', () => {
             enabled: dattoStretchToggle.checked
           }).catch(() => {});
         });
+      });
+    });
+  });
+
+  chrome.storage.local.get(['itgluePasswordCache_enabled'], (result) => {
+    itgluePasswordCacheToggle.checked = result.itgluePasswordCache_enabled ?? false;
+  });
+
+  itgluePasswordCacheToggle.addEventListener('change', () => {
+    const enabled = itgluePasswordCacheToggle.checked;
+    chrome.storage.local.set({ itgluePasswordCache_enabled: enabled }, () => {
+      chrome.tabs.query({}, (tabs) => {
+        tabs.forEach(tab => {
+          chrome.tabs.sendMessage(tab.id, {
+            action: 'toggleItgluePasswordCache',
+            enabled
+          }).catch(() => {});
+        });
+      });
+    });
+  });
+
+  itgluePasswordCacheClearBtn.addEventListener('click', () => {
+    chrome.storage.local.get(null, (all) => {
+      const keys = Object.keys(all).filter(k =>
+        k.startsWith('pw_org_') ||
+        k.startsWith('pw_device_') ||
+        k.startsWith('config_') ||
+        k.startsWith('itglue_org_') ||
+        k.startsWith('itglue_pending_config_')
+      );
+      chrome.storage.local.remove(keys, () => {
+        showMsg('itgluePasswordCacheMsg', `Cache cleared (${keys.length} entries)`, false, 3000);
       });
     });
   });
