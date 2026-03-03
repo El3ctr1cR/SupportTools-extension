@@ -38,7 +38,7 @@
         "*://*.rmm.datto.com/*"
       ],
       "js": [
-        "functions/dattoItglueOtpInterceptor.js"
+        "functions/dattormm/ITGlueOtpInterceptor.js"
       ],
       "run_at": "document_start",
       "world": "MAIN"
@@ -48,7 +48,7 @@
         "*://*.rmm.datto.com/*"
       ],
       "js": [
-        "functions/dattoItglueOtp.js"
+        "functions/dattormm/ITGlueOtp.js"
       ],
       "run_at": "document_start"
     },
@@ -57,9 +57,28 @@
         "*://*.rmm.datto.com/*"
       ],
       "js": [
-        "functions/dRmmTrueStretch.js"
+        "functions/dattormm/TrueStretch.js"
       ],
       "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "*://*.rmm.datto.com/*"
+      ],
+      "js": [
+        "functions/dattormm/ITGluePasswordCacheInterceptor.js"
+      ],
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": [
+        "*://*.rmm.datto.com/*"
+      ],
+      "js": [
+        "functions/dattormm/ITGluePasswordCache.js"
+      ],
+      "run_at": "document_start"
     },
     {
       "matches": [
@@ -115,7 +134,7 @@
     },
     {
       "resources": [
-        "functions/dRmmTrueStretchScript.js"
+        "functions/dattormm/TrueStretchScript.js"
       ],
       "matches": [
         "*://*.rmm.datto.com/*"

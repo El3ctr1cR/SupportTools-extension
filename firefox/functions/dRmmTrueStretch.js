@@ -14,7 +14,7 @@
     if (pageScriptInjected) return;
     pageScriptInjected = true;
     const script = document.createElement('script');
-    script.src = chrome.runtime.getURL('functions/dRmmTrueStretchScript.js');
+    script.src = chrome.runtime.getURL('functions/dattormm/TrueStretchScript.js');
     (document.head || document.documentElement).appendChild(script);
   }
 
