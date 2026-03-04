@@ -815,4 +815,81 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
   });
+
+  (function initChangelog() {
+    const overlay   = document.getElementById('changelogOverlay');
+    const closeBtn  = document.getElementById('changelogClose');
+    const dismissBtn = document.getElementById('changelogDismiss');
+    const versionEl = document.getElementById('changelogVersion');
+    const bodyEl    = document.getElementById('changelogBody');
+
+    const currentVersion = chrome.runtime.getManifest().version;
+    const storageKey     = 'changelogDismissedVersion';
+
+    function parseMarkdown(md) {
+      return md
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+        .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+        .replace(/^# (.+)$/gm, '<h2>$1</h2>')
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/`([^`]+)`/g, '<code>$1</code>')
+        .replace(/^[\*\-] (.+)$/gm, '<li>$1</li>')
+        .replace(/(<li>[\s\S]*?<\/li>)(\n(?!<li>)|$)/g, (m) => '<ul>' + m + '</ul>')
+        .replace(/\n{2,}/g, '</p><p>')
+        .replace(/^(?!<[hup])(.+)$/gm, (line) => line.trim() ? line : '')
+        .replace(/^([^<\n].+)$/gm, (line) => {
+          if (!line.startsWith('<')) return '<p>' + line + '</p>';
+          return line;
+        })
+        .trim();
+    }
+
+    function showChangelog(releaseBody) {
+      versionEl.textContent = 'v' + currentVersion;
+      bodyEl.innerHTML = parseMarkdown(releaseBody || '_No release notes available._');
+      overlay.style.display = 'flex';
+    }
+
+    function hideChangelog() {
+      overlay.style.display = 'none';
+    }
+
+    closeBtn.addEventListener('click', hideChangelog);
+
+    dismissBtn.addEventListener('click', () => {
+      chrome.storage.local.set({ [storageKey]: currentVersion }, hideChangelog);
+    });
+
+    chrome.storage.local.get([storageKey], (res) => {
+      if (res[storageKey] === currentVersion) return;
+
+      bodyEl.innerHTML = '<div id="changelogLoading"><div class="cl-spinner"></div>Loading changelog…</div>';
+      overlay.style.display = 'flex';
+      versionEl.textContent = 'v' + currentVersion;
+
+      fetch('https://api.github.com/repos/El3ctr1cR/SupportTools-extension/releases', {
+        headers: { 'Accept': 'application/vnd.github+json' }
+      })
+        .then(r => r.json())
+        .then(releases => {
+          const match = releases.find(r => {
+            const tag = (r.tag_name || '').replace(/^v/, '');
+            return tag === currentVersion;
+          });
+
+          if (!match) {
+            // No matching release - hide
+            hideChangelog();
+            return;
+          }
+
+          showChangelog(match.body);
+        })
+        .catch(() => {
+          // Network error - hide
+          hideChangelog();
+        });
+    });
+  })();
 });
