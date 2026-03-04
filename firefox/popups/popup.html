@@ -2,6 +2,7 @@
 <html>
 
 <head>
+  <meta charset="UTF-8">
   <title>Support Tools</title>
   <style>
     * {
@@ -1330,6 +1331,8 @@
       position: relative;
       color: #e4e4e7;
       border-bottom: 1px solid rgba(255,255,255,0.04);
+      word-break: break-word;
+      overflow-wrap: break-word;
     }
 
     #changelogBody ul li:last-child { border-bottom: none; }
@@ -1346,6 +1349,16 @@
     #changelogBody p {
       margin: 0 0 8px;
       color: #a1a1aa;
+    }
+
+    #changelogBody a {
+      color: #a5b4fc;
+      text-decoration: none;
+    }
+
+    #changelogBody a:hover {
+      color: #c4b5fd;
+      text-decoration: underline;
     }
 
     #changelogBody code {
@@ -1770,7 +1783,7 @@
   </div>
 
   <script src="tabAnimations.js"></script>
-
+  <script src="../libs/marked.min.js"></script>
   <script src="popup.js"></script>
   <script src="../functions/passwordGenerator.js"></script>
 </body>
