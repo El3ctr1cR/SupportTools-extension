@@ -827,22 +827,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const storageKey     = 'changelogDismissedVersion';
 
     function parseMarkdown(md) {
-      return md
-        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-        .replace(/^### (.+)$/gm, '<h3>$1</h3>')
-        .replace(/^## (.+)$/gm, '<h2>$1</h2>')
-        .replace(/^# (.+)$/gm, '<h2>$1</h2>')
-        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-        .replace(/`([^`]+)`/g, '<code>$1</code>')
-        .replace(/^[\*\-] (.+)$/gm, '<li>$1</li>')
-        .replace(/(<li>[\s\S]*?<\/li>)(\n(?!<li>)|$)/g, (m) => '<ul>' + m + '</ul>')
-        .replace(/\n{2,}/g, '</p><p>')
-        .replace(/^(?!<[hup])(.+)$/gm, (line) => line.trim() ? line : '')
-        .replace(/^([^<\n].+)$/gm, (line) => {
-          if (!line.startsWith('<')) return '<p>' + line + '</p>';
-          return line;
-        })
-        .trim();
+      return marked.parse(md || '');
     }
 
     function showChangelog(releaseBody) {
