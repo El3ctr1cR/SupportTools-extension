@@ -15,7 +15,7 @@
       "functions/incognitoRedirection.js"
     ]
   },
-  "incognito": "split",
+  "incognito": "spanning",
   "host_permissions": [
     "*://*.autotask.net/*",
     "*://*.rmm.datto.com/*",
