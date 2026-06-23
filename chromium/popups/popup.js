@@ -1,4 +1,36 @@
 document.addEventListener('DOMContentLoaded', () => {
+  // ── Dark mode toggle ──────────────────────────────────────────────────────
+  (function () {
+    const btn  = document.getElementById('darkModeBtn');
+    const body = document.body;
+    const KEY  = 'supportToolsDarkMode';
+
+    function applyDark(isDark) {
+      body.classList.toggle('dark', isDark);
+      if (btn) btn.textContent = isDark ? '☀️' : '🌙';
+    }
+
+    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+      chrome.storage.local.get([KEY], (result) => { applyDark(result[KEY] === 'dark'); });
+    } else {
+      try { applyDark(localStorage.getItem(KEY) === 'dark'); } catch (e) {}
+    }
+
+    if (btn) {
+      btn.addEventListener('click', function () {
+        const isDark = body.classList.toggle('dark');
+        btn.textContent = isDark ? '☀️' : '🌙';
+        const val = isDark ? 'dark' : 'light';
+        if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+          chrome.storage.local.set({ [KEY]: val });
+        } else {
+          try { localStorage.setItem(KEY, val); } catch (e) {}
+        }
+      });
+    }
+  })();
+  // ─────────────────────────────────────────────────────────────────────────
+
   function showMsg(elementId, text, isError = true, duration = 3000) {
     const el = document.getElementById(elementId);
     if (!el) return;
@@ -114,7 +146,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  const urlMappingsButton = document.getElementById('urlMappingsButton');
   const summarizeButton = document.getElementById('summarizeTicket');
   const makeTextNeaterButton = document.getElementById('makeTextNeater');
   const providerRadios = document.querySelectorAll('input[name="aiProvider"]');
@@ -136,12 +167,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const itgluePasswordCacheClearBtn = document.getElementById('itgluePasswordCacheClearBtn');
   const inputMailButton = document.getElementById('inputMail');
   const copyMailButton = document.getElementById('copyMail');
-  const editTemplatesButton = document.getElementById('editTemplates');
   const clearConfigButton = document.getElementById('clearConfig');
   const exportConfigButton = document.getElementById('exportConfig');
   const importConfigButton = document.getElementById('importConfig');
   const importFileInput = document.getElementById('importFile');
-  const hexBase32GenButton = document.getElementById('hexBase32Gen');
   const dropdownButton = document.getElementById('dropdownButton');
   const dropdownContent = document.getElementById('dropdownContent');
   const selectedFlag = document.getElementById('selectedFlag');
@@ -152,6 +181,476 @@ document.addEventListener('DOMContentLoaded', () => {
   const selectedTemplateText = document.getElementById('selectedTemplateText');
   const ticketHistoryList = document.getElementById('ticketHistoryList');
 
+  // ── Generic slide panel helper ────────────────────────────────────────────
+  function openPanel(id) {
+    const el = document.getElementById(id);
+    if (el) el.classList.add('open');
+  }
+  function closePanel(id) {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('open');
+  }
+
+  // ── Generator history panel ───────────────────────────────────────────────
+  const historyPanel = document.getElementById('historyPanel');
+  const openHistoryBtn = document.getElementById('openHistoryBtn');
+  const closeHistoryBtn = document.getElementById('closeHistoryBtn');
+  const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+  const passwordHistory = document.getElementById('passwordHistory');
+
+  if (openHistoryBtn) openHistoryBtn.addEventListener('click', () => openPanel('historyPanel'));
+  if (closeHistoryBtn) closeHistoryBtn.addEventListener('click', () => closePanel('historyPanel'));
+  if (clearHistoryBtn) {
+    clearHistoryBtn.addEventListener('click', () => {
+      chrome.storage.local.get(['passwordHistory'], (res) => {
+        chrome.storage.local.set({ passwordHistory: [] }, () => {
+          if (passwordHistory) passwordHistory.innerHTML = '';
+        });
+      });
+    });
+  }
+
+  // ── Ticket history slide panel ────────────────────────────────────────────
+  const ticketHistoryPanel = document.getElementById('ticketHistoryPanel');
+  const openTicketHistoryBtn = document.getElementById('openTicketHistoryBtn');
+  const closeTicketHistoryBtn = document.getElementById('closeTicketHistoryBtn');
+  const clearTicketHistoryBtn = document.getElementById('clearTicketHistoryBtn');
+
+  if (openTicketHistoryBtn) {
+    openTicketHistoryBtn.addEventListener('click', () => {
+      loadTicketHistory();
+      ticketHistoryPanel.classList.add('open');
+    });
+  }
+
+  if (closeTicketHistoryBtn) {
+    closeTicketHistoryBtn.addEventListener('click', () => {
+      ticketHistoryPanel.classList.remove('open');
+    });
+  }
+
+  if (clearTicketHistoryBtn) {
+    clearTicketHistoryBtn.addEventListener('click', () => {
+      chrome.storage.sync.set({ ticketHistory: [] }, () => {
+        loadTicketHistory();
+      });
+    });
+  }
+
+  // ── Hex/Base32 Generator panel ────────────────────────────────────────────
+  const openHexBase32Panel = document.getElementById('openHexBase32Panel');
+  const closeHexBase32Panel = document.getElementById('closeHexBase32Panel');
+  const hexKeyInput = document.getElementById('hexKey');
+  const base32KeyInput = document.getElementById('base32Key');
+  const copyHexKeyBtn = document.getElementById('copyHexKey');
+  const copyBase32KeyBtn = document.getElementById('copyBase32Key');
+  const refreshKeysBtn = document.getElementById('refreshKeys');
+
+  function generateHexKey(len = 32) {
+    const arr = new Uint8Array(len);
+    crypto.getRandomValues(arr);
+    return Array.from(arr).map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  function hexToBase32(hex) {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+    let bits = '', result = '';
+    for (let i = 0; i < hex.length; i += 2) {
+      bits += parseInt(hex.substr(i, 2), 16).toString(2).padStart(8, '0');
+    }
+    while (bits.length % 5 !== 0) bits += '0';
+    for (let i = 0; i < bits.length; i += 5) {
+      result += chars[parseInt(bits.substr(i, 5), 2)];
+    }
+    while (result.length % 8 !== 0) result += '=';
+    return result;
+  }
+
+  function generateKeys() {
+    const hex = generateHexKey(20);
+    if (hexKeyInput) hexKeyInput.value = hex;
+    if (base32KeyInput) base32KeyInput.value = hexToBase32(hex);
+  }
+
+  if (openHexBase32Panel) {
+    openHexBase32Panel.addEventListener('click', () => {
+      generateKeys();
+      openPanel('hexBase32Panel');
+    });
+  }
+  if (closeHexBase32Panel) closeHexBase32Panel.addEventListener('click', () => closePanel('hexBase32Panel'));
+  if (refreshKeysBtn) refreshKeysBtn.addEventListener('click', generateKeys);
+  if (copyHexKeyBtn) copyHexKeyBtn.addEventListener('click', () => {
+    if (hexKeyInput) navigator.clipboard.writeText(hexKeyInput.value);
+  });
+  if (copyBase32KeyBtn) copyBase32KeyBtn.addEventListener('click', () => {
+    if (base32KeyInput) navigator.clipboard.writeText(base32KeyInput.value);
+  });
+
+  // ── URL Mapping Editor panel ──────────────────────────────────────────────
+  // Exact port of urlMappingEditor.js logic, adapted to run inside a slide panel
+  {
+    const urlMappingsButton    = document.getElementById('urlMappingsButton');
+    const closeUrlMappingPanel = document.getElementById('closeUrlMappingPanel');
+    const mappingsContainer    = document.getElementById('mappingsContainer');
+    const saveMappingsBtn      = document.getElementById('saveMappings');
+
+    function umStandardizeUrl(original) {
+      if (!original) return '';
+      const hasHttp = original.startsWith('http://') || original.startsWith('https://');
+      const urlToParse = hasHttp ? original : 'https://' + original;
+      try { return new URL(urlToParse).toString(); } catch (e) { return ''; }
+    }
+
+    function umRenumberMappings() {
+      const groups = mappingsContainer.querySelectorAll('.mapping-group');
+      groups.forEach((g) => {
+        const existing = g.querySelector('.add-mapping-btn');
+        if (existing) existing.remove();
+      });
+      if (groups.length > 0) {
+        const lastGroup = groups[groups.length - 1];
+        const addBtn = document.createElement('button');
+        addBtn.className = 'add-mapping-btn';
+        addBtn.textContent = '+';
+        addBtn.addEventListener('click', () => {
+          umAddMappingGroup('', '');
+        });
+        lastGroup.appendChild(addBtn);
+      }
+    }
+
+    function umAddMappingGroup(source, target) {
+      const mappingGroup = document.createElement('div');
+      mappingGroup.className = 'mapping-group';
+      mappingGroup.innerHTML = `
+        <div class="inputs-container">
+          <input type="text" class="source-input" value="${source}" placeholder="Enter source URL...">
+          <input type="text" class="target-input" value="${target}" placeholder="Enter redirect URL (optional)...">
+        </div>
+        <button class="remove-mapping-btn">-</button>
+      `;
+      mappingsContainer.appendChild(mappingGroup);
+      mappingGroup.querySelector('.remove-mapping-btn').addEventListener('click', () => {
+        mappingGroup.remove();
+        umRenumberMappings();
+      });
+      umRenumberMappings();
+    }
+
+    function umLoadAndOpen() {
+      mappingsContainer.innerHTML = '';
+      chrome.storage.sync.get(['urlMappings'], (result) => {
+        const urlMappings = result.urlMappings || {};
+        Object.keys(urlMappings).forEach((sourceUrl) => {
+          umAddMappingGroup(sourceUrl, urlMappings[sourceUrl]);
+        });
+        if (Object.keys(urlMappings).length === 0) {
+          umAddMappingGroup('', '');
+        }
+        umRenumberMappings();
+        openPanel('urlMappingPanel');
+      });
+    }
+
+    if (urlMappingsButton)    urlMappingsButton.addEventListener('click', umLoadAndOpen);
+    if (closeUrlMappingPanel) closeUrlMappingPanel.addEventListener('click', () => closePanel('urlMappingPanel'));
+
+    if (saveMappingsBtn) {
+      saveMappingsBtn.addEventListener('click', () => {
+        const groups = mappingsContainer.querySelectorAll('.mapping-group');
+        const newMappings = {};
+        groups.forEach((g) => {
+          let src = g.querySelector('.source-input').value.trim();
+          let tgt = g.querySelector('.target-input').value.trim();
+          src = umStandardizeUrl(src);
+          tgt = umStandardizeUrl(tgt);
+          if (src) newMappings[src] = tgt;
+        });
+        chrome.storage.sync.set({ urlMappings: newMappings }, () => {
+          closePanel('urlMappingPanel');
+        });
+      });
+    }
+  }
+
+  // ── Template Editor panel ─────────────────────────────────────────────────
+  // Exact port of templateEditor.js logic, adapted to run inside a slide panel
+  {
+    const editTemplatesButton      = document.getElementById('openTemplateEditorPanel');
+    const closeTemplateEditorPanel = document.getElementById('closeTemplateEditorPanel');
+    const templatesContainer       = document.getElementById('templatesContainer');
+    const saveTemplatesBtn         = document.getElementById('saveTemplates');
+    const toggleVariablesPanel     = document.getElementById('toggleVariablesPanel');
+    const variableListPanel        = document.getElementById('variableListPanel');
+    const getAllStatusesPanelBtn    = document.getElementById('getAllStatusesPanelBtn');
+
+    let tplAvailableStatuses = [];
+
+    // Toggle variables list
+    if (toggleVariablesPanel) {
+      toggleVariablesPanel.addEventListener('click', () => {
+        const hidden = variableListPanel.style.display === 'none' || variableListPanel.style.display === '';
+        variableListPanel.style.display = hidden ? 'block' : 'none';
+        toggleVariablesPanel.textContent = hidden ? 'Hide usable variables' : 'Show usable variables';
+      });
+    }
+
+    // Get all statuses from Autotask tab
+    if (getAllStatusesPanelBtn) {
+      getAllStatusesPanelBtn.addEventListener('click', () => {
+        chrome.storage.local.get(['autotaskTabId'], (result) => {
+          const autoTaskTabId = result.autotaskTabId;
+          if (!autoTaskTabId) {
+            alert('No Autotask tab ID found. Please open the extension from the Autotask ticket page.');
+            return;
+          }
+          chrome.scripting.executeScript(
+            { target: { tabId: autoTaskTabId }, files: ['functions/templateManager.js'] },
+            () => {
+              chrome.tabs.sendMessage(autoTaskTabId, { action: 'getAllStatuses' }, (response) => {
+                if (chrome.runtime.lastError) {
+                  alert('Error: Could not retrieve statuses. Are you on an Autotask ticket page?');
+                  return;
+                }
+                if (response && response.statuses && response.statuses.length > 0) {
+                  const unique = Array.from(new Set(response.statuses));
+                  const statuses = ['Select ticket status', ...unique];
+                  tplAvailableStatuses = statuses;
+                  chrome.storage.sync.set({ autotaskStatuses: statuses }, () => {
+                    tplRefreshAllStatusDropdowns(statuses);
+                  });
+                } else {
+                  alert('No ticket statuses found. Make sure to open a time entry or note before clicking this button.');
+                }
+              });
+            }
+          );
+        });
+      });
+    }
+
+    function tplRefreshAllStatusDropdowns(statuses) {
+      templatesContainer.querySelectorAll('.template-group').forEach((group) => {
+        const sel = group.querySelector('select');
+        if (!sel) return;
+        const oldValue = sel.value;
+        sel.innerHTML = '';
+        statuses.forEach((st) => {
+          const opt = document.createElement('option');
+          opt.value = st;
+          opt.textContent = st;
+          sel.appendChild(opt);
+        });
+        if (statuses.includes(oldValue)) sel.value = oldValue;
+      });
+    }
+
+    function tplFormatHotkey(e) {
+      const parts = [];
+      if (e.ctrlKey)  parts.push('Ctrl');
+      if (e.altKey)   parts.push('Alt');
+      if (e.shiftKey) parts.push('Shift');
+      if (e.metaKey)  parts.push('Meta');
+      const modifierKeys = new Set(['Control', 'Alt', 'Shift', 'Meta']);
+      if (!modifierKeys.has(e.key)) {
+        parts.push(e.key.length === 1 ? e.key.toUpperCase() : e.key);
+      }
+      return parts.length >= 2 ? parts.join('+') : '';
+    }
+
+    function tplAttachHotkeyRecorder(input) {
+      input.addEventListener('focus', () => {
+        input.classList.add('recording');
+        input.dataset.originalValue = input.value;
+        input.value = 'Press keys...';
+      });
+      input.addEventListener('keydown', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (e.key === 'Escape') {
+          input.value = input.dataset.originalValue || '';
+          input.classList.remove('recording');
+          input.blur();
+          return;
+        }
+        const combo = tplFormatHotkey(e);
+        if (combo) {
+          input.value = combo;
+          input.classList.remove('recording');
+          input.blur();
+        }
+      });
+      input.addEventListener('blur', () => {
+        input.classList.remove('recording');
+        if (input.value === 'Press keys...') {
+          input.value = input.dataset.originalValue || '';
+        }
+      });
+    }
+
+    function tplAddTemplateGroup(templateName, templateContent, templateStatus, templateHotkey) {
+      const templateGroup = document.createElement('div');
+      templateGroup.className = 'template-group';
+
+      const templateBox = document.createElement('div');
+      templateBox.className = 'template-box';
+
+      const nameInput = document.createElement('input');
+      nameInput.type = 'text';
+      nameInput.value = templateName;
+      nameInput.className = 'template-name';
+      nameInput.placeholder = 'Enter template name...';
+
+      const statusSelect = document.createElement('select');
+      tplAvailableStatuses.forEach((st) => {
+        const option = document.createElement('option');
+        option.value = st;
+        option.textContent = st;
+        statusSelect.appendChild(option);
+      });
+      statusSelect.value = templateStatus;
+
+      const textArea = document.createElement('textarea');
+      textArea.placeholder = 'Enter template content...';
+      textArea.value = templateContent;
+
+      const hotkeyRow = document.createElement('div');
+      hotkeyRow.className = 'hotkey-row';
+
+      const hotkeyInput = document.createElement('input');
+      hotkeyInput.type = 'text';
+      hotkeyInput.className = 'hotkey-input';
+      hotkeyInput.readOnly = true;
+      hotkeyInput.value = templateHotkey || '';
+      hotkeyInput.placeholder = 'Click to record hotkey...';
+      hotkeyInput.title = 'Click, then press a key combo (must include a modifier: Ctrl, Alt, Shift). Escape to cancel.';
+      tplAttachHotkeyRecorder(hotkeyInput);
+
+      const hotkeyClear = document.createElement('button');
+      hotkeyClear.className = 'hotkey-clear';
+      hotkeyClear.textContent = '-';
+      hotkeyClear.title = 'Clear hotkey';
+      hotkeyClear.addEventListener('click', () => { hotkeyInput.value = ''; });
+
+      const hotkeyRowInputs = document.createElement('div');
+      hotkeyRowInputs.className = 'hotkey-row-inputs';
+      hotkeyRowInputs.appendChild(hotkeyInput);
+      hotkeyRowInputs.appendChild(hotkeyClear);
+      hotkeyRow.appendChild(hotkeyRowInputs);
+
+      templateBox.appendChild(nameInput);
+      templateBox.appendChild(statusSelect);
+      templateBox.appendChild(textArea);
+      templateBox.appendChild(hotkeyRow);
+
+      const templateActions = document.createElement('div');
+      templateActions.className = 'template-actions';
+
+      const removeButton = document.createElement('button');
+      removeButton.className = 'remove-template-btn';
+      removeButton.textContent = '-';
+      removeButton.addEventListener('click', () => {
+        templateGroup.remove();
+        tplRenumberTemplates();
+      });
+      templateActions.appendChild(removeButton);
+
+      templateGroup.appendChild(templateBox);
+      templateGroup.appendChild(templateActions);
+      templatesContainer.appendChild(templateGroup);
+    }
+
+    function tplRenumberTemplates() {
+      const groups = templatesContainer.querySelectorAll('.template-group');
+      groups.forEach((group, index) => {
+        const actions = group.querySelector('.template-actions');
+        const existingAdd = actions.querySelector('.add-template-btn');
+        if (existingAdd) existingAdd.remove();
+        if (index === groups.length - 1) {
+          const newAddBtn = document.createElement('button');
+          newAddBtn.className = 'add-template-btn';
+          newAddBtn.textContent = '+';
+          newAddBtn.addEventListener('click', () => {
+            tplAddTemplateGroup(`Template ${groups.length + 1}`, '', 'Select ticket status', '');
+            tplRenumberTemplates();
+          });
+          actions.appendChild(newAddBtn);
+        }
+      });
+    }
+
+    function tplLoadAndOpen() {
+      templatesContainer.innerHTML = '';
+      // Reset variable list to hidden each time panel opens
+      if (variableListPanel) variableListPanel.style.display = 'none';
+      if (toggleVariablesPanel) toggleVariablesPanel.textContent = 'Show usable variables';
+
+      chrome.storage.sync.get(['autotaskStatuses', 'templates'], (res) => {
+        tplAvailableStatuses = res.autotaskStatuses || ['Select ticket status'];
+        const templates = res.templates || {};
+        const keys = Object.keys(templates);
+        if (keys.length === 0) {
+          tplAddTemplateGroup('Template 1', '', 'Select ticket status', '');
+        } else {
+          keys.forEach((key) => {
+            const value = templates[key];
+            if (typeof value === 'string') {
+              tplAddTemplateGroup(key, value, 'Select ticket status', '');
+            } else if (value && typeof value === 'object') {
+              tplAddTemplateGroup(key, value.content || '', value.status || 'Select ticket status', value.hotkey || '');
+            }
+          });
+        }
+        tplRenumberTemplates();
+        openPanel('templateEditorPanel');
+      });
+    }
+
+    if (editTemplatesButton)      editTemplatesButton.addEventListener('click', tplLoadAndOpen);
+    if (closeTemplateEditorPanel) closeTemplateEditorPanel.addEventListener('click', () => closePanel('templateEditorPanel'));
+
+    if (saveTemplatesBtn) {
+      saveTemplatesBtn.addEventListener('click', () => {
+        const groups = templatesContainer.querySelectorAll('.template-group');
+        const newTemplates = {};
+        const usedHotkeys = {};
+        let duplicateFound = false;
+
+        groups.forEach((group) => {
+          const hotkey = group.querySelector('.hotkey-input').value.trim();
+          const name   = group.querySelector('.template-name').value.trim();
+          if (hotkey) {
+            if (usedHotkeys[hotkey]) {
+              alert(`Duplicate hotkey "${hotkey}" on "${usedHotkeys[hotkey]}" and "${name}". Each hotkey must be unique.`);
+              duplicateFound = true;
+            }
+            usedHotkeys[hotkey] = name;
+          }
+        });
+
+        if (duplicateFound) return;
+
+        groups.forEach((group) => {
+          const templateName    = group.querySelector('.template-name').value.trim();
+          const templateContent = group.querySelector('textarea').value.trim();
+          const statusSelect    = group.querySelector('select');
+          const chosenStatus    = statusSelect ? statusSelect.value : 'Select ticket status';
+          const hotkey          = group.querySelector('.hotkey-input').value.trim();
+          if (templateName && templateContent) {
+            newTemplates[templateName] = { content: templateContent, status: chosenStatus, hotkey };
+          }
+        });
+
+        chrome.storage.sync.set({ templates: newTemplates }, () => {
+          populateTemplateDropdown(newTemplates);
+          chrome.runtime.sendMessage({ action: 'updateDropdown' });
+          closePanel('templateEditorPanel');
+        });
+      });
+    }
+  }
+
   function loadTicketHistory() {
     chrome.storage.sync.get(['ticketHistory'], (res) => {
       const history = res.ticketHistory || [];
@@ -159,7 +658,7 @@ document.addEventListener('DOMContentLoaded', () => {
       ticketHistoryList.innerHTML = '';
       history.slice(0, 30).forEach((entry) => {
         const li = document.createElement('li');
-        li.style.marginBottom = '10px';
+        li.style.marginBottom = '4px';
         li.style.fontSize = '12px';
         li.style.wordBreak = 'break-all';
         li.style.display = 'flex';
@@ -169,7 +668,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const link = document.createElement('a');
         link.textContent = entry.displayText || '(Unknown)';
         link.href = '#';
-        link.style.color = '#5bc0de';
+        link.style.color = 'var(--bw-blue)';
         link.style.textDecoration = 'none';
         link.addEventListener('click', (evt) => {
           evt.preventDefault();
@@ -188,7 +687,6 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
   }
-  loadTicketHistory();
 
   tabs.forEach((tab) => {
     tab.addEventListener('click', () => {
@@ -392,24 +890,6 @@ document.addEventListener('DOMContentLoaded', () => {
         action: 'toggleInAppIframesInsideTicket',
         enabled: inAppIframesInsideTicketToggle.checked,
       });
-    });
-  });
-
-  hexBase32GenButton.addEventListener('click', () => {
-    chrome.windows.create({
-      url: chrome.runtime.getURL('../popups/misc/hexBase32Gen.html'),
-      type: 'popup',
-      width: 470,
-      height: 420
-    });
-  });
-
-  urlMappingsButton.addEventListener('click', () => {
-    chrome.windows.create({
-      url: chrome.runtime.getURL('../popups/misc/urlMappingEditor.html'),
-      type: 'popup',
-      width: 580,
-      height: 580
     });
   });
 
@@ -722,26 +1202,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
           }
         );
-      });
-    });
-  });
-
-  editTemplatesButton.addEventListener('click', () => {
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      if (!tabs || !tabs.length) {
-        showMsg('templateMsg', "No active tab found. Make sure you're on an Autotask ticket page.");
-        return;
-      }
-      const activeTabId = tabs[0].id;
-
-      chrome.storage.local.set({ autotaskTabId: activeTabId }, () => {
-        console.log("Stored Autotask tab ID:", activeTabId);
-        chrome.windows.create({
-          url: chrome.runtime.getURL('../popups/autotask/templateEditor.html'),
-          type: 'popup',
-          width: 620,
-          height: 1035
-        });
       });
     });
   });
