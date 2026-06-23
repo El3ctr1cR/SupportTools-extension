@@ -1,234 +1,213 @@
-(function () {
-  let injectedLoggedinUser = 'Unknown User';
-  document.addEventListener('loggedinUserEvent', function (e) {
-    injectedLoggedinUser = e.detail;
-    console.log('[Injected] Logged in user:', injectedLoggedinUser);
+function getTextFromSelector(selector) {
+  const element = document.querySelector(selector);
+  return element ? element.textContent.trim() : '';
+}
+
+function getTextUnderLabel(labelText, valueSelector) {
+  const labelElements = document.querySelectorAll('.ReadOnlyLabelContainer .PrimaryText');
+  for (let labelElement of labelElements) {
+    if (labelElement.textContent.trim() === labelText) {
+      const valueContainer = labelElement.closest('.ReadOnlyData').querySelector(valueSelector);
+      if (valueContainer) {
+        return valueContainer.textContent.trim();
+      }
+    }
+  }
+  return '';
+}
+
+function splitName(fullName) {
+  fullName = fullName.replace(/^(Dhr\.|Mevr\.)\s*/, '').trim();
+  const nameParts = fullName.split(' ');
+  const firstName = nameParts[0];
+  const lastName = nameParts[nameParts.length - 1];
+  return { firstName, lastName };
+}
+
+function getCurrentDate() {
+  const now = new Date();
+  return now.toLocaleDateString('nl-NL', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
   });
+}
 
-  function injectLoggedinUserScript() {
-    const script = document.createElement('script');
-    script.textContent = '(' + function () {
-      let loggedinUser = 'Unknown User';
-      const scriptTags = document.querySelectorAll('script');
-      for (let i = 0; i < scriptTags.length; i++) {
-        const scriptContent = scriptTags[i].innerHTML;
-        const match = scriptContent.match(/'([A-Za-z\s]+)','[A-Za-z\s]+','([A-Za-z\s]+ [A-Za-z\s]+)',\d{3,}/);
-        if (match && match[2]) {
-          loggedinUser = match[2];
-          break;
+function getCurrentTime() {
+  const now = new Date();
+  return now.toLocaleTimeString('nl-NL', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  });
+}
+
+function getLastTicketActivityTime() {
+  const conversationChunks = document.querySelectorAll('.ConversationChunk');
+  for (let conversationChunk of conversationChunks) {
+    const conversationItems = conversationChunk.querySelectorAll('.ConversationItem');
+    for (let conversationItem of conversationItems) {
+      const adminCheck = conversationItem.querySelector('.Text2');
+      if (adminCheck && adminCheck.textContent.trim() === 'Autotask Administrator') {
+        continue;
+      }
+      const timestampElement = conversationItem.querySelector('.Timestamp');
+      if (timestampElement) {
+        return timestampElement.textContent.trim();
+      }
+    }
+  }
+  return '';
+}
+
+function getTicketPriority() {
+  const detailsSection = document.querySelector('.DetailsSection');
+  if (detailsSection) {
+    const priorityElement = detailsSection.querySelector('.ReadOnlyData.QuickEditEnabled:nth-child(4) .Text.ColorSample');
+    if (priorityElement) {
+      return priorityElement.textContent.trim();
+    }
+  }
+  return '';
+}
+
+function getTicketCurrentStatus() {
+  const detailsSection = document.querySelector('.DetailsSection');
+  if (detailsSection) {
+    const statusElement = detailsSection.querySelector('.ReadOnlyData.QuickEditEnabled:nth-child(3) .Text.ColorSample');
+    if (statusElement) {
+      return statusElement.textContent.trim();
+    }
+  }
+  return '';
+}
+
+function getTicketNewStatus() {
+  const statusSection = document.querySelector(
+    '.Normal.Section .ContentContainer .Content .ReplaceableColumnContainer .Large.Column .SingleItemSelector2 .SelectionDisplay .Text span'
+  );
+  if (statusSection) {
+    return statusSection.textContent.trim();
+  }
+  return '';
+}
+
+function getTicketPrimaryResource() {
+  const primaryResourceElement = document.querySelector('.PrimaryResource .Name');
+  return primaryResourceElement ? primaryResourceElement.textContent.trim() : '';
+}
+
+function getLoggedinUser() {
+  const scriptTags = document.querySelectorAll('script');
+  for (let script of scriptTags) {
+    const scriptContent = script.innerHTML;
+    const match = scriptContent.match(/'([A-Za-z\s]+)','[A-Za-z\s]+','([A-Za-z\s]+ [A-Za-z\s]+)',\d{3,}/);
+    if (match && match[2]) {
+      return match[2];
+    }
+  }
+  return 'Unknown User';
+}
+
+function getTicketDetails() {
+  const fullName = getTextUnderLabel('Contact', '.ReadOnlyValueContainer .Text2').trim();
+  const { firstName, lastName } = splitName(fullName);
+  return {
+    ticketContactFirstname: firstName,
+    ticketContactLastname: lastName,
+    ticketPrimaryResource: getTicketPrimaryResource(),
+    ticketLastActivityTime: getLastTicketActivityTime(),
+    ticketPriority: getTicketPriority(),
+    ticketCurrentStatus: getTicketCurrentStatus(),
+    ticketNewStatus: getTicketNewStatus(),
+    loggedinUser: getLoggedinUser(),
+    currentTime: getCurrentTime(),
+    currentDate: getCurrentDate(),
+  };
+}
+
+function processTemplate(template, ticketDetails) {
+  return template
+    .replace('${ticketContactFirstname}', ticketDetails.ticketContactFirstname)
+    .replace('${ticketContactLastname}', ticketDetails.ticketContactLastname)
+    .replace('${ticketPrimaryResource}', ticketDetails.ticketPrimaryResource)
+    .replace('${ticketLastActivityTime}', ticketDetails.ticketLastActivityTime)
+    .replace('${ticketPriority}', ticketDetails.ticketPriority)
+    .replace('${ticketCurrentStatus}', ticketDetails.ticketCurrentStatus)
+    .replace('${ticketNewStatus}', ticketDetails.ticketNewStatus)
+    .replace('${loggedinUser}', ticketDetails.loggedinUser)
+    .replace('${currentTime}', ticketDetails.currentTime)
+    .replace('${currentDate}', ticketDetails.currentDate);
+}
+
+function setTicketStatus(desiredStatus) {
+  const selectionDisplay = document.querySelector('.SingleItemSelector2 .SelectionDisplay');
+  if (!selectionDisplay) {
+    console.log("Cannot find the status dropdown button (SelectionDisplay).");
+    return;
+  }
+  selectionDisplay.click();
+  setTimeout(() => {
+    const statusSpans = document.querySelectorAll('.SingleItemSelector2 .ItemList .Item .Text span');
+    let foundStatus = false;
+    for (const span of statusSpans) {
+      if (span.textContent.trim() === desiredStatus) {
+        const parentItem = span.closest('.Item');
+        if (parentItem) {
+          parentItem.click();
+          console.log(`Status changed to "${desiredStatus}"`);
+          foundStatus = true;
         }
-      }
-      const event = new CustomEvent('loggedinUserEvent', { detail: loggedinUser });
-      document.dispatchEvent(event);
-    } + ')();';
-    (document.head || document.documentElement).appendChild(script);
-    script.parentNode.removeChild(script);
-  }
-
-  injectLoggedinUserScript();
-
-  function getTextFromSelector(selector) {
-    const element = document.querySelector(selector);
-    return element ? element.textContent.trim() : '';
-  }
-
-  function getTextUnderLabel(labelText, valueSelector) {
-    const labelElements = document.querySelectorAll('.ReadOnlyLabelContainer .PrimaryText');
-    for (let labelElement of labelElements) {
-      if (labelElement.textContent.trim() === labelText) {
-        const valueContainer = labelElement.closest('.ReadOnlyData').querySelector(valueSelector);
-        if (valueContainer) {
-          return valueContainer.textContent.trim();
-        }
-      }
-    }
-    return '';
-  }
-
-  function splitName(fullName) {
-    fullName = fullName.replace(/^(Dhr\.|Mevr\.)\s*/, '').trim();
-    const nameParts = fullName.split(' ');
-    const firstName = nameParts[0];
-    const lastName = nameParts[nameParts.length - 1];
-    return { firstName, lastName };
-  }
-
-  function getCurrentDate() {
-    const now = new Date();
-    return now.toLocaleDateString('nl-NL', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
-  }
-
-  function getCurrentTime() {
-    const now = new Date();
-    return now.toLocaleTimeString('nl-NL', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
-    });
-  }
-
-  function getLastTicketActivityTime() {
-    const conversationChunks = document.querySelectorAll('.ConversationChunk');
-    for (let conversationChunk of conversationChunks) {
-      const conversationItems = conversationChunk.querySelectorAll('.ConversationItem');
-      for (let conversationItem of conversationItems) {
-        const adminCheck = conversationItem.querySelector('.Text2');
-        if (adminCheck && adminCheck.textContent.trim() === 'Autotask Administrator') {
-          continue;
-        }
-        const timestampElement = conversationItem.querySelector('.Timestamp');
-        if (timestampElement) {
-          return timestampElement.textContent.trim();
-        }
-      }
-    }
-    return '';
-  }
-
-  function getTicketPriority() {
-    const detailsSection = document.querySelector('.DetailsSection');
-    if (detailsSection) {
-      const priorityElement = detailsSection.querySelector('.ReadOnlyData.QuickEditEnabled:nth-child(4) .Text.ColorSample');
-      if (priorityElement) {
-        return priorityElement.textContent.trim();
-      }
-    }
-    return '';
-  }
-
-  function getTicketCurrentStatus() {
-    const detailsSection = document.querySelector('.DetailsSection');
-    if (detailsSection) {
-      const statusElement = detailsSection.querySelector('.ReadOnlyData.QuickEditEnabled:nth-child(3) .Text.ColorSample');
-      if (statusElement) {
-        return statusElement.textContent.trim();
-      }
-    }
-    return '';
-  }
-
-  function getTicketNewStatus() {
-    const statusSection = document.querySelector(
-      '.Normal.Section .ContentContainer .Content .ReplaceableColumnContainer .Large.Column .SingleItemSelector2 .SelectionDisplay .Text span'
-    );
-    if (statusSection) {
-      return statusSection.textContent.trim();
-    }
-    return '';
-  }
-
-  function getTicketPrimaryResource() {
-    const primaryResourceElement = document.querySelector('.PrimaryResource .Name');
-    return primaryResourceElement ? primaryResourceElement.textContent.trim() : '';
-  }
-
-  function getLoggedinUser() {
-    return injectedLoggedinUser;
-  }
-
-  function getTicketDetails() {
-    const fullName = getTextUnderLabel('Contact', '.ReadOnlyValueContainer .Text2').trim();
-    const { firstName, lastName } = splitName(fullName);
-    return {
-      ticketContactFirstname: firstName,
-      ticketContactLastname: lastName,
-      ticketPrimaryResource: getTicketPrimaryResource(),
-      ticketLastActivityTime: getLastTicketActivityTime(),
-      ticketPriority: getTicketPriority(),
-      ticketCurrentStatus: getTicketCurrentStatus(),
-      ticketNewStatus: getTicketNewStatus(),
-      loggedinUser: getLoggedinUser(),
-      currentTime: getCurrentTime(),
-      currentDate: getCurrentDate(),
-    };
-  }
-
-  function processTemplate(template, ticketDetails) {
-    return template
-      .replace('${ticketContactFirstname}', ticketDetails.ticketContactFirstname)
-      .replace('${ticketContactLastname}', ticketDetails.ticketContactLastname)
-      .replace('${ticketPrimaryResource}', ticketDetails.ticketPrimaryResource)
-      .replace('${ticketLastActivityTime}', ticketDetails.ticketLastActivityTime)
-      .replace('${ticketPriority}', ticketDetails.ticketPriority)
-      .replace('${ticketCurrentStatus}', ticketDetails.ticketCurrentStatus)
-      .replace('${ticketNewStatus}', ticketDetails.ticketNewStatus)
-      .replace('${loggedinUser}', ticketDetails.loggedinUser)
-      .replace('${currentTime}', ticketDetails.currentTime)
-      .replace('${currentDate}', ticketDetails.currentDate);
-  }
-
-  function setTicketStatus(desiredStatus) {
-    const selectionDisplay = document.querySelector('.SingleItemSelector2 .SelectionDisplay');
-    if (!selectionDisplay) {
-      console.log("Cannot find the status dropdown button (SelectionDisplay).");
-      return;
-    }
-    selectionDisplay.click();
-    setTimeout(() => {
-      const statusSpans = document.querySelectorAll('.SingleItemSelector2 .ItemList .Item .Text span');
-      let foundStatus = false;
-      for (const span of statusSpans) {
-        if (span.textContent.trim() === desiredStatus) {
-          const parentItem = span.closest('.Item');
-          if (parentItem) {
-            parentItem.click();
-            console.log(`Status changed to "${desiredStatus}"`);
-            foundStatus = true;
-          }
-          break;
-        }
-      }
-      if (!foundStatus) {
-        console.log(`Could not find a dropdown item matching "${desiredStatus}".`);
-      }
-    }, 300);
-  }
-
-  function getAllStatuses() {
-    console.log("getAllStatuses() called...");
-    const statusLabel = Array.from(document.querySelectorAll('.LabelContainer1 .Text .PrimaryText'))
-      .find(el => el.textContent.trim().toLowerCase() === 'status');
-    if (!statusLabel) {
-      console.log("Could not find a label with text 'Status'.");
-      return Promise.resolve([]);
-    }
-    console.log("Found label:", statusLabel);
-    const allSelectors = document.querySelectorAll('.SingleItemSelector2');
-    let statusSelector = null;
-    for (const sel of allSelectors) {
-      if (sel.querySelector('.TicketStatusIcon')) {
-        statusSelector = sel;
         break;
       }
     }
-    if (!statusSelector) {
-      console.log("Could not find any .SingleItemSelector2 containing a .TicketStatusIcon.");
-      return Promise.resolve([]);
+    if (!foundStatus) {
+      console.log(`Could not find a dropdown item matching "${desiredStatus}".`);
     }
-    console.log("Found statusSelector:", statusSelector);
-    const selectionDisplay = statusSelector.querySelector('.SelectionDisplay');
-    if (!selectionDisplay) {
-      console.log("No .SelectionDisplay inside statusSelector");
-      return Promise.resolve([]);
-    }
-    selectionDisplay.click();
-    console.log("Clicked the status dropdown...");
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const statusSpans = statusSelector.querySelectorAll('.ItemList .Item .Text span');
-        const statuses = Array.from(statusSpans).map(span => span.textContent.trim());
-        selectionDisplay.click();
-        console.log("Scraped statuses:", statuses);
-        resolve(statuses);
-      }, 500);
-    });
-  }
+  }, 300);
+}
 
-  function handleGetEmailText(templateName, sendResponse) {
+function getAllStatuses() {
+  console.log("getAllStatuses() called...");
+  const statusLabel = Array.from(document.querySelectorAll('.LabelContainer1 .Text .PrimaryText'))
+    .find(el => el.textContent.trim().toLowerCase() === 'status');
+  if (!statusLabel) {
+    console.log("Could not find a label with text 'Status'.");
+    return Promise.resolve([]);
+  }
+  console.log("Found label:", statusLabel);
+  const allSelectors = document.querySelectorAll('.SingleItemSelector2');
+  let statusSelector = null;
+  for (const sel of allSelectors) {
+    if (sel.querySelector('.TicketStatusIcon')) {
+      statusSelector = sel;
+      break;
+    }
+  }
+  if (!statusSelector) {
+    console.log("Could not find any .SingleItemSelector2 containing a .TicketStatusIcon.");
+    return Promise.resolve([]);
+  }
+  console.log("Found statusSelector:", statusSelector);
+  const selectionDisplay = statusSelector.querySelector('.SelectionDisplay');
+  if (!selectionDisplay) {
+    console.log("No .SelectionDisplay inside statusSelector");
+    return Promise.resolve([]);
+  }
+  selectionDisplay.click();
+  console.log("Clicked the status dropdown...");
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const statusSpans = statusSelector.querySelectorAll('.ItemList .Item .Text span');
+      const statuses = Array.from(statusSpans).map(span => span.textContent.trim());
+      selectionDisplay.click();
+      console.log("Scraped statuses:", statuses);
+      resolve(statuses);
+    }, 500);
+  });
+}
+
+function handleGetEmailText(templateName, sendResponse) {
   chrome.storage.sync.get(['templates'], (result) => {
     const ticketDetails = getTicketDetails();
     const templates = result.templates || {};
@@ -308,4 +287,3 @@ document.addEventListener('__supportTools_hotkeyInsert', (e) => {
     handleGetEmailText(templateName, null);
   }
 });
-})();

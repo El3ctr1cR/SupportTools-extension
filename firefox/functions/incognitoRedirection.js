@@ -19,33 +19,14 @@ chrome.webNavigation.onBeforeNavigate.addListener((details) => {
           const parsed = new URL(sourceValue);
           sourceHost = parsed.hostname;
         } catch (err) {
-          // If sourceValue isn't a valid URL, leave it as-is.
         }
         sourceHost = sourceHost.replace(/^www\./i, '');
 
         if (currentHost === sourceHost) {
-          const finalUrl = (targetValue?.trim() || details.url);
-
-          // Helper to create a private window using the proper API.
-          const createPrivateWindow = (options) => {
-            return new Promise((resolve, reject) => {
-              if (typeof browser !== 'undefined' && browser.windows && browser.windows.create) {
-                // Firefox (and other browsers that support the Promise API)
-                browser.windows.create(options).then(resolve, reject);
-              } else {
-                // Chrome: callback-based API
-                chrome.windows.create(options, resolve);
-              }
-            });
-          };
-
-          createPrivateWindow({ url: finalUrl, incognito: true })
-            .then((newWindow) => {
-              chrome.tabs.remove(details.tabId);
-            })
-            .catch((error) => {
-              console.error('Failed to create private window:', error);
-            });
+          const finalUrl = targetValue?.trim() || details.url;
+          chrome.windows.create({ url: finalUrl, incognito: true }, () => {
+            chrome.tabs.remove(details.tabId);
+          });
           break;
         }
       }
