@@ -362,7 +362,6 @@
        PRIMARY BUTTONS
        We target specific IDs to avoid styling tabs/dropdowns
     ───────────────────────────────────────────── */
-    #summarizeTicket,
     #makeTextNeater,
     #inputMail,
     #copyMail,
@@ -389,7 +388,6 @@
       white-space: nowrap;
     }
 
-    #summarizeTicket:hover,
     #makeTextNeater:hover,
     #inputMail:hover,
     #copyMail:hover,
@@ -403,7 +401,6 @@
       color: var(--bw-blue);
     }
 
-    #summarizeTicket:active,
     #makeTextNeater:active,
     #inputMail:active,
     #copyMail:active,
@@ -423,7 +420,6 @@
     }
 
     /* flex:1 must be re-declared because all:unset strips it */
-    .button-group-inline #summarizeTicket,
     .button-group-inline #makeTextNeater,
     .button-group-inline #inputMail,
     .button-group-inline #copyMail { flex: 1; }
@@ -1798,7 +1794,6 @@
     <div class="category-header">AI Actions</div>
     <div class="category-content">
       <div class="form-group button-group-inline">
-        <button id="summarizeTicket">Summarize ticket</button>
         <button id="makeTextNeater">Make text neater</button>
       </div>
     </div>
@@ -1819,20 +1814,6 @@
           <span class="slider"></span>
         </label>
         <label for="showTimeIndicatorToggle">Time indicator in calendar</label>
-      </div>
-      <div class="toggle-row">
-        <label class="toggle-switch">
-          <input type="checkbox" id="inAppIframesOutsideTicketToggle">
-          <span class="slider"></span>
-        </label>
-        <label for="inAppIframesOutsideTicketToggle">In-App iframes (Outside Tickets)</label>
-      </div>
-      <div class="toggle-row">
-        <label class="toggle-switch">
-          <input type="checkbox" id="inAppIframesInsideTicketToggle">
-          <span class="slider"></span>
-        </label>
-        <label for="inAppIframesInsideTicketToggle">In-App iframes (Inside Tickets)</label>
       </div>
     </div>
 

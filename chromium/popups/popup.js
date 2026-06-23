@@ -146,7 +146,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  const summarizeButton = document.getElementById('summarizeTicket');
   const makeTextNeaterButton = document.getElementById('makeTextNeater');
   const providerRadios = document.querySelectorAll('input[name="aiProvider"]');
   const aiModelDropdownButton = document.getElementById('aiModelDropdownButton');
@@ -158,8 +157,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const versionText = document.getElementById('versionText');
   const openTicketButtonToggle = document.getElementById('openTicketButtonToggle');
   const showTimeIndicatorToggle = document.getElementById('showTimeIndicatorToggle');
-  const inAppIframesOutsideTicketToggle = document.getElementById('inAppIframesOutsideTicketToggle');
-  const inAppIframesInsideTicketToggle = document.getElementById('inAppIframesInsideTicketToggle');
   const incognitoToggle = document.getElementById('incognitoToggle');
   const itglueOtpToggle = document.getElementById('itglueOtpToggle');
   const dattoStretchToggle = document.getElementById('dattoStretchToggle');
@@ -696,51 +693,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  function handleAiAction(action, popupHtml, contentSelector) {
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      const activeTab = tabs[0];
-      chrome.storage.local.set({ activeTabId: activeTab.id }, () => {
-        console.log('Tab ID saved:', activeTab.id);
-        chrome.scripting.executeScript(
-          {
-            target: { tabId: activeTab.id },
-            func: (selector) => !!document.querySelector(selector),
-            args: [contentSelector],
-          },
-          (results) => {
-            if (chrome.runtime.lastError || !results || !results[0].result) {
-              showMsg('aiActionMsg', 'No ticket content found on the page.');
-              return;
-            }
-            const aiPopup = window.open(popupHtml, 'AI Task', 'width=1200,height=1200');
-            aiPopup.onload = function () {
-              aiPopup.postMessage({ loading: true }, '*');
-            };
-            chrome.scripting.executeScript(
-              {
-                target: { tabId: activeTab.id },
-                files: ['functions/aiTaskHandler.js']
-              },
-              () => {
-                chrome.tabs.sendMessage(activeTab.id, { action }, (response) => {
-                  if (response && response.summary) {
-                    aiPopup.postMessage({ loading: false, summary: response.summary }, '*');
-                  } else {
-                    showMsg('aiActionMsg', 'Failed to handle AI action.');
-                  }
-                });
-              }
-            );
-          }
-        );
-      });
-    });
-  }
-
-  summarizeButton.addEventListener('click', () =>
-    handleAiAction('summarizeTicket', '../popups/autotask/ticketSummary.html', '.Normal.Section .ContentContainer .Content')
-  );
-
   makeTextNeaterButton.addEventListener('click', () => {
     loadingOverlay.style.display = 'flex';
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -777,14 +729,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   chrome.storage.sync.get(['showTimeIndicatorEnabled'], (result) => {
     showTimeIndicatorToggle.checked = result.showTimeIndicatorEnabled || false;
-  });
-
-  chrome.storage.sync.get(['inAppIframesOutsideTicket'], (result) => {
-    inAppIframesOutsideTicketToggle.checked = result.inAppIframesOutsideTicket || false;
-  });
-
-  chrome.storage.sync.get(['inAppIframesInsideTicket'], (result) => {
-    inAppIframesInsideTicketToggle.checked = result.inAppIframesInsideTicket || false;
   });
 
   chrome.storage.sync.get(['selectedLanguage'], (result) => {
@@ -865,30 +809,6 @@ document.addEventListener('DOMContentLoaded', () => {
       chrome.tabs.sendMessage(tabs[0].id, {
         action: 'toggleTimeIndicator',
         enabled: showTimeIndicatorToggle.checked,
-      });
-    });
-  });
-
-  inAppIframesOutsideTicketToggle.addEventListener('change', () => {
-    chrome.storage.sync.set({ inAppIframesOutsideTicket: inAppIframesOutsideTicketToggle.checked }, () => {
-      console.log('Open Tickets in Iframe setting updated:', inAppIframesOutsideTicketToggle.checked);
-    });
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      chrome.tabs.sendMessage(tabs[0].id, {
-        action: 'toggleInAppIframesOutsideTicket',
-        enabled: inAppIframesOutsideTicketToggle.checked,
-      });
-    });
-  });
-
-  inAppIframesInsideTicketToggle.addEventListener('change', () => {
-    chrome.storage.sync.set({ inAppIframesInsideTicket: inAppIframesInsideTicketToggle.checked }, () => {
-      console.log('Open Tickets in Iframe setting updated:', inAppIframesInsideTicketToggle.checked);
-    });
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      chrome.tabs.sendMessage(tabs[0].id, {
-        action: 'toggleInAppIframesInsideTicket',
-        enabled: inAppIframesInsideTicketToggle.checked,
       });
     });
   });
