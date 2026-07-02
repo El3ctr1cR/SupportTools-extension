@@ -8,11 +8,12 @@
     "activeTab",
     "scripting",
     "webNavigation",
-    "clipboardWrite"
+    "clipboardWrite",
+    "declarativeNetRequest"
   ],
   "background": {
     "scripts": [
-      "functions/incognitoRedirection.js"
+      "functions/background.js"
     ]
   },
   "incognito": "spanning",
@@ -35,6 +36,21 @@
     "128": "icons/icon.png"
   },
   "content_scripts": [
+    {
+      "matches": [
+        "*://*.autotask.net/*"
+      ],
+      "exclude_matches": [
+        "*://*.autotask.net/help/Content/*",
+        "*://*.autotask.net/help/content/*",
+        "*://www.autotask.net/*"
+      ],
+      "js": [
+        "functions/autotask/tabs/autotaskTabs.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": true
+    },
     {
       "matches": [
         "*://*.rmm.datto.com/*"
@@ -87,7 +103,7 @@
         "*://*.autotask.net/Autotask/Views/DispatcherWorkshop/DispatcherWorkshopView.aspx?MyCalendar=*"
       ],
       "js": [
-        "functions/calendarChanger.js"
+        "functions/autotask/calendarChanger.js"
       ],
       "all_frames": true,
       "match_about_blank": true,
@@ -98,8 +114,8 @@
         "*://*.autotask.net/Mvc/ServiceDesk*"
       ],
       "js": [
-        "functions/templateManager.js",
-        "functions/aiTaskHandler.js",
+        "functions/autotask/templateManager.js",
+        "functions/autotask/aiTaskHandler.js",
         "functions/hotkeyHandler.js"
       ],
       "all_frames": true
@@ -109,7 +125,7 @@
         "*://*.autotask.net/Mvc/ServiceDesk/TicketDetail.mvc*"
       ],
       "js": [
-        "functions/ticketHistoryWatcher.js"
+        "functions/autotask/ticketHistoryWatcher.js"
       ],
       "run_at": "document_idle",
       "all_frames": true
@@ -118,10 +134,13 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "functions/dattormm/TrueStretchScript.js"
+        "functions/dattormm/TrueStretchScript.js",
+        "functions/autotask/tabs/autotaskTabsRoutes.js",
+        "functions/autotask/tabs/autotaskTabsPageBridge.js"
       ],
       "matches": [
-        "*://*.rmm.datto.com/*"
+        "*://*.rmm.datto.com/*",
+        "*://*.autotask.net/*"
       ]
     }
   ],

@@ -157,6 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const versionText = document.getElementById('versionText');
   const openTicketButtonToggle = document.getElementById('openTicketButtonToggle');
   const showTimeIndicatorToggle = document.getElementById('showTimeIndicatorToggle');
+  const autotaskTabsToggle = document.getElementById('autotaskTabsToggle');
   const incognitoToggle = document.getElementById('incognitoToggle');
   const itglueOtpToggle = document.getElementById('itglueOtpToggle');
   const dattoStretchToggle = document.getElementById('dattoStretchToggle');
@@ -177,6 +178,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const templateDropdownContent = document.getElementById('templateDropdownContent');
   const selectedTemplateText = document.getElementById('selectedTemplateText');
   const ticketHistoryList = document.getElementById('ticketHistoryList');
+  const autotaskTabsSettingsBtn = document.getElementById('autotaskTabsSettingsBtn');
+  const autotaskTabsSettingsPanel = document.getElementById('autotaskTabsSettingsPanel');
+  const closeAutotaskTabsSettingsPanelBtn = document.getElementById('closeAutotaskTabsSettingsPanel');
+  const autotaskTabsSettingsContent = document.getElementById('autotaskTabsSettingsContent');
 
   // ── Generic slide panel helper ────────────────────────────────────────────
   function openPanel(id) {
@@ -403,7 +408,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
           }
           chrome.scripting.executeScript(
-            { target: { tabId: autoTaskTabId }, files: ['functions/templateManager.js'] },
+            { target: { tabId: autoTaskTabId }, files: ['functions/autotask/templateManager.js'] },
             () => {
               chrome.tabs.sendMessage(autoTaskTabId, { action: 'getAllStatuses' }, (response) => {
                 if (chrome.runtime.lastError) {
@@ -648,6 +653,271 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // ── Autotask Tabs Settings Panel ──────────────────────────────────────────
+  const autotaskTabsSettingsKey = 'autotask-tabs-settings-v1';
+
+  // Store references to all settings inputs
+  let atSettingsInputs = null;
+
+  function loadAutotaskTabsSettings() {
+    return new Promise((resolve) => {
+      chrome.storage.sync.get([autotaskTabsSettingsKey], (result) => {
+        resolve(result[autotaskTabsSettingsKey] || {});
+      });
+    });
+  }
+
+  function saveAutotaskTabsSettings(settings) {
+    chrome.storage.sync.set({ [autotaskTabsSettingsKey]: settings }, () => {
+      console.log('Autotask Tabs settings saved:', settings);
+    });
+  }
+
+  function saveCurrentSettings() {
+    if (!atSettingsInputs) return;
+    const { orientation, size,
+            resize, hide, persist, peekConfirm, peekMoveResize, roundedFrames,
+            improvedScrollbars, phoneLinks, ticketLinks } = atSettingsInputs;
+    const settings = {
+      barOrientation: orientation ? (orientation.value === 'vertical-left' ? 'vertical' : 'horizontal') : 'horizontal',
+      horizontalCompactTabsEnabled: size ? size.value === 'compact' : false,
+      resizableTabBarEnabled: resize ? resize.checked : false,
+      shellHidden: hide ? !hide.checked : false,
+      rememberTabsAfterClose: persist ? persist.checked : false,
+      skipPeekBackdropCloseWarning: peekConfirm ? !peekConfirm.checked : false,
+      peekMoveResizeEnabled: peekMoveResize ? peekMoveResize.checked : false,
+      roundedPageFramesEnabled: roundedFrames ? roundedFrames.checked : false,
+      improvedScrollbarsEnabled: improvedScrollbars ? improvedScrollbars.checked : false,
+      phoneLinksEnabled: phoneLinks ? phoneLinks.checked : false,
+      ticketLinksEnabled: ticketLinks ? ticketLinks.checked : false,
+    };
+    saveAutotaskTabsSettings(settings);
+  }
+
+  function createAutotaskTabsSettingsUI() {
+    autotaskTabsSettingsContent.innerHTML = '';
+
+    const settingsContainer = document.createElement('div');
+    settingsContainer.style.padding = '16px';
+    settingsContainer.style.maxWidth = '600px';
+    settingsContainer.style.margin = '0 auto';
+
+    // Tab Bar Section
+    const tabBarSection = document.createElement('div');
+    tabBarSection.style.marginBottom = '24px';
+    tabBarSection.style.borderBottom = '1px solid var(--border)';
+    tabBarSection.innerHTML = '<h3 style="font-size:13px;font-weight:600;margin-bottom:12px;color:var(--text-sec);text-transform:uppercase;letter-spacing:0.05em;">Tab Bar</h3>';
+
+    const orientationRow = document.createElement('div');
+    orientationRow.style.marginBottom = '12px';
+    orientationRow.innerHTML = `
+      <label style="display:block;font-size:13px;margin-bottom:6px;">Tab bar location</label>
+      <select id="atOrientation" style="width:100%;padding:8px 10px;font-size:13px;background:var(--input-bg);color:var(--input-text);border:1px solid var(--border);border-radius:4px;">
+        <option value="horizontal">Horizontal</option>
+        <option value="vertical-left">Vertical (Left)</option>
+      </select>
+      <p style="font-size:11px;color:var(--text-sec);margin-top:6px;">Choose whether tabs appear above Autotask or in a side bar.</p>
+    `;
+    const orientation = orientationRow.querySelector('select');
+    orientation.addEventListener('change', saveCurrentSettings);
+    tabBarSection.appendChild(orientationRow);
+
+    const sizeRow = document.createElement('div');
+    sizeRow.style.marginBottom = '12px';
+    sizeRow.innerHTML = `
+      <label style="display:block;font-size:13px;margin-bottom:6px;">Tab size</label>
+      <select id="atSize" style="width:100%;padding:8px 10px;font-size:13px;background:var(--input-bg);color:var(--input-text);border:1px solid var(--border);border-radius:4px;">
+        <option value="default">Enhanced tabs</option>
+        <option value="compact">Browser-like</option>
+      </select>
+      <p style="font-size:11px;color:var(--text-sec);margin-top:6px;">Use Enhanced tabs for AUTOTASKTABS metadata or Browser-like tabs for slim page-title tabs.</p>
+    `;
+    const size = sizeRow.querySelector('select');
+    size.addEventListener('change', saveCurrentSettings);
+    tabBarSection.appendChild(sizeRow);
+
+    const resizeRow = document.createElement('div');
+    resizeRow.className = 'toggle-row';
+    resizeRow.style.marginBottom = '8px';
+    resizeRow.innerHTML = `
+      <label class="toggle-switch" style="margin-right:12px;">
+        <input type="checkbox" id="atResize">
+        <span class="slider"></span>
+      </label>
+      <label for="atResize" style="margin:0;">Allow resizing of the vertical tab bar</label>
+    `;
+    const resize = resizeRow.querySelector('input');
+    resize.addEventListener('change', saveCurrentSettings);
+    tabBarSection.appendChild(resizeRow);
+
+    const hideRow = document.createElement('div');
+    hideRow.className = 'toggle-row';
+    hideRow.style.marginBottom = '8px';
+    hideRow.innerHTML = `
+      <label class="toggle-switch" style="margin-right:12px;">
+        <input type="checkbox" id="atHide" checked>
+        <span class="slider"></span>
+      </label>
+      <label for="atHide" style="margin:0;">Enable tab bar</label>
+    `;
+    const hide = hideRow.querySelector('input');
+    hide.addEventListener('change', saveCurrentSettings);
+    tabBarSection.appendChild(hideRow);
+
+    const persistRow = document.createElement('div');
+    persistRow.className = 'toggle-row';
+    persistRow.style.marginBottom = '8px';
+    persistRow.innerHTML = `
+      <label class="toggle-switch" style="margin-right:12px;">
+        <input type="checkbox" id="atPersist">
+        <span class="slider"></span>
+      </label>
+      <label for="atPersist" style="margin:0;">Remember tabs after closing browser</label>
+    `;
+    const persist = persistRow.querySelector('input');
+    persist.addEventListener('change', saveCurrentSettings);
+    tabBarSection.appendChild(persistRow);
+
+    settingsContainer.appendChild(tabBarSection);
+
+    // Peek Section
+    const peekSection = document.createElement('div');
+    peekSection.style.marginBottom = '24px';
+    peekSection.style.borderBottom = '1px solid var(--border)';
+    peekSection.innerHTML = '<h3 style="font-size:13px;font-weight:600;margin-bottom:12px;color:var(--text-sec);text-transform:uppercase;letter-spacing:0.05em;">Peek</h3>';
+
+    const peekConfirmRow = document.createElement('div');
+    peekConfirmRow.className = 'toggle-row';
+    peekConfirmRow.style.marginBottom = '8px';
+    peekConfirmRow.innerHTML = `
+      <label class="toggle-switch" style="margin-right:12px;">
+        <input type="checkbox" id="atPeekConfirm">
+        <span class="slider"></span>
+      </label>
+      <label for="atPeekConfirm" style="margin:0;">Confirm before closing Peek by outside click</label>
+    `;
+    const peekConfirm = peekConfirmRow.querySelector('input');
+    peekConfirm.addEventListener('change', saveCurrentSettings);
+    peekSection.appendChild(peekConfirmRow);
+
+    const peekMoveResizeRow = document.createElement('div');
+    peekMoveResizeRow.className = 'toggle-row';
+    peekMoveResizeRow.style.marginBottom = '8px';
+    peekMoveResizeRow.innerHTML = `
+      <label class="toggle-switch" style="margin-right:12px;">
+        <input type="checkbox" id="atPeekMoveResize">
+        <span class="slider"></span>
+      </label>
+      <label for="atPeekMoveResize" style="margin:0;">Allow resizing and moving of Peek windows</label>
+    `;
+    const peekMoveResize = peekMoveResizeRow.querySelector('input');
+    peekMoveResize.addEventListener('change', saveCurrentSettings);
+    peekSection.appendChild(peekMoveResizeRow);
+
+    settingsContainer.appendChild(peekSection);
+
+    // Enhanced Section
+    const enhancedSection = document.createElement('div');
+    enhancedSection.style.marginBottom = '24px';
+    enhancedSection.style.borderBottom = '1px solid var(--border)';
+    enhancedSection.innerHTML = '<h3 style="font-size:13px;font-weight:600;margin-bottom:12px;color:var(--text-sec);text-transform:uppercase;letter-spacing:0.05em;">Enhancements</h3>';
+
+    const roundedPageFramesRow = document.createElement('div');
+    roundedPageFramesRow.className = 'toggle-row';
+    roundedPageFramesRow.style.marginBottom = '8px';
+    roundedPageFramesRow.innerHTML = `
+      <label class="toggle-switch" style="margin-right:12px;">
+        <input type="checkbox" id="atRoundedFrames">
+        <span class="slider"></span>
+      </label>
+      <label for="atRoundedFrames" style="margin:0;">Rounded page frames</label>
+    `;
+    const roundedFrames = roundedPageFramesRow.querySelector('input');
+    roundedFrames.addEventListener('change', saveCurrentSettings);
+    enhancedSection.appendChild(roundedPageFramesRow);
+
+    const improvedScrollbarsRow = document.createElement('div');
+    improvedScrollbarsRow.className = 'toggle-row';
+    improvedScrollbarsRow.style.marginBottom = '8px';
+    improvedScrollbarsRow.innerHTML = `
+      <label class="toggle-switch" style="margin-right:12px;">
+        <input type="checkbox" id="atImprovedScrollbars">
+        <span class="slider"></span>
+      </label>
+      <label for="atImprovedScrollbars" style="margin:0;">Improved scrollbars</label>
+    `;
+    const improvedScrollbars = improvedScrollbarsRow.querySelector('input');
+    improvedScrollbars.addEventListener('change', saveCurrentSettings);
+    enhancedSection.appendChild(improvedScrollbarsRow);
+
+    const phoneLinksRow = document.createElement('div');
+    phoneLinksRow.className = 'toggle-row';
+    phoneLinksRow.style.marginBottom = '8px';
+    phoneLinksRow.innerHTML = `
+      <label class="toggle-switch" style="margin-right:12px;">
+        <input type="checkbox" id="atPhoneLinks">
+        <span class="slider"></span>
+      </label>
+      <label for="atPhoneLinks" style="margin:0;">Clickable phone numbers</label>
+    `;
+    const phoneLinks = phoneLinksRow.querySelector('input');
+    phoneLinks.addEventListener('change', saveCurrentSettings);
+    enhancedSection.appendChild(phoneLinksRow);
+
+    const ticketLinksRow = document.createElement('div');
+    ticketLinksRow.className = 'toggle-row';
+    ticketLinksRow.style.marginBottom = '8px';
+    ticketLinksRow.innerHTML = `
+      <label class="toggle-switch" style="margin-right:12px;">
+        <input type="checkbox" id="atTicketLinks">
+        <span class="slider"></span>
+      </label>
+      <label for="atTicketLinks" style="margin:0;">Clickable ticket numbers</label>
+    `;
+    const ticketLinks = ticketLinksRow.querySelector('input');
+    ticketLinks.addEventListener('change', saveCurrentSettings);
+    enhancedSection.appendChild(ticketLinksRow);
+
+    settingsContainer.appendChild(enhancedSection);
+
+    autotaskTabsSettingsContent.appendChild(settingsContainer);
+
+    // Store references for saving
+    atSettingsInputs = {
+      orientation, size,
+      resize, hide, persist, peekConfirm, peekMoveResize, roundedFrames,
+      improvedScrollbars, phoneLinks, ticketLinks
+    };
+  }
+
+  function loadAutotaskTabsSettingsValues() {
+    createAutotaskTabsSettingsUI();
+    loadAutotaskTabsSettings().then((settings) => {
+      if (!settings) return;
+
+      // Tab Bar
+      if (atSettingsInputs.orientation) {
+        atSettingsInputs.orientation.value = settings.barOrientation === 'vertical' ? 'vertical-left' : 'horizontal';
+      }
+      if (atSettingsInputs.size) {
+        atSettingsInputs.size.value = settings.horizontalCompactTabsEnabled ? 'compact' : 'default';
+      }
+      if (atSettingsInputs.resize) atSettingsInputs.resize.checked = settings.resizableTabBarEnabled || false;
+      if (atSettingsInputs.hide) atSettingsInputs.hide.checked = !settings.shellHidden;
+      if (atSettingsInputs.persist) atSettingsInputs.persist.checked = settings.rememberTabsAfterClose || false;
+
+      // Peek
+      if (atSettingsInputs.peekConfirm) atSettingsInputs.peekConfirm.checked = !settings.skipPeekBackdropCloseWarning;
+      if (atSettingsInputs.peekMoveResize) atSettingsInputs.peekMoveResize.checked = settings.peekMoveResizeEnabled || false;
+
+      // Enhanced
+      if (atSettingsInputs.roundedFrames) atSettingsInputs.roundedFrames.checked = settings.roundedPageFramesEnabled || false;
+      if (atSettingsInputs.improvedScrollbars) atSettingsInputs.improvedScrollbars.checked = settings.improvedScrollbarsEnabled || false;
+      if (atSettingsInputs.phoneLinks) atSettingsInputs.phoneLinks.checked = settings.phoneLinksEnabled || false;
+      if (atSettingsInputs.ticketLinks) atSettingsInputs.ticketLinks.checked = settings.ticketLinksEnabled || false;
+    });
+  }
+
   function loadTicketHistory() {
     chrome.storage.sync.get(['ticketHistory'], (res) => {
       const history = res.ticketHistory || [];
@@ -700,7 +970,7 @@ document.addEventListener('DOMContentLoaded', () => {
       chrome.scripting.executeScript(
         {
           target: { tabId: activeTab.id },
-          files: ['functions/aiTaskHandler.js']
+          files: ['functions/autotask/aiTaskHandler.js']
         },
         () => {
           chrome.tabs.sendMessage(activeTab.id, { action: 'makeTextNeater' }, (response) => {
@@ -729,6 +999,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   chrome.storage.sync.get(['showTimeIndicatorEnabled'], (result) => {
     showTimeIndicatorToggle.checked = result.showTimeIndicatorEnabled || false;
+  });
+
+  // Autotask Tabs Toggle - read from storage on startup
+  chrome.storage.sync.get([autotaskTabsSettingsKey], (result) => {
+    const settings = result[autotaskTabsSettingsKey] || {};
+    autotaskTabsToggle.checked = settings.extensionEnabled !== false;
   });
 
   chrome.storage.sync.get(['selectedLanguage'], (result) => {
@@ -812,6 +1088,40 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
   });
+
+  autotaskTabsToggle.addEventListener('change', () => {
+    const enabled = autotaskTabsToggle.checked;
+    chrome.storage.sync.get([autotaskTabsSettingsKey], (result) => {
+      const settings = Object.assign({}, result[autotaskTabsSettingsKey] || {}, { extensionEnabled: enabled });
+      chrome.storage.sync.set({ [autotaskTabsSettingsKey]: settings }, () => {
+        chrome.tabs.query({ url: ['*://*.autotask.net/*'] }, (tabs) => {
+          tabs.forEach((tab) => {
+            chrome.tabs.sendMessage(
+              tab.id,
+              { __supportToolsAutotaskTabs: true, type: 'set-enabled', enabled },
+              () => { void chrome.runtime.lastError; }
+            );
+          });
+        });
+      });
+    });
+  });
+
+  // Autotask Tabs Settings Panel event listeners
+  if (autotaskTabsSettingsBtn) {
+    autotaskTabsSettingsBtn.addEventListener('click', () => {
+      loadAutotaskTabsSettingsValues();
+      openPanel('autotaskTabsSettingsPanel');
+    });
+  }
+
+  if (closeAutotaskTabsSettingsPanelBtn) {
+    closeAutotaskTabsSettingsPanelBtn.addEventListener('click', () => {
+      closePanel('autotaskTabsSettingsPanel');
+    });
+  }
+
+  // Save and reset buttons removed - settings now auto-save on change
 
   const providerKeyMap = {
     openai: 'openAiApiKey',
@@ -1091,7 +1401,7 @@ document.addEventListener('DOMContentLoaded', () => {
       chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         const activeTab = tabs[0];
         chrome.scripting.executeScript(
-          { target: { tabId: activeTab.id }, files: ['functions/templateManager.js'] },
+          { target: { tabId: activeTab.id }, files: ['functions/autotask/templateManager.js'] },
           () => {
             chrome.tabs.sendMessage(activeTab.id, { action: 'getTicketDetails' }, (response) => {
               if (!response) {

@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       chrome.scripting.executeScript(
-        { target: { tabId: autoTaskTabId }, files: ['functions/templateManager.js'] },
+        { target: { tabId: autoTaskTabId }, files: ['functions/autotask/templateManager.js'] },
         () => {
           chrome.tabs.sendMessage(autoTaskTabId, { action: 'getAllStatuses' }, (response) => {
             if (chrome.runtime.lastError) {
