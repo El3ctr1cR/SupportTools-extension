@@ -679,8 +679,8 @@ document.addEventListener('DOMContentLoaded', () => {
             resize, hide, persist, peekConfirm, peekMoveResize, roundedFrames,
             improvedScrollbars, phoneLinks, ticketLinks } = atSettingsInputs;
     const settings = {
-      barOrientation: orientation ? (orientation.value === 'vertical-left' ? 'vertical' : 'horizontal') : 'horizontal',
-      horizontalCompactTabsEnabled: size ? size.value === 'compact' : false,
+      barOrientation: orientation ? (orientation.dataset.value === 'vertical-left' ? 'vertical' : 'horizontal') : 'horizontal',
+      horizontalCompactTabsEnabled: size ? (size.dataset.value === 'compact') : false,
       resizableTabBarEnabled: resize ? resize.checked : false,
       shellHidden: hide ? !hide.checked : false,
       rememberTabsAfterClose: persist ? persist.checked : false,
@@ -711,29 +711,73 @@ document.addEventListener('DOMContentLoaded', () => {
     const orientationRow = document.createElement('div');
     orientationRow.style.marginBottom = '12px';
     orientationRow.innerHTML = `
-      <label style="display:block;font-size:13px;margin-bottom:6px;">Tab bar location</label>
-      <select id="atOrientation" style="width:100%;padding:8px 10px;font-size:13px;background:var(--input-bg);color:var(--input-text);border:1px solid var(--border);border-radius:4px;">
-        <option value="horizontal">Horizontal</option>
-        <option value="vertical-left">Vertical (Left)</option>
-      </select>
+      <fieldset class="labeled-field">
+        <legend>Tab bar location</legend>
+        <div class="custom-dropdown">
+          <button type="button" id="atOrientation" class="dropdown-btn">
+            <span class="dropdown-text">Horizontal</span>
+            <i class="arrow-down"></i>
+          </button>
+          <div class="dropdown-content">
+            <div class="dropdown-item" data-value="horizontal">Horizontal</div>
+            <div class="dropdown-item" data-value="vertical-left">Vertical (Left)</div>
+          </div>
+        </div>
+      </fieldset>
       <p style="font-size:11px;color:var(--text-sec);margin-top:6px;">Choose whether tabs appear above Autotask or in a side bar.</p>
     `;
-    const orientation = orientationRow.querySelector('select');
-    orientation.addEventListener('change', saveCurrentSettings);
+    const orientationBtn = orientationRow.querySelector('#atOrientation');
+    const orientationContent = orientationRow.querySelector('.dropdown-content');
+    orientationBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleFixedDropdown(orientationBtn, orientationContent);
+    });
+    orientationContent.addEventListener('click', (e) => {
+      const item = e.target.closest('.dropdown-item');
+      if (item) {
+        const value = item.getAttribute('data-value');
+        orientationBtn.dataset.value = value;
+        orientationBtn.querySelector('.dropdown-text').textContent = item.textContent;
+        closeFixedDropdown(orientationContent);
+        saveCurrentSettings();
+      }
+    });
     tabBarSection.appendChild(orientationRow);
 
     const sizeRow = document.createElement('div');
     sizeRow.style.marginBottom = '12px';
     sizeRow.innerHTML = `
-      <label style="display:block;font-size:13px;margin-bottom:6px;">Tab size</label>
-      <select id="atSize" style="width:100%;padding:8px 10px;font-size:13px;background:var(--input-bg);color:var(--input-text);border:1px solid var(--border);border-radius:4px;">
-        <option value="default">Enhanced tabs</option>
-        <option value="compact">Browser-like</option>
-      </select>
+      <fieldset class="labeled-field">
+        <legend>Tab size</legend>
+        <div class="custom-dropdown">
+          <button type="button" id="atSize" class="dropdown-btn">
+            <span class="dropdown-text">Enhanced tabs</span>
+            <i class="arrow-down"></i>
+          </button>
+          <div class="dropdown-content">
+            <div class="dropdown-item" data-value="default">Enhanced tabs</div>
+            <div class="dropdown-item" data-value="compact">Browser-like</div>
+          </div>
+        </div>
+      </fieldset>
       <p style="font-size:11px;color:var(--text-sec);margin-top:6px;">Use Enhanced tabs for AUTOTASKTABS metadata or Browser-like tabs for slim page-title tabs.</p>
     `;
-    const size = sizeRow.querySelector('select');
-    size.addEventListener('change', saveCurrentSettings);
+    const sizeBtn = sizeRow.querySelector('#atSize');
+    const sizeContent = sizeRow.querySelector('.dropdown-content');
+    sizeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleFixedDropdown(sizeBtn, sizeContent);
+    });
+    sizeContent.addEventListener('click', (e) => {
+      const item = e.target.closest('.dropdown-item');
+      if (item) {
+        const value = item.getAttribute('data-value');
+        sizeBtn.dataset.value = value;
+        sizeBtn.querySelector('.dropdown-text').textContent = item.textContent;
+        closeFixedDropdown(sizeContent);
+        saveCurrentSettings();
+      }
+    });
     tabBarSection.appendChild(sizeRow);
 
     const resizeRow = document.createElement('div');
@@ -884,7 +928,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Store references for saving
     atSettingsInputs = {
-      orientation, size,
+      orientation: orientationBtn,
+      size: sizeBtn,
       resize, hide, persist, peekConfirm, peekMoveResize, roundedFrames,
       improvedScrollbars, phoneLinks, ticketLinks
     };
@@ -897,10 +942,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Tab Bar
       if (atSettingsInputs.orientation) {
-        atSettingsInputs.orientation.value = settings.barOrientation === 'vertical' ? 'vertical-left' : 'horizontal';
+        const orientationValue = settings.barOrientation === 'vertical' ? 'vertical-left' : 'horizontal';
+        atSettingsInputs.orientation.dataset.value = orientationValue;
+        atSettingsInputs.orientation.querySelector('.dropdown-text').textContent =
+          orientationValue === 'vertical-left' ? 'Vertical (Left)' : 'Horizontal';
       }
       if (atSettingsInputs.size) {
-        atSettingsInputs.size.value = settings.horizontalCompactTabsEnabled ? 'compact' : 'default';
+        const sizeValue = settings.horizontalCompactTabsEnabled ? 'compact' : 'default';
+        atSettingsInputs.size.dataset.value = sizeValue;
+        atSettingsInputs.size.querySelector('.dropdown-text').textContent =
+          sizeValue === 'compact' ? 'Browser-like' : 'Enhanced tabs';
       }
       if (atSettingsInputs.resize) atSettingsInputs.resize.checked = settings.resizableTabBarEnabled || false;
       if (atSettingsInputs.hide) atSettingsInputs.hide.checked = !settings.shellHidden;
@@ -1118,6 +1169,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (closeAutotaskTabsSettingsPanelBtn) {
     closeAutotaskTabsSettingsPanelBtn.addEventListener('click', () => {
       closePanel('autotaskTabsSettingsPanel');
+      if (_openDropdown) closeFixedDropdown(_openDropdown);
     });
   }
 

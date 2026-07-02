@@ -259,10 +259,10 @@
        SECTION HEADERS
     ───────────────────────────────────────────── */
     .category-header {
-      font-size: 10px;
-      font-weight: 700;
+      font-size: 13px;
+      font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.07em;
+      letter-spacing: 0.05em;
       color: var(--text-sec);
       padding: 14px 16px 5px;
       display: flex;
@@ -685,7 +685,7 @@
     }
 
     .arrow-down {
-      border: solid var(--text-muted);
+      border: solid currentColor;
       border-width: 0 2px 2px 0;
       display: inline-block;
       padding: 3px;
@@ -1769,6 +1769,33 @@
       margin-bottom: 8px;
     }
 
+    #autotaskTabsSettingsContent .dropdown-btn {
+      all: unset;
+      box-sizing: border-box;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      font-family: inherit;
+      color: var(--text);
+      cursor: pointer;
+      /* Inside fieldset: no border/bg */
+      padding: 4px 2px 0;
+      background: transparent;
+    }
+
+    #autotaskTabsSettingsContent .dropdown-btn .arrow-down {
+      border: solid var(--text-muted);
+      border-width: 0 2px 2px 0;
+      display: inline-block;
+      padding: 3px;
+      transform: rotate(45deg);
+      transition: transform 0.2s;
+    }
+
     #autotaskTabsSettingsContent select,
     #autotaskTabsSettingsContent input[type="text"],
     #autotaskTabsSettingsContent input[type="color"] {
@@ -1868,16 +1895,15 @@
         </label>
         <label for="showTimeIndicatorToggle">Time indicator in calendar</label>
       </div>
-      <div class="toggle-row" style="flex-direction: column; align-items: flex-start; gap: 6px;">
-        <div class="toggle-row" style="width: 100%;">
-          <label class="toggle-switch" style="flex-shrink: 0;">
-            <input type="checkbox" id="autotaskTabsToggle">
-            <span class="slider"></span>
-          </label>
-          <label for="autotaskTabsToggle" style="flex: 1;">Autotask Tabs</label>
-          <button id="autotaskTabsSettingsBtn">Settings</button>
-        </div>
-        <div id="autotaskTabsMsg" class="inline-msg" style="width: 100%;"></div>
+      <div class="toggle-row">
+        <label class="toggle-switch">
+          <input type="checkbox" id="autotaskTabsToggle">
+          <span class="slider"></span>
+        </label>
+        <label for="autotaskTabsToggle">Autotask Tabs</label>
+        <button id="autotaskTabsSettingsBtn">Settings</button>
+      </div>
+      <div id="autotaskTabsMsg" class="inline-msg"></div>
       </div>
     </div>
 
