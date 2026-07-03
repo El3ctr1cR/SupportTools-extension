@@ -760,7 +760,7 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
         </div>
       </fieldset>
-      <p style="font-size:11px;color:var(--text-sec);margin-top:6px;">Use Enhanced tabs for AUTOTASKTABS metadata or Browser-like tabs for slim page-title tabs.</p>
+      <p style="font-size:11px;color:var(--text-sec);margin-top:6px;">Use Enhanced tabs for more detailed information or Browser-like tabs for slim page-title tabs.</p>
     `;
     const sizeBtn = sizeRow.querySelector('#atSize');
     const sizeContent = sizeRow.querySelector('.dropdown-content');
@@ -782,9 +782,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const resizeRow = document.createElement('div');
     resizeRow.className = 'toggle-row';
-    resizeRow.style.marginBottom = '8px';
+    resizeRow.style.marginBottom = '0px';
     resizeRow.innerHTML = `
-      <label class="toggle-switch" style="margin-right:12px;">
+      <label class="toggle-switch">
         <input type="checkbox" id="atResize">
         <span class="slider"></span>
       </label>
@@ -796,9 +796,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const hideRow = document.createElement('div');
     hideRow.className = 'toggle-row';
-    hideRow.style.marginBottom = '8px';
+    hideRow.style.marginBottom = '0px';
     hideRow.innerHTML = `
-      <label class="toggle-switch" style="margin-right:12px;">
+      <label class="toggle-switch">
         <input type="checkbox" id="atHide" checked>
         <span class="slider"></span>
       </label>
@@ -810,9 +810,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const persistRow = document.createElement('div');
     persistRow.className = 'toggle-row';
-    persistRow.style.marginBottom = '8px';
+    persistRow.style.marginBottom = '0px';
     persistRow.innerHTML = `
-      <label class="toggle-switch" style="margin-right:12px;">
+      <label class="toggle-switch">
         <input type="checkbox" id="atPersist">
         <span class="slider"></span>
       </label>
@@ -832,9 +832,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const peekConfirmRow = document.createElement('div');
     peekConfirmRow.className = 'toggle-row';
-    peekConfirmRow.style.marginBottom = '8px';
+    peekConfirmRow.style.marginBottom = '0px';
     peekConfirmRow.innerHTML = `
-      <label class="toggle-switch" style="margin-right:12px;">
+      <label class="toggle-switch"">
         <input type="checkbox" id="atPeekConfirm">
         <span class="slider"></span>
       </label>
@@ -846,9 +846,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const peekMoveResizeRow = document.createElement('div');
     peekMoveResizeRow.className = 'toggle-row';
-    peekMoveResizeRow.style.marginBottom = '8px';
+    peekMoveResizeRow.style.marginBottom = '0px';
     peekMoveResizeRow.innerHTML = `
-      <label class="toggle-switch" style="margin-right:12px;">
+      <label class="toggle-switch">
         <input type="checkbox" id="atPeekMoveResize">
         <span class="slider"></span>
       </label>
@@ -868,9 +868,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const roundedPageFramesRow = document.createElement('div');
     roundedPageFramesRow.className = 'toggle-row';
-    roundedPageFramesRow.style.marginBottom = '8px';
+    roundedPageFramesRow.style.marginBottom = '0px';
     roundedPageFramesRow.innerHTML = `
-      <label class="toggle-switch" style="margin-right:12px;">
+      <label class="toggle-switch">
         <input type="checkbox" id="atRoundedFrames">
         <span class="slider"></span>
       </label>
@@ -882,9 +882,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const improvedScrollbarsRow = document.createElement('div');
     improvedScrollbarsRow.className = 'toggle-row';
-    improvedScrollbarsRow.style.marginBottom = '8px';
+    improvedScrollbarsRow.style.marginBottom = '0px';
     improvedScrollbarsRow.innerHTML = `
-      <label class="toggle-switch" style="margin-right:12px;">
+      <label class="toggle-switch">
         <input type="checkbox" id="atImprovedScrollbars">
         <span class="slider"></span>
       </label>
@@ -896,9 +896,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const phoneLinksRow = document.createElement('div');
     phoneLinksRow.className = 'toggle-row';
-    phoneLinksRow.style.marginBottom = '8px';
+    phoneLinksRow.style.marginBottom = '0px';
     phoneLinksRow.innerHTML = `
-      <label class="toggle-switch" style="margin-right:12px;">
+      <label class="toggle-switch">
         <input type="checkbox" id="atPhoneLinks">
         <span class="slider"></span>
       </label>
@@ -910,9 +910,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const ticketLinksRow = document.createElement('div');
     ticketLinksRow.className = 'toggle-row';
-    ticketLinksRow.style.marginBottom = '8px';
+    ticketLinksRow.style.marginBottom = '0px';
     ticketLinksRow.innerHTML = `
-      <label class="toggle-switch" style="margin-right:12px;">
+      <label class="toggle-switch">
         <input type="checkbox" id="atTicketLinks">
         <span class="slider"></span>
       </label>
