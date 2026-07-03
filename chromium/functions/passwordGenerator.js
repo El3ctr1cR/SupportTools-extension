@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   clearHistoryBtn.addEventListener('click', () => {
-    chrome.storage.sync.set({ passwordHistory: [] }, () => {
+    chrome.storage.local.set({ passwordHistory: [] }, () => {
       updatePasswordHistoryUI([]);
     });
   });
@@ -299,17 +299,17 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function addPasswordToHistory(password) {
-    chrome.storage.sync.get(['passwordHistory'], (result) => {
+    chrome.storage.local.get(['passwordHistory'], (result) => {
       let history = result.passwordHistory || [];
       const timestamp = new Date().toLocaleString();
       history.unshift({ password, timestamp });
-      if (history.length > 30) history = history.slice(0, 30);
-      chrome.storage.sync.set({ passwordHistory: history });
+      if (history.length > 150) history = history.slice(0, 150);
+      chrome.storage.local.set({ passwordHistory: history });
     });
   }
 
   function loadPasswordHistory() {
-    chrome.storage.sync.get(['passwordHistory'], (result) => {
+    chrome.storage.local.get(['passwordHistory'], (result) => {
       updatePasswordHistoryUI(result.passwordHistory || []);
     });
   }

@@ -203,10 +203,8 @@ document.addEventListener('DOMContentLoaded', () => {
   if (closeHistoryBtn) closeHistoryBtn.addEventListener('click', () => closePanel('historyPanel'));
   if (clearHistoryBtn) {
     clearHistoryBtn.addEventListener('click', () => {
-      chrome.storage.local.get(['passwordHistory'], (res) => {
-        chrome.storage.local.set({ passwordHistory: [] }, () => {
-          if (passwordHistory) passwordHistory.innerHTML = '';
-        });
+      chrome.storage.local.set({ passwordHistory: [] }, () => {
+        if (passwordHistory) passwordHistory.innerHTML = '';
       });
     });
   }
