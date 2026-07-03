@@ -1948,6 +1948,32 @@
       </div>
 
       <div id="passphraseOptions" style="display:none;">
+        <div class="form-group">
+          <fieldset class="labeled-field">
+            <legend>Passphrase Language</legend>
+            <div class="custom-dropdown">
+              <button id="dropdownButton" class="dropdown-btn">
+                <img id="selectedFlag" src="../icons/flags/nl.png" alt="Dutch Flag">
+                <span id="selectedLanguageText">Dutch</span>
+                <i class="arrow-down"></i>
+              </button>
+              <div id="dropdownContent" class="dropdown-content">
+                <div class="dropdown-item" data-value="nl">
+                  <img src="../icons/flags/nl.png" alt="Dutch Flag">
+                  <span>Dutch</span>
+                </div>
+                <div class="dropdown-item" data-value="en">
+                  <img src="../icons/flags/us.png" alt="English Flag">
+                  <span>English</span>
+                </div>
+                <div class="dropdown-item" data-value="de">
+                  <img src="../icons/flags/de.png" alt="German Flag">
+                  <span>German</span>
+                </div>
+              </div>
+            </div>
+          </fieldset>
+        </div>
         <fieldset class="labeled-field passphrase-field">
           <legend>Number of Words (3&#8211;20)</legend>
           <input type="number" id="wordCount" min="3" max="20" value="3">
@@ -2039,36 +2065,6 @@
         <button id="saveAiSettings">Save AI Settings</button>
       </div>
       <div id="aiSettingsUpdatedMsg" class="inline-msg"></div>
-    </div>
-
-    <div class="category-header">Language</div>
-    <div class="category-content">
-      <div class="form-group">
-        <fieldset class="labeled-field">
-          <legend>Language</legend>
-          <div class="custom-dropdown">
-            <button id="dropdownButton" class="dropdown-btn" title="Language the extension will use">
-              <img id="selectedFlag" src="../icons/flags/nl.png" alt="Dutch Flag">
-              <span id="selectedLanguageText">Dutch</span>
-              <i class="arrow-down"></i>
-            </button>
-            <div id="dropdownContent" class="dropdown-content">
-              <div class="dropdown-item" data-value="nl">
-                <img src="../icons/flags/nl.png" alt="Dutch Flag">
-                <span>Dutch</span>
-              </div>
-              <div class="dropdown-item" data-value="en">
-                <img src="../icons/flags/us.png" alt="English Flag">
-                <span>English</span>
-              </div>
-              <div class="dropdown-item" data-value="de">
-                <img src="../icons/flags/de.png" alt="German Flag">
-                <span>German</span>
-              </div>
-            </div>
-          </div>
-        </fieldset>
-      </div>
     </div>
 
     <div class="category-header">Configuration</div>
