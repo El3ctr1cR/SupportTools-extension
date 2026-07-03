@@ -179,7 +179,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         });
     };
 
-    if (request.action === 'makeTextNeater') {
+    if (request.action === 'summarizeNote') {
         getLanguage((_language) => {
             const contentData = getNotes();
             if (!contentData || !contentData.text) {

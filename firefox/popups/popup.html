@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>Support Tools</title>
+  <title>Kaseya Tools</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
 
@@ -153,27 +153,6 @@
 
     #darkModeBtn:hover { background: var(--border); border-color: var(--bw-blue); }
     #darkModeBtn:active { transform: scale(0.92); }
-
-    /* Warning banner */
-    .warning-container {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 14px;
-      background: #fff7ed;
-      border-bottom: 1px solid #fed7aa;
-      color: #9a3412;
-      font-size: 12px;
-      font-weight: 500;
-    }
-
-    body.dark .warning-container {
-      background: #292216;
-      border-color: #78350f;
-      color: #fbbf24;
-    }
-
-    #warningText { flex: 1; }
 
     /* ─────────────────────────────────────────────
        BOTTOM NAV
@@ -362,9 +341,9 @@
        PRIMARY BUTTONS
        We target specific IDs to avoid styling tabs/dropdowns
     ───────────────────────────────────────────── */
-    #makeTextNeater,
-    #inputMail,
-    #copyMail,
+    #summarizeNote,
+    #inputNote,
+    #copyNote,
     #saveAiSettings,
     #exportConfig,
     #importConfig,
@@ -388,9 +367,9 @@
       white-space: nowrap;
     }
 
-    #makeTextNeater:hover,
-    #inputMail:hover,
-    #copyMail:hover,
+    #summarizeNote:hover,
+    #inputNote:hover,
+    #copyNote:hover,
     #saveAiSettings:hover,
     #exportConfig:hover,
     #importConfig:hover,
@@ -401,9 +380,9 @@
       color: var(--bw-blue);
     }
 
-    #makeTextNeater:active,
-    #inputMail:active,
-    #copyMail:active,
+    #summarizeNote:active,
+    #inputNote:active,
+    #copyNote:active,
     #saveAiSettings:active,
     #exportConfig:active,
     #importConfig:active,
@@ -420,9 +399,9 @@
     }
 
     /* flex:1 must be re-declared because all:unset strips it */
-    .button-group-inline #makeTextNeater,
-    .button-group-inline #inputMail,
-    .button-group-inline #copyMail { flex: 1; }
+    .button-group-inline #summarizeNote,
+    .button-group-inline #inputNote,
+    .button-group-inline #copyNote { flex: 1; }
 
     .config-buttons {
       display: flex;
@@ -1818,13 +1797,13 @@
 <body>
   <div class="header">
     <img class="header-logo" src="../icons/icon.png" alt="Icon">
-    <span class="header-title">Support Tools</span>
+    <span class="header-title">Kaseya Tools</span>
     <button id="darkModeBtn" title="Toggle dark mode">🌙</button>
   </div>
 
   <!-- ======== CONTENT: Autotask ======== -->
   <div class="content" id="contentAutotask">
-    <div class="category-header">Templates</div>
+    <div class="category-header">Autotask Note Templates</div>
     <div class="category-content">
       <div class="form-group">
         <fieldset class="labeled-field">
@@ -1839,8 +1818,8 @@
         </fieldset>
       </div>
       <div class="form-group button-group-inline">
-        <button id="inputMail">Input mail</button>
-        <button id="copyMail">Copy mail</button>
+        <button id="inputNote">Input note</button>
+        <button id="copyNote">Copy note</button>
       </div>
       <div class="form-group" style="margin-top: 2px;">
         <button class="history-nav-btn" id="openTemplateEditorPanel">
@@ -1851,15 +1830,16 @@
     </div>
     <div id="templateMsg" class="inline-msg"></div>
 
-    <div class="category-header">AI Actions</div>
+    <div class="category-header">Autotask AI Actions</div>
     <div class="category-content">
       <div class="form-group button-group-inline">
-        <button id="makeTextNeater">Make text neater</button>
+        <button id="summarizeNote">Summarize note</button>
       </div>
+      <p style="font-size:11px;color:var(--text-sec);">Improves Autotask note professionalism and clarity.</p>
     </div>
     <div id="aiActionMsg" class="inline-msg"></div>
 
-    <div class="category-header">Improvements</div>
+    <div class="category-header">Autotask Improvements</div>
     <div class="category-content">
       <div class="toggle-row">
         <label class="toggle-switch">
@@ -1884,6 +1864,32 @@
         <button id="autotaskTabsSettingsBtn">Settings</button>
       </div>
       <div id="autotaskTabsMsg" class="inline-msg"></div>
+    </div>
+    <div class="category-header">Datto RMM Improvements</div>
+    <div class="category-content">
+      <div class="toggle-row">
+        <label class="toggle-switch">
+          <input type="checkbox" id="itglueOtpToggle">
+          <span class="slider"></span>
+        </label>
+        <label for="itglueOtpToggle">OTP buttons for IT Glue passwords</label>
+      </div>
+      <div class="toggle-row">
+        <label class="toggle-switch">
+          <input type="checkbox" id="dattoStretchToggle">
+          <span class="slider"></span>
+        </label>
+        <label for="dattoStretchToggle">True Stretch for web remote</label>
+      </div>
+      <div class="toggle-row">
+        <label class="toggle-switch">
+          <input type="checkbox" id="itgluePasswordCacheToggle">
+          <span class="slider"></span>
+        </label>
+        <label for="itgluePasswordCacheToggle">ITGlue password cache</label>
+        <button id="itgluePasswordCacheClearBtn">Clear cache</button>
+      </div>
+      <div id="itgluePasswordCacheMsg" class="inline-msg"></div>
     </div>
   </div>
 
@@ -1971,33 +1977,6 @@
 
   <!-- ======== CONTENT: Misc ======== -->
   <div class="content" id="contentMisc" style="display: none;">
-    <div class="category-header">Datto RMM Improvements</div>
-    <div class="category-content">
-      <div class="toggle-row">
-        <label class="toggle-switch">
-          <input type="checkbox" id="itglueOtpToggle">
-          <span class="slider"></span>
-        </label>
-        <label for="itglueOtpToggle">OTP buttons for IT Glue passwords</label>
-      </div>
-      <div class="toggle-row">
-        <label class="toggle-switch">
-          <input type="checkbox" id="dattoStretchToggle">
-          <span class="slider"></span>
-        </label>
-        <label for="dattoStretchToggle">True Stretch for web remote</label>
-      </div>
-      <div class="toggle-row">
-        <label class="toggle-switch">
-          <input type="checkbox" id="itgluePasswordCacheToggle">
-          <span class="slider"></span>
-        </label>
-        <label for="itgluePasswordCacheToggle">ITGlue password cache</label>
-        <button id="itgluePasswordCacheClearBtn">Clear cache</button>
-      </div>
-      <div id="itgluePasswordCacheMsg" class="inline-msg"></div>
-    </div>
-
     <div class="category-header">Miscellaneous</div>
     <div class="category-content">
       <div class="toggle-row">
@@ -2118,7 +2097,7 @@
   <div class="tab-container">
     <button class="tab active" id="tabAutotask">
       <img src="../icons/ticket.png" alt="Autotask Icon">
-      Autotask
+      Kaseya
     </button>
     <button class="tab" id="tabPasswordGenerator" data-target="contentPasswordGenerator">
       <img src="../icons/password.png" alt="Password Icon">
