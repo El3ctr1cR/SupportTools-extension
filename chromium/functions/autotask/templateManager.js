@@ -207,7 +207,30 @@ function getAllStatuses() {
   });
 }
 
+function isAutotaskTabsActiveFrame() {
+  try {
+    const frameElement = window.frameElement;
+    if (!frameElement) return true;
+
+    const topAutotaskTabs = window.top.__AUTOTASKTABS__;
+    if (topAutotaskTabs && topAutotaskTabs.state) {
+      const isHidden = frameElement.classList && frameElement.classList.contains('hidden');
+      if (isHidden) {
+        return false;
+      }
+    }
+
+    return true;
+  } catch (e) {
+    return true;
+  }
+}
+
 function handleGetEmailText(templateName, sendResponse) {
+  if (!isAutotaskTabsActiveFrame()) {
+    return;
+  }
+
   chrome.storage.sync.get(['templates'], (result) => {
     const ticketDetails = getTicketDetails();
     const templates = result.templates || {};
@@ -283,7 +306,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 document.addEventListener('__supportTools_hotkeyInsert', (e) => {
   const templateName = e.detail && e.detail.template;
-  if (templateName) {
+  if (templateName && isAutotaskTabsActiveFrame()) {
     handleGetEmailText(templateName, null);
   }
 });
