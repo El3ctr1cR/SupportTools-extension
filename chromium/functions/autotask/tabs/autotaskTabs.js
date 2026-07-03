@@ -365,111 +365,7 @@
         const innerUrl = AUTOTASKTABS.extractInnerUrlFromLandingPageUrl(url);
         return innerUrl && AUTOTASKTABS.isHandledUrl(innerUrl) ? innerUrl : null;
     };
-
-    // Detect when our extension context becomes invalid (Chrome auto-
-    // update, manual reload, disable) so the still-running OLD
-    // content scripts in this tab can gracefully clean up. Without
-    // this, every chrome.runtime.* call from the orphaned scripts
-    // throws "Extension context invalidated", the AUTOTASKTABS tab bar stays
-    // visible but unresponsive, and the user sees the extension as
-    // "broken" until they refresh manually.
-    //
-    // On detection we strip AUTOTASKTABS-injected DOM and (top frame only)
-    // show a small toast asking the user to refresh.
-    if (!AUTOTASKTABS.lifecycleWatchInstalled) {
-        AUTOTASKTABS.lifecycleWatchInstalled = true;
-
-        let invalidated = false;
-
-        function isExtensionContextValid() {
-            try {
-                return !!(chrome && chrome.runtime && chrome.runtime.id);
-            } catch (e) {
-                return false;
-            }
-        }
-
-        function removeAutotaskTabsDomElements() {
-            try {
-                const selectors = [
-                    '.at-tabs-bar',
-                    '.at-tabs-peek-wrapper',
-                    '.at-tabs-modal',
-                    '.at-tabs-modal-backdrop',
-                    '.at-tabs-settings-backdrop',
-                    '.at-tabs-context-menu',
-                    '.at-tabs-map-modal',
-                    '.at-tabs-split-buttons',
-                    '.at-tabs-viewport',
-                    '.at-tabs-home-cover',
-                ];
-                document.querySelectorAll(selectors.join(','))
-                    .forEach(function (el) { try { el.remove(); } catch (e) {} });
-            } catch (e) {}
-            try {
-                if (document.body && document.body.style) {
-                    document.body.style.paddingTop = '';
-                }
-                if (document.documentElement && document.documentElement.classList) {
-                    document.documentElement.classList.remove(
-                        'autotasktabs-dark', 'autotasktabs-shell-active'
-                    );
-                }
-            } catch (e) {}
-        }
-
-        function showRefreshToast() {
-            if (document.getElementById('autotasktabs-update-toast')) return;
-            const host = document.body || document.documentElement;
-            if (!host) return;
-            const toast = document.createElement('div');
-            toast.id = 'autotasktabs-update-toast';
-            toast.setAttribute('role', 'status');
-            toast.style.cssText = [
-                'position:fixed', 'z-index:2147483647', 'left:50%',
-                'bottom:24px', 'transform:translateX(-50%)',
-                'background:#1f2937', 'color:#f9fafb',
-                'font:500 13px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif',
-                'padding:12px 16px', 'border-radius:8px',
-                'box-shadow:0 8px 24px rgba(0,0,0,0.3)',
-                'display:flex', 'align-items:center', 'gap:12px',
-                'max-width:90vw',
-            ].join(';') + ';';
-            const text = document.createElement('span');
-            text.textContent = 'AUTOTASKTABS has been updated. Please refresh to continue.';
-            const button = document.createElement('button');
-            button.textContent = 'Refresh';
-            button.style.cssText = [
-                'background:#3b82f6', 'color:#ffffff', 'border:0',
-                'padding:6px 12px', 'border-radius:6px',
-                'font:600 12px/1 system-ui,-apple-system,sans-serif',
-                'cursor:pointer',
-            ].join(';') + ';';
-            button.addEventListener('click', function () {
-                try { location.reload(); } catch (e) {}
-            });
-            toast.appendChild(text);
-            toast.appendChild(button);
-            host.appendChild(toast);
-        }
-
-        function handleExtensionContextInvalidated() {
-            if (invalidated) return;
-            invalidated = true;
-            removeAutotaskTabsDomElements();
-            if (window === window.top) {
-                try { showRefreshToast(); } catch (e) {}
-            }
-        }
-
-        const intervalId = setInterval(function () {
-            if (isExtensionContextValid()) return;
-            try { clearInterval(intervalId); } catch (e) {}
-            handleExtensionContextInvalidated();
-        }, 3000);
-    }
 })();
-
 
 // Autotask Tabs - storage helpers
 (function () {
@@ -16624,5 +16520,3 @@ html.autotasktabs-embedded-umbrella-contract .o-view-layout {
         return initSettingsBackedFeatures();
     });
 })();
-
-
