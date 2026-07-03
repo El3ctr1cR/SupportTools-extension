@@ -179,11 +179,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         });
     };
 
-    if (request.action === 'makeTextNeater') {
+    if (request.action === 'summarizeNote') {
         getLanguage((_language) => {
             const contentData = getNotes();
             if (!contentData || !contentData.text) {
-                sendResponse({ success: false, error: 'No text found to make neater.' });
+                sendResponse({ success: false, error: 'No text found to summarize.' });
                 return;
             }
             const prompt = `Make the following text neater and more professional in the same language. Only output the fully new version of the text.\n\n${contentData.text}`;

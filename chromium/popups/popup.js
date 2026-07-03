@@ -146,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  const makeTextNeaterButton = document.getElementById('makeTextNeater');
+  const summarizeNoteButton = document.getElementById('summarizeNote');
   const providerRadios = document.querySelectorAll('input[name="aiProvider"]');
   const aiModelDropdownButton = document.getElementById('aiModelDropdownButton');
   const aiModelDropdownContent = document.getElementById('aiModelDropdownContent');
@@ -163,8 +163,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const dattoStretchToggle = document.getElementById('dattoStretchToggle');
   const itgluePasswordCacheToggle = document.getElementById('itgluePasswordCacheToggle');
   const itgluePasswordCacheClearBtn = document.getElementById('itgluePasswordCacheClearBtn');
-  const inputMailButton = document.getElementById('inputMail');
-  const copyMailButton = document.getElementById('copyMail');
+  const insertNoteButton = document.getElementById('insertNote');
+  const copyNoteButton = document.getElementById('copyNote');
   const clearConfigButton = document.getElementById('clearConfig');
   const exportConfigButton = document.getElementById('exportConfig');
   const importConfigButton = document.getElementById('importConfig');
@@ -939,7 +939,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  makeTextNeaterButton.addEventListener('click', () => {
+  summarizeNoteButton.addEventListener('click', () => {
     loadingOverlay.style.display = 'flex';
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       const activeTab = tabs[0];
@@ -949,12 +949,12 @@ document.addEventListener('DOMContentLoaded', () => {
           files: ['functions/autotask/aiTaskHandler.js']
         },
         () => {
-          chrome.tabs.sendMessage(activeTab.id, { action: 'makeTextNeater' }, (response) => {
+          chrome.tabs.sendMessage(activeTab.id, { action: 'summarizeNote' }, (response) => {
             loadingOverlay.style.display = 'none';
             if (response && response.success) {
-              console.log('makeTextNeater completed successfully');
+              console.log('summarizeNote completed successfully');
             } else {
-              showMsg('aiActionMsg', 'Failed to perform makeTextNeater' + (response && response.error ? ': ' + response.error : ''));
+              showMsg('aiActionMsg', 'Failed to perform summarizeNote' + (response && response.error ? ': ' + response.error : ''));
             }
           });
         }
@@ -1022,24 +1022,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const headers = document.querySelectorAll('.category-header');
-
-  headers.forEach(header => {
-    if (header.textContent.trim().toLowerCase().includes("improvements")) {
-      const icon = document.createElement('img');
-
-      icon.src = chrome.runtime.getURL('icons/warning.png');
-      icon.alt = 'Warning';
-      icon.title = 'These are experimental features so if something breaks please turn them off.';
-
-      icon.style.width = '16px';
-      icon.style.height = '16px';
-      icon.style.marginLeft = '5px';
-      icon.style.cursor = 'pointer';
-      icon.style.filter = "invert(68%) sepia(100%) saturate(5000%) hue-rotate(2deg) brightness(105%) contrast(101%)";
-
-      header.appendChild(icon);
-    }
-  });
 
   openTicketButtonToggle.addEventListener('change', () => {
     chrome.storage.sync.set({ openTicketButtonEnabled: openTicketButtonToggle.checked }, () => {
@@ -1335,7 +1317,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  inputMailButton.addEventListener('click', () => {
+  insertNoteButton.addEventListener('click', () => {
     const selectedTemplate = document.getElementById('selectedTemplateText').textContent;
     if (!selectedTemplate || selectedTemplate === 'Select a Template') {
       showMsg('templateMsg', 'Please select a template before proceeding.');
@@ -1355,7 +1337,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  copyMailButton.addEventListener('click', () => {
+  copyNoteButton.addEventListener('click', () => {
     const selectedTemplateName = document.getElementById('selectedTemplateText').textContent;
     if (!selectedTemplateName || selectedTemplateName === 'Select a Template') {
       showMsg('templateMsg', 'Please select a template before proceeding.');

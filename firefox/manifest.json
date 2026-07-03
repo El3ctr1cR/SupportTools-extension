@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Support Tools",
+  "name": "Kaseya Tools",
   "version": "3.0.0",
   "permissions": [
     "tabs",
