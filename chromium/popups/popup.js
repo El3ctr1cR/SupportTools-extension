@@ -163,7 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const dattoStretchToggle = document.getElementById('dattoStretchToggle');
   const itgluePasswordCacheToggle = document.getElementById('itgluePasswordCacheToggle');
   const itgluePasswordCacheClearBtn = document.getElementById('itgluePasswordCacheClearBtn');
-  const inputNoteButton = document.getElementById('inputNote');
+  const insertNoteButton = document.getElementById('insertNote');
   const copyNoteButton = document.getElementById('copyNote');
   const clearConfigButton = document.getElementById('clearConfig');
   const exportConfigButton = document.getElementById('exportConfig');
@@ -1317,7 +1317,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  inputNoteButton.addEventListener('click', () => {
+  insertNoteButton.addEventListener('click', () => {
     const selectedTemplate = document.getElementById('selectedTemplateText').textContent;
     if (!selectedTemplate || selectedTemplate === 'Select a Template') {
       showMsg('templateMsg', 'Please select a template before proceeding.');

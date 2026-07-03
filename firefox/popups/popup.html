@@ -342,7 +342,7 @@
        We target specific IDs to avoid styling tabs/dropdowns
     ───────────────────────────────────────────── */
     #summarizeNote,
-    #inputNote,
+    #insertNote,
     #copyNote,
     #saveAiSettings,
     #exportConfig,
@@ -368,7 +368,7 @@
     }
 
     #summarizeNote:hover,
-    #inputNote:hover,
+    #insertNote:hover,
     #copyNote:hover,
     #saveAiSettings:hover,
     #exportConfig:hover,
@@ -381,7 +381,7 @@
     }
 
     #summarizeNote:active,
-    #inputNote:active,
+    #insertNote:active,
     #copyNote:active,
     #saveAiSettings:active,
     #exportConfig:active,
@@ -400,7 +400,7 @@
 
     /* flex:1 must be re-declared because all:unset strips it */
     .button-group-inline #summarizeNote,
-    .button-group-inline #inputNote,
+    .button-group-inline #insertNote,
     .button-group-inline #copyNote { flex: 1; }
 
     .config-buttons {
@@ -1818,7 +1818,7 @@
         </fieldset>
       </div>
       <div class="form-group button-group-inline">
-        <button id="inputNote">Input note</button>
+        <button id="insertNote">Insert note</button>
         <button id="copyNote">Copy note</button>
       </div>
       <div class="form-group" style="margin-top: 2px;">
@@ -1827,8 +1827,8 @@
           <span class="nav-arrow">&#8250;</span>
         </button>
       </div>
+      <div id="templateMsg" class="inline-msg"></div>
     </div>
-    <div id="templateMsg" class="inline-msg"></div>
 
     <div class="category-header">Autotask AI Actions</div>
     <div class="category-content">
@@ -1836,8 +1836,8 @@
         <button id="summarizeNote">Summarize note</button>
       </div>
       <p style="font-size:11px;color:var(--text-sec);">Improves Autotask note professionalism and clarity.</p>
+      <div id="aiActionMsg" class="inline-msg"></div>
     </div>
-    <div id="aiActionMsg" class="inline-msg"></div>
 
     <div class="category-header">Autotask Improvements</div>
     <div class="category-content">
