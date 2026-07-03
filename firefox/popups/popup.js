@@ -1092,32 +1092,31 @@ document.addEventListener('DOMContentLoaded', () => {
     google: 'Google API Key',
     anthropic: 'Anthropic API Key'
   };
+  // No hardcoded models - fetched from API when key is provided
   const providerModels = {
-    openai: [
-      { value: 'gpt-5.2',        label: 'GPT-5.2' },
-      { value: 'gpt-5.2-pro',    label: 'GPT-5.2 Pro' },
-      { value: 'gpt-5.3-codex',  label: 'GPT-5.3 Codex' },
-      { value: 'gpt-5-mini',     label: 'GPT-5 Mini' },
-      { value: 'gpt-5-nano',     label: 'GPT-5 Nano' }
-    ],
-    google: [
-      { value: 'gemini-3.1-pro-preview', label: 'Gemini 3.1 Pro Preview' },
-      { value: 'gemini-3-pro-preview',   label: 'Gemini 3 Pro Preview' },
-      { value: 'gemini-3-flash-preview', label: 'Gemini 3 Flash Preview' }
-    ],
-    anthropic: [
-      { value: 'claude-opus-4-6',   label: 'Claude Opus 4.6' },
-      { value: 'claude-sonnet-4-6', label: 'Claude Sonnet 4.6' },
-      { value: 'claude-haiku-4-5',  label: 'Claude Haiku 4.5' }
-    ]
+    openai: [],
+    google: [],
+    anthropic: []
   };
 
   let currentAiModel = '';
 
-  function populateModelDropdown(provider, savedModel) {
+  function populateModelDropdown(provider, savedModel, showPlaceholderIfEmpty = false) {
     aiModelDropdownContent.innerHTML = '';
     const models = providerModels[provider] || [];
     let firstModel = '';
+
+    if (models.length === 0 && showPlaceholderIfEmpty) {
+      const placeholder = document.createElement('div');
+      placeholder.classList.add('dropdown-item');
+      placeholder.style.color = '#9ca3af';
+      placeholder.textContent = 'No models found. Please enter an API key to fetch models.';
+      placeholder.style.pointerEvents = 'none';
+      aiModelDropdownContent.appendChild(placeholder);
+      currentAiModel = '';
+      selectedModelText.textContent = 'No models available';
+      return;
+    }
 
     models.forEach((m, i) => {
       const item = document.createElement('div');
@@ -1147,14 +1146,102 @@ document.addEventListener('DOMContentLoaded', () => {
     toggleFixedDropdown(aiModelDropdownButton, aiModelDropdownContent);
   });
 
+  // Load models from storage for a provider
+  function loadModelsFromStorage(provider) {
+    return new Promise((resolve) => {
+      chrome.storage.sync.get([`${provider}Models`], (result) => {
+        const models = result[`${provider}Models`] || [];
+        resolve(models); // Always return the array (possibly empty)
+      });
+    });
+  }
+
+  // Fetch models for a provider from the API (popup context can use fetch directly)
+  function fetchModelsForProvider(provider, apiKey) {
+    return new Promise((resolve, reject) => {
+      let url, headers = {};
+
+      if (provider === 'openai') {
+        url = 'https://api.openai.com/v1/models';
+        headers = { 'Authorization': 'Bearer ' + apiKey, 'Content-Type': 'application/json' };
+      } else if (provider === 'google') {
+        url = 'https://generativelanguage.googleapis.com/v1beta/models?key=' + apiKey + '&pageSize=1000';
+        headers = { 'Content-Type': 'application/json' };
+      } else if (provider === 'anthropic') {
+        url = 'https://api.anthropic.com/v1/models';
+        headers = { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'Content-Type': 'application/json' };
+      }
+
+      fetch(url, { method: 'GET', headers: headers })
+        .then(response => {
+          if (!response.ok) {
+            return response.json().then(err => { throw err.error?.message || response.statusText; });
+          }
+          return response.json();
+        })
+        .then(data => {
+          let models = [];
+          if (data.data && Array.isArray(data.data)) {
+            models = data.data.map(m => ({ value: m.id, label: m.id }));
+          } else if (data.models && Array.isArray(data.models)) {
+            models = data.models.map(m => ({ value: m.name || m.id, label: m.name || m.id }));
+          }
+          resolve(models);
+        })
+        .catch(err => {
+          reject(new Error(err.toString() || 'Failed to fetch models'));
+        });
+    });
+  }
+
+  // Update providerModels with fetched models and populate dropdown
+  function updateModelDropdownWithFetched(provider, fetchedModels) {
+    if (fetchedModels && fetchedModels.length > 0) {
+      providerModels[provider] = fetchedModels;
+    } else {
+      // Clear the models array if no models available
+      providerModels[provider] = [];
+    }
+  }
+
   function loadAiSettingsFromStorage() {
     chrome.storage.sync.get(['aiProvider', 'aiModel', 'openAiApiKey', 'googleApiKey', 'anthropicApiKey'], (result) => {
       const provider = result.aiProvider || 'openai';
       const radio = document.querySelector(`input[name="aiProvider"][value="${provider}"]`);
       if (radio) radio.checked = true;
       aiApiKeyLabel.textContent = providerLabelMap[provider] || 'API Key';
-      populateModelDropdown(provider, result.aiModel);
-      aiApiKeyInput.value = result[providerKeyMap[provider]] || '';
+
+      const apiKey = result[providerKeyMap[provider]] || '';
+      const savedModel = result.aiModel;
+
+      // Load models from storage first
+      loadModelsFromStorage(provider).then((storedModels) => {
+        updateModelDropdownWithFetched(provider, storedModels);
+
+        // If no models and no API key, show placeholder
+        if (!apiKey && storedModels.length === 0) {
+          populateModelDropdown(provider, null, true); // true = show placeholder
+          return;
+        }
+
+        // If API key exists but no stored models, show placeholder while fetching
+        if (apiKey && storedModels.length === 0) {
+          populateModelDropdown(provider, null, true); // true = show placeholder
+          fetchModelsForProvider(provider, apiKey)
+            .then((fetchedModels) => {
+              updateModelDropdownWithFetched(provider, fetchedModels);
+              populateModelDropdown(provider, null, true); // true = show placeholder if still empty
+              showMsg('aiSettingsUpdatedMsg', 'Models updated from API', false, 2000);
+            })
+            .catch((error) => {
+              console.error('Failed to fetch models:', error);
+              showMsg('aiSettingsUpdatedMsg', 'Models not updated: ' + error.message, true, 4000);
+            });
+          return;
+        }
+
+        populateModelDropdown(provider, savedModel);
+      });
     });
   }
 
@@ -1164,9 +1251,36 @@ document.addEventListener('DOMContentLoaded', () => {
     radio.addEventListener('change', () => {
       const provider = radio.value;
       aiApiKeyLabel.textContent = providerLabelMap[provider] || 'API Key';
-      populateModelDropdown(provider, null);
+
+      // Get API key for this provider
       chrome.storage.sync.get([providerKeyMap[provider]], (result) => {
-        aiApiKeyInput.value = result[providerKeyMap[provider]] || '';
+        const apiKey = result[providerKeyMap[provider]] || '';
+
+        // Load models from storage for this provider
+        loadModelsFromStorage(provider).then((storedModels) => {
+          updateModelDropdownWithFetched(provider, storedModels);
+
+          // If no models and no API key, show placeholder
+          if (!apiKey && storedModels.length === 0) {
+            populateModelDropdown(provider, null, true); // true = show placeholder
+            return;
+          }
+
+          // If models exist, show dropdown with placeholder if empty
+          populateModelDropdown(provider, null, true); // true = show placeholder if empty
+
+          // If API key exists but no stored models, fetch them
+          if (apiKey && storedModels.length === 0) {
+            fetchModelsForProvider(provider, apiKey)
+              .then((fetchedModels) => {
+                updateModelDropdownWithFetched(provider, fetchedModels);
+                populateModelDropdown(provider, null);
+              })
+              .catch((error) => {
+                console.error('Failed to fetch models:', error);
+              });
+          }
+        });
       });
     });
   });
@@ -1189,6 +1303,21 @@ document.addEventListener('DOMContentLoaded', () => {
           chrome.tabs.sendMessage(tab.id, { action: 'aiSettingsUpdated' }).catch(() => {});
         });
       });
+
+      // Fetch latest models from the API if we have a key
+      if (apiKey) {
+        fetchModelsForProvider(selectedProvider, apiKey)
+          .then((fetchedModels) => {
+            updateModelDropdownWithFetched(selectedProvider, fetchedModels);
+            populateModelDropdown(selectedProvider, currentAiModel);
+            showMsg('aiSettingsUpdatedMsg', 'Models updated from API', false, 2000);
+          })
+          .catch((error) => {
+            console.error('Failed to fetch models:', error);
+            // Show error message but don't block - key was saved successfully
+            showMsg('aiSettingsUpdatedMsg', 'Models not updated: ' + error.message, true, 4000);
+          });
+      }
     });
   });
 
