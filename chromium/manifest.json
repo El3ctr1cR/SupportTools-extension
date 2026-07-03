@@ -117,16 +117,6 @@
         "functions/hotkeyHandler.js"
       ],
       "all_frames": true
-    },
-    {
-      "matches": [
-        "*://*.autotask.net/Mvc/ServiceDesk/TicketDetail.mvc*"
-      ],
-      "js": [
-        "functions/autotask/ticketHistoryWatcher.js"
-      ],
-      "run_at": "document_idle",
-      "all_frames": true
     }
   ],
   "web_accessible_resources": [
