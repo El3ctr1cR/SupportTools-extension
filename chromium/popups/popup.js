@@ -61,14 +61,21 @@ document.addEventListener('DOMContentLoaded', () => {
     content.style.left = rect.left + 'px';
     content.style.width = rect.width + 'px';
     content.style.zIndex = '99999';
+    content.style.maxHeight = '280px';
+
     document.body.appendChild(content);
     content.classList.add('show');
     _openDropdown = content;
+
+    const contentElements = document.querySelectorAll('.content');
+    contentElements.forEach(el => el.style.pointerEvents = 'none');
   }
 
   function closeFixedDropdown(content) {
     content.classList.remove('show');
     _openDropdown = null;
+    const contentElements = document.querySelectorAll('.content');
+    contentElements.forEach(el => el.style.pointerEvents = 'auto');
   }
 
   document.addEventListener('click', (e) => {

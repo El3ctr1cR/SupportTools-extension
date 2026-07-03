@@ -678,13 +678,20 @@
       top: calc(100% + 6px);
       left: 0;
       width: 100%;
+      max-height: 280px;
       background: var(--bg-white);
       border: 1px solid var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow-md);
       z-index: 9999;
-      overflow: hidden;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
     }
+
+    .dropdown-content::-webkit-scrollbar { width: 4px; }
+    .dropdown-content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
 
     .dropdown-content.show { display: block; }
 
