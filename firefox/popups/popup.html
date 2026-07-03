@@ -543,8 +543,7 @@
 
     /* Back button in history panel */
     /* Clear history button */
-    #clearHistoryBtn,
-    #clearTicketHistoryBtn {
+    #clearHistoryBtn {
       all: unset;
       box-sizing: border-box;
       width: 100%;
@@ -563,8 +562,7 @@
       transition: background 0.15s;
     }
 
-    #clearHistoryBtn:hover,
-    #clearTicketHistoryBtn:hover { background: var(--danger-border); }
+    #clearHistoryBtn:hover { background: var(--danger-border); }
 
     /* History nav button */
     .history-nav-btn {
@@ -1065,14 +1063,12 @@
     /* ─────────────────────────────────────────────
        TICKET / PASSWORD HISTORY LISTS
     ───────────────────────────────────────────── */
-    #ticketHistoryList,
     #passwordHistory {
       list-style: none;
       padding: 0;
       overflow-x: hidden;
     }
 
-    #ticketHistoryList li,
     #passwordHistory li {
       padding: 9px 12px;
       margin-bottom: 4px;
@@ -1088,7 +1084,6 @@
       transition: background 0.12s, border-color 0.12s;
     }
 
-    #ticketHistoryList li:hover,
     #passwordHistory li:hover {
       background: var(--bw-blue-light);
       border-color: #bfdbfe;
@@ -1890,14 +1885,6 @@
       </div>
       <div id="autotaskTabsMsg" class="inline-msg"></div>
     </div>
-
-    <div class="category-header">Ticket History</div>
-    <div class="category-content">
-      <button class="history-nav-btn" id="openTicketHistoryBtn">
-        Ticket history
-        <span class="nav-arrow">&#8250;</span>
-      </button>
-    </div>
   </div>
 
   <!-- ======== CONTENT: Password Generator ======== -->
@@ -2180,20 +2167,6 @@
     </div>
     <div class="history-panel-footer">
       <button id="clearHistoryBtn">Clear history</button>
-    </div>
-  </div>
-
-  <!-- ======== Ticket History Panel ======== -->
-  <div id="ticketHistoryPanel" class="history-panel">
-    <div class="history-panel-header">
-      <button class="back-btn" id="closeTicketHistoryBtn">&#8249;</button>
-      <span class="history-panel-title">Ticket history</span>
-    </div>
-    <div class="history-panel-content">
-      <ul id="ticketHistoryList"></ul>
-    </div>
-    <div class="history-panel-footer">
-      <button id="clearTicketHistoryBtn">Clear history</button>
     </div>
   </div>
 
