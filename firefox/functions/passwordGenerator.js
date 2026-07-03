@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const clearHistoryBtn = document.getElementById('clearHistoryBtn');
   const historyPanel = document.getElementById('historyPanel');
 
-  passwordLengthSlider.addEventListener('input', () => {
+  passwordLengthSlider.addEventListener('change', () => {
     let v = parseInt(passwordLengthSlider.value);
     if (isNaN(v)) return;
     if (v < 3) v = 3;
@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     cb.addEventListener('change', () => { saveSettings(); generatePassword(); });
   });
 
-  wordCountInput.addEventListener('input', () => {
+  wordCountInput.addEventListener('change', () => {
     let v = parseInt(wordCountInput.value);
     if (isNaN(v)) return;
     if (v < 3) v = 3;
