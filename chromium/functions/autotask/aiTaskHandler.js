@@ -47,7 +47,7 @@ async function callOpenAiApi(prompt, settings, options = {}) {
 }
 
 async function callGeminiApi(prompt, settings, options = {}) {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${settings.model}:generateContent?key=${settings.googleApiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/${settings.model}:generateContent?key=${settings.googleApiKey}`;
 
     const response = await fetch(url, {
         method: 'POST',
