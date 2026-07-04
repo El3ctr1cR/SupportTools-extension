@@ -47,7 +47,7 @@ async function callOpenAiApi(prompt, settings, options = {}) {
 }
 
 async function callGeminiApi(prompt, settings, options = {}) {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${settings.model}:generateContent?key=${settings.googleApiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/${settings.model}:generateContent?key=${settings.googleApiKey}`;
 
     const response = await fetch(url, {
         method: 'POST',
@@ -170,6 +170,63 @@ function setNotes(element, text) {
     }
 }
 
+// Create loading overlay on the Autotask page
+function showLoadingOverlay() {
+    // Remove existing overlay if any
+    const existing = document.getElementById('aiLoadingOverlay');
+    if (existing) existing.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'aiLoadingOverlay';
+    overlay.style.position = 'fixed';
+    overlay.style.inset = '0';
+    overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+    overlay.style.zIndex = '99999';
+    overlay.style.display = 'flex';
+    overlay.style.alignItems = 'center';
+    overlay.style.justifyContent = 'center';
+    overlay.style.flexDirection = 'column';
+    overlay.style.gap = '20px';
+
+    const spinner = document.createElement('div');
+    spinner.style.width = '40px';
+    spinner.style.height = '40px';
+    spinner.style.border = '4px solid #e5e7eb';
+    spinner.style.borderTopColor = '#175DDC';
+    spinner.style.borderRadius = '50%';
+    spinner.style.animation = 'spin 0.8s linear infinite';
+
+    const message = document.createElement('div');
+    message.textContent = 'Summarizing note...';
+    message.style.fontFamily = 'DM Sans, sans-serif';
+    message.style.fontSize = '16px';
+    message.style.color = '#ffffff';
+    message.style.fontWeight = '500';
+
+    overlay.appendChild(spinner);
+    overlay.appendChild(message);
+    document.body.appendChild(overlay);
+
+    // Add spinner animation
+    if (!document.querySelector('style#aiLoadingStyles')) {
+        const style = document.createElement('style');
+        style.id = 'aiLoadingStyles';
+        style.textContent = `
+            @keyframes spin {
+                to { transform: rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+}
+
+function hideLoadingOverlay() {
+    const overlay = document.getElementById('aiLoadingOverlay');
+    if (overlay) {
+        overlay.remove();
+    }
+}
+
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     const getLanguage = (callback) => {
         const languageMap = { nl: 'Dutch', en: 'English', de: 'German' };
@@ -180,17 +237,23 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     };
 
     if (request.action === 'summarizeNote') {
+        // Show loading overlay on Autotask page
+        showLoadingOverlay();
+
         getLanguage((_language) => {
             const contentData = getNotes();
             if (!contentData || !contentData.text) {
+                hideLoadingOverlay();
                 sendResponse({ success: false, error: 'No text found to summarize.' });
                 return;
             }
             const prompt = `Make the following text neater and more professional in the same language. Only output the fully new version of the text.\n\n${contentData.text}`;
             callAiApi(prompt, { temperature: 0 }).then(correctedText => {
                 setNotes(contentData.element, correctedText);
+                hideLoadingOverlay();
                 sendResponse({ success: true });
             }).catch(error => {
+                hideLoadingOverlay();
                 sendResponse({ success: false, error: error.message });
             });
         });

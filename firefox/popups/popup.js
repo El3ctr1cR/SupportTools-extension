@@ -947,7 +947,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   summarizeNoteButton.addEventListener('click', () => {
-    loadingOverlay.style.display = 'flex';
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       const activeTab = tabs[0];
       chrome.scripting.executeScript(
@@ -957,11 +956,10 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         () => {
           chrome.tabs.sendMessage(activeTab.id, { action: 'summarizeNote' }, (response) => {
-            loadingOverlay.style.display = 'none';
             if (response && response.success) {
-              console.log('summarizeNote completed successfully');
+              showMsg('aiActionMsg', 'Note summarized successfully', false, 3000);
             } else {
-              showMsg('aiActionMsg', 'Failed to perform summarizeNote' + (response && response.error ? ': ' + response.error : ''));
+              showMsg('aiActionMsg', 'Failed to summarize note' + (response && response.error ? ': ' + response.error : ''));
             }
           });
         }
@@ -1145,7 +1143,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     currentAiModel = modelToSelect;
     const match = models.find(m => m.value === modelToSelect);
-    selectedModelText.textContent = match ? match.label : 'Select a model';
+    selectedModelText.textContent = match ? match.label : (savedModel ? savedModel : 'Select a model');
   }
 
   aiModelDropdownButton.addEventListener('click', (e) => {
@@ -1221,6 +1219,11 @@ document.addEventListener('DOMContentLoaded', () => {
       const apiKey = result[providerKeyMap[provider]] || '';
       const savedModel = result.aiModel;
 
+      // Populate the API key input field so it doesn't get emptied on save
+      if (aiApiKeyInput) {
+        aiApiKeyInput.value = apiKey;
+      }
+
       // Load models from storage first
       loadModelsFromStorage(provider).then((storedModels) => {
         updateModelDropdownWithFetched(provider, storedModels);
@@ -1233,12 +1236,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // If API key exists but no stored models, show placeholder while fetching
         if (apiKey && storedModels.length === 0) {
-          populateModelDropdown(provider, null, true); // true = show placeholder
+          populateModelDropdown(provider, savedModel, true); // true = show placeholder if empty
           fetchModelsForProvider(provider, apiKey)
             .then((fetchedModels) => {
               updateModelDropdownWithFetched(provider, fetchedModels);
-              populateModelDropdown(provider, null, true); // true = show placeholder if still empty
-              showMsg('aiSettingsUpdatedMsg', 'Models updated from API', false, 2000);
+              populateModelDropdown(provider, savedModel);
             })
             .catch((error) => {
               console.error('Failed to fetch models:', error);
@@ -1259,9 +1261,15 @@ document.addEventListener('DOMContentLoaded', () => {
       const provider = radio.value;
       aiApiKeyLabel.textContent = providerLabelMap[provider] || 'API Key';
 
-      // Get API key for this provider
-      chrome.storage.sync.get([providerKeyMap[provider]], (result) => {
+      // Get API key for this provider and the saved model (aiModel is provider-independent)
+      chrome.storage.sync.get([providerKeyMap[provider], 'aiModel'], (result) => {
         const apiKey = result[providerKeyMap[provider]] || '';
+        const savedModel = result.aiModel;
+
+        // Populate the API key input field when switching providers
+        if (aiApiKeyInput) {
+          aiApiKeyInput.value = apiKey;
+        }
 
         // Load models from storage for this provider
         loadModelsFromStorage(provider).then((storedModels) => {
@@ -1269,19 +1277,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
           // If no models and no API key, show placeholder
           if (!apiKey && storedModels.length === 0) {
-            populateModelDropdown(provider, null, true); // true = show placeholder
+            populateModelDropdown(provider, savedModel, true); // true = show placeholder
             return;
           }
 
-          // If models exist, show dropdown with placeholder if empty
-          populateModelDropdown(provider, null, true); // true = show placeholder if empty
+          // If models exist, show dropdown with saved model
+          populateModelDropdown(provider, savedModel);
 
           // If API key exists but no stored models, fetch them
           if (apiKey && storedModels.length === 0) {
             fetchModelsForProvider(provider, apiKey)
               .then((fetchedModels) => {
                 updateModelDropdownWithFetched(provider, fetchedModels);
-                populateModelDropdown(provider, null);
+                populateModelDropdown(provider, savedModel);
               })
               .catch((error) => {
                 console.error('Failed to fetch models:', error);
@@ -1317,7 +1325,6 @@ document.addEventListener('DOMContentLoaded', () => {
           .then((fetchedModels) => {
             updateModelDropdownWithFetched(selectedProvider, fetchedModels);
             populateModelDropdown(selectedProvider, currentAiModel);
-            showMsg('aiSettingsUpdatedMsg', 'Models updated from API', false, 2000);
           })
           .catch((error) => {
             console.error('Failed to fetch models:', error);
