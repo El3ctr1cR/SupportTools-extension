@@ -1243,7 +1243,6 @@ document.addEventListener('DOMContentLoaded', () => {
             .then((fetchedModels) => {
               updateModelDropdownWithFetched(provider, fetchedModels);
               populateModelDropdown(provider, savedModel);
-              showMsg('aiSettingsUpdatedMsg', 'Models updated from API', false, 2000);
             })
             .catch((error) => {
               console.error('Failed to fetch models:', error);
@@ -1328,7 +1327,6 @@ document.addEventListener('DOMContentLoaded', () => {
           .then((fetchedModels) => {
             updateModelDropdownWithFetched(selectedProvider, fetchedModels);
             populateModelDropdown(selectedProvider, currentAiModel);
-            showMsg('aiSettingsUpdatedMsg', 'Models updated from API', false, 2000);
           })
           .catch((error) => {
             console.error('Failed to fetch models:', error);
