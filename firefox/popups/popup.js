@@ -947,7 +947,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   summarizeNoteButton.addEventListener('click', () => {
-    loadingOverlay.style.display = 'flex';
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       const activeTab = tabs[0];
       chrome.scripting.executeScript(
@@ -957,11 +956,10 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         () => {
           chrome.tabs.sendMessage(activeTab.id, { action: 'summarizeNote' }, (response) => {
-            loadingOverlay.style.display = 'none';
             if (response && response.success) {
-              console.log('summarizeNote completed successfully');
+              showMsg('aiActionMsg', 'Note summarized successfully', false, 3000);
             } else {
-              showMsg('aiActionMsg', 'Failed to perform summarizeNote' + (response && response.error ? ': ' + response.error : ''));
+              showMsg('aiActionMsg', 'Failed to summarize note' + (response && response.error ? ': ' + response.error : ''));
             }
           });
         }
